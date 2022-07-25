@@ -1,78 +1,52 @@
-# based on code from https://stackoverflow.com/a/20830354
-# but modified to use c++ with the SFML library
-CFLAGS = -Wall -fexceptions -std=c++11
-LLIB = -lsfml-graphics-d -lfreetype -lsfml-window-d -lopengl32 -lgdi32 -lsfml-audio-d -lopenal32 -lflac -lvorbisenc -lvorbisfile -lvorbis -logg -lsfml-system-d -lwinmm -lsfml-main-d
-INCD = -ID:/usr/inc -Iinclude
-LNKD = -LD:/lib/SFML-2.5.1
-HDIR = include
+# This makefile was created with help from the following stackoverflow answer:
+# https://stackoverflow.com/a/23418196
+EXE = stellar
 CC = g++
-
-SRCS = $(wildcard *.cpp)
-OBJS = $(SRCS:.cpp=.o)
-HEADER = $(wildcard include/*.h)
-EXE = stellar.exe  #this should be changed to the desired program name
-
-# Debug build settings
-
-DBGDIR = debug
-DBGEXE = $(DBGDIR)/$(EXE)
-DBGOBJS = $(addprefix $(DBGDIR)/, $(OBJS))
-DBGCFLAGS = -g -O0
-
-# Release build settings
-RELDIR = release
-RELEXE = $(RELDIR)/$(EXE)
-RELOBJS = $(addprefix $(RELDIR)/, $(OBJS))
-RELCFLAGS = -O3 -DNDEBUG
-
-.PHONY: all clean debug prep release remake
-
-# Default build
-all: debug
-
-#
-# Debug rules
-#
+CPPFLAGS = -Wall -Wextra -fexceptions -std=c++11
 
 
-debug: $(DBGEXE)
+ifeq ($(OS),Windows_NT)
+SFINCDIR = -IC:\SFML\include
+SFLIBDIR = -LC:\SFML\lib
+LLIB = -lsfml-graphics-d -lfreetype -lsfml-window-d -lopengl32 -lgdi32 -lsfml-audio-d -lopenal32 -lflac -lvorbisenc -lvorbisfile -lvorbis -logg -lsfml-system-d -lwinmm -lsfml-main-d
+EXE += .exe
+else
+LLIB = -lsfml-graphics -lsfml-window -lsfml-audio -lsfml-system
+LFLAGS +=  -no-pie
+endif
 
-%.d: %.cpp
-	@set -e; rm -f $@; \
-	$(CC) -MM $(CFLAGS) $(DBGCFLAGS) $(INCD) -c $< > $@.$$$$; \
-	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
-	rm -f $@.$$$$
-include $(sources:.c=.d)
 
-$(DBGEXE): $(DBGOBJS)
-	$(CC) $(LNKD) -o $(DBGEXE) $^ $(LLIB)
-$(DBGDIR)/%.o: %.cpp
-	$(CC) $(CFLAGS) $(DBGCFLAGS) $(INCD) -c $< -o $@
+ifeq (1, $(REL))
+  CPPFLAGS += -O2 -s -DNDEBUG
+  OBJ_DIR = ./obj/release
+else
+  CPPFLAGS += -g -O0
+  OBJ_DIR = ./obj/debug
+endif
 
-#
-# Release rules
-#
-release: $(RELEXE)
+SRCS = $(wildcard src/*.cpp)
+df = $(OBJ_DIR)/$(*F)
+AUTODEPS:=$(patsubst src/%.cpp, $(OBJ_DIR)/%.d, $(SRCS))
+OBJS:=$(patsubst src/%.cpp, $(OBJ_DIR)/%.o, $(SRCS))
 
-%.d: %.cpp
-	@set -e; rm -f $@; \
-	$(CC) -MM $(CFLAGS) $(RELCFLAGS) $(INCD) -c $< > $@.$$$$; \
-	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
-	rm -f $@.$$$$
-include $(sources:.c=.d)
 
-$(RELEXE) : $(RELOBJS)
-	$(CC) $(LNKD) -o $(RELEXE) $^ $(LLIB)
-$(RELDIR)/%.o : %.cpp
-	$(CC) $(CFLAGS) $(RELCFLAGS) $(INCD) -c $< -o 4@
 
-#
-# Other rules
-#
-prep:
-	@mkdir -p $(DBGDIR) $(RELDIR) $(HDIR)
+.PHONY : all clean tilde debug release remake
+
+all: $(EXE)
+
+$(EXE): $(OBJS)
+	$(CC) $(SFLIBDIR) $(LFLAGS) -o $@ $^ $(LLIB)
+
+$(OBJ_DIR)/%.o: src/%.cpp
+	@$(CC) -MM -MP -MT $(df).o -MT $(df).d $(CPPFLAGS) $< > $(df).d
+	$(CC) $(CPPFLAGS) -c $< -o $@
+
+-include $(AUTODEPS)
 
 remake: clean all
 
-clean:
-	rm -f $(RELEXE) $(RELOBJS) $(DBGEXE) $(DBGOBJS)
+clean :
+	rm -f obj/debug/*.o obj/release/*.o obj/debug/*.d obj/release/*.d ./yim
+tilde :
+	rm *~

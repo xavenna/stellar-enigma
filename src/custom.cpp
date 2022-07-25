@@ -32,7 +32,7 @@ void event1Handle(MapData& md) {  //this is the primary mode
   while(md.modeSwitcher.getLastKey(lk)) {
     int tempSpeed;
     if(lk == sf::Keyboard::W) {
-      md.player.setFacing(0);
+      md.player.setFacing(Up);
       tempSpeed = validMove(md.levelSlot, md.player);
       md.player.setYPos(md.player.getYPos() - tempSpeed);
       if(tempSpeed > 0) {
@@ -41,17 +41,17 @@ void event1Handle(MapData& md) {  //this is the primary mode
       }
     }
     else if(lk == sf::Keyboard::A) {
-      md.player.setFacing(3);
+      md.player.setFacing(Left);
       tempSpeed = validMove(md.levelSlot, md.player);
       md.player.setXPos(md.player.getXPos() - tempSpeed);
     }
     else if(lk == sf::Keyboard::S) {
-      md.player.setFacing(2);
+      md.player.setFacing(Down);
       tempSpeed = validMove(md.levelSlot, md.player);
       md.player.setYPos(md.player.getYPos() + tempSpeed);
     }
     else if(lk == sf::Keyboard::D) {
-      md.player.setFacing(1);
+      md.player.setFacing(Right);
       tempSpeed = validMove(md.levelSlot, md.player);
       md.player.setXPos(md.player.getXPos() + tempSpeed);
     }

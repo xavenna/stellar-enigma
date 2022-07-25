@@ -2,6 +2,8 @@
 
 // This module has functions for the basic classes used for the engine
 
+//maybe this should be sorted into files for each type of things?
+
 
 int Object::getId() const{
   return id;
@@ -62,11 +64,15 @@ bool Message::getPrinted() const {
 void Message::addMessage(const std::string& str) {
   printQueue.push_back(str);
 }
-void handleMessages() {
-  
+void Message::handleMessages() {
+  if(!message.empty()) {
+    //there is a message
+    //check if 
+  }
+  //check if a message is currently displayed
 }
 Message::Message(size_t n, size_t o) : width{n}, maxCool{o} {
-  
+
 }
 
 
@@ -306,13 +312,19 @@ bool TextureMap::initialize(const std::string& name) {
 int TextureMap::size() const{
   return mapping.size();
 }
+TextureMap::TextureMap(const std::string& fn) {
+  initialize(fn);
+}
+TextureMap::TextureMap() {
+  
+}
 void Player::initialize() {
   xpos = 0;
   ypos = 0;
   speed = 18;  //this is arbitrary
   width = 36;
   height = 36;
-  facingDir = 0;
+  facingDir = Up;
   picture.loadFromFile("assets/texture/player.png");
   area.setTexture(picture);
 }
@@ -325,10 +337,10 @@ void Player::setSpeed(int n) {
 int Player::getSpeed() const{
   return speed;
 }
-void Player::setFacing(int n) {
+void Player::setFacing(Direction n) {
   facingDir = n;
 }
-int Player::getFacing() const{
+Direction Player::getFacing() const{
   return facingDir;
 }
 void Entity::setSpeed(int n) {

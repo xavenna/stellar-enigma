@@ -19,7 +19,7 @@ int main() {
   initialSetup(windowName, windowWidth, windowHeight, frameRate);
 
 
-  sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), windowName);
+  sf::RenderWindow window(sf::VideoMode(windowWidth,windowHeight), windowName);
   window.setVerticalSyncEnabled(true);
   window.setFramerateLimit(frameRate);
 
@@ -83,6 +83,7 @@ int main() {
       return 0;
     int currentMode = modeSwitcher.getMode();
     //mode-non-specific
+    musicPlayer.assignSounds();
     musicPlayer.manageSounds();
     
     if(currentMode == 0) {
@@ -124,6 +125,7 @@ int main() {
       break;
     }
     window.display();
+    //cleanup for next iteration
   }
   //cleanup or smthng
 }

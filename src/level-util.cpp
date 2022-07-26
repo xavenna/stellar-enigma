@@ -4,6 +4,8 @@
 // this provides some map utility functions, such as collision detection and screen scrolling
 
 int validMove(Level& l, Player& player) {
+  //this needs to be modified to handle objects and entities
+
   //convert player coordinates to level coordinates
   int playX = int(player.getXPos() / l.getTilesizeX());
   int playY = int(player.getYPos() / l.getTilesizeY());

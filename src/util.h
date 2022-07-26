@@ -3,7 +3,10 @@
 #include <ctime>
 #include <string>
 
+//Documnted
 
-std::string lowercase(const std::string&);  //converts a string to lowercase
-bool isNum(const std::string& st);  //determines if a string is a valid number
+//! Takes a string and turns it into lowercase
+std::string lowercase(const std::string&);
+//! returns true if supplied string is a number
+bool isNum(const std::string& st);
 #endif

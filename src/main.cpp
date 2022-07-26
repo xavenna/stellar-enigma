@@ -30,16 +30,14 @@ int main() {
   Level levelSlot;
   Menu mainMenu;
   MusicPlayer musicPlayer;
-  MapData mapData(&player, &modeSwitcher, &levelSlot, &mainMenu, &musicPlayer);
-
-  mapData.player = player;
-  mapData.modeSwitcher = modeSwitcher;
-  mapData.levelSlot = levelSlot;
-  mapData.mainMenu = mainMenu;
-  mapData.musicPlayer = musicPlayer;
+  Message message(34, 55);
+  MapData mapData(&player, &modeSwitcher, &levelSlot, &mainMenu, &musicPlayer, &message);
 
   mainMenu.spT.loadFromFile("assets/splash/mainmenu.png");
   mainMenu.splash.setTexture(mainMenu.spT);
+
+  sf::Font courier;
+  courier.loadFromFile("assets/cour.ttf");
 
   TextureMap textureMap;
   if(!textureMap.initialize("assets/texturemap/default.tm"))  //default texture map, stored in a file
@@ -62,6 +60,13 @@ int main() {
     }
     return e;
   }
+
+  message.text.setPosition(4, levelSlot.getTilesizeY()*levelSlot.getHeight());
+  //this will need to change if I adopt an explor-like scrolling mechanism
+  message.text.setCharacterSize(20);
+  message.text.setFont(courier);
+  message.text.setFillColor(sf::Color::White);
+
   customInit(mapData);
 
   while(window.isOpen()) {
@@ -116,6 +121,7 @@ int main() {
 	  window.draw(levelSlot.getNode(i,j).area);
 	}
       }
+      //window.draw(message.text);
       //update things
       player.update();
       window.draw(player.area);

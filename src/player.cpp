@@ -1,4 +1,5 @@
 #include "player.h"
+#include <iostream>
 
 void Player::initialize() {
   xpos = 0;
@@ -24,4 +25,13 @@ void Player::setFacing(Direction n) {
 }
 Direction Player::getFacing() const{
   return facingDir;
+}
+int Player::getLevelXPos(int tileWidth) {
+  //player width maybe needs to be substituted for tileWidth
+  int temp = int((xpos+(tileWidth / 2)) / tileWidth);
+  return temp;
+}
+int Player::getLevelYPos(int tileHeight) {
+  int temp = int((ypos+(tileHeight / 2)) / tileHeight);
+  return temp;
 }

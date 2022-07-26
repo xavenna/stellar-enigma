@@ -19,6 +19,7 @@ private:
   const size_t width;  //!< The width of the screen, in characters. Used for wrapping text
   bool printed;  //!< Is the current string finished printing?
   const size_t maxCool;  //!< How many frames of cooldown before next string is drawn
+  const size_t maxElem;  //!< How many messages can be in the queue
   size_t cooldown; //!< How many frames of cooldown remain
   std::deque<std::string> printQueue; //!< Queue of strings to display
 public:
@@ -41,10 +42,15 @@ public:
   void formatMessage();
   //! Wrap the message stored in formMessage, and write it to text.getString()
   void wrapMessage();
+
+  //These next functions are only for debugging, remove later
+  std::string getMessage();
+  int getSize();
+  
   //! Text member that can be drawn
   sf::Text text;
   //! constructor: sets width to arg1, and maximum cooldown to arg2
-  Message(size_t, size_t);
+  Message(size_t, size_t, size_t);
 };
 
 #endif

@@ -5,8 +5,7 @@
 #include "direction.h"
 
 //! Class used for player
-/*!
- *  A special extension of mutable that works specifically for player.
+/*! *  A special extension of mutable that works specifically for player.
  */
 class Player : public Mutable {
 protected:
@@ -29,6 +28,18 @@ public:
   void setSpeed(int);
   //! Sets the direction of the player
   void setFacing(Direction);
+  //! Converts the player's position in pixels to position based on tile width
+  /*!
+   *  Specifically, returns the x position of the tile that the center of the
+   *  player lies on
+   */
+  int getLevelXPos(int tileWidth);
+  //! Converts the player's position in pixels to position based on tile height
+  /*!
+   *  Specifically, returns the y position of the tile that the center of the
+   *  player lies on
+   */
+  int getLevelYPos(int tileHeight);
 };
 
 #endif

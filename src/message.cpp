@@ -1,21 +1,24 @@
 #include "message.h"
+#include <iostream>
 
 bool Message::getPrinted() const {
   return printed;
 }
 void Message::addMessage(const std::string& str) {
-  printQueue.push_back(str);
+  if(printQueue.size() != maxElem) {
+    printQueue.push_back(str);
+  }
 }
 void Message::handleMessages() {
   if(!message.empty()) {
     //there is a message 
     //check if it is done displaying
-    if(pointer == message.size()-1 && printed == false) {
+    if(pointer == message.size() && printed == false) {
       //start cooldown
       printed = true;
       cooldown = maxCool;
     }
-    else if(pointer < message.size()-1 && printed == false) {
+    else if(pointer < message.size() && printed == false) {
       //add additional character to display
       formMessage += message[pointer];
       pointer++;  //I sure hope this works
@@ -23,7 +26,13 @@ void Message::handleMessages() {
     else if(printed == true && cooldown == 0) {
       //message is done, clear message
       message.clear();
+      formMessage.clear();
+      printed = false;
+      pointer = 0;
 
+    }
+    else {
+      cooldown--;
     }
   }
   else {
@@ -52,6 +61,17 @@ void Message::wrapMessage() {
   }
   text.setString(out);
 }
-Message::Message(size_t n, size_t o) : width{n}, maxCool{o} {
+Message::Message(size_t n, size_t o, size_t p) : width{n}, maxCool{o}, maxElem{p} {
   text.setString("");
+  printed = false;
+  pointer = 0;
+}
+
+//this is just for debugging, and is not needed in the final thing
+std::string Message::getMessage() {
+  return message;
+}
+
+int Message::getSize() {
+  return printQueue.size();
 }

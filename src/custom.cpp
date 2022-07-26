@@ -69,9 +69,10 @@ void event1Handle(MapData& md) {  //this is the primary mode
     }
   }
   //post-handling thingies
-  if(/*md.levelSlot.getNode(md.player.getXPos(), md.player.getYPos()).getId() == 7*/false) {
+  if(md.levelSlot.getNode(md.player.getLevelXPos(md.levelSlot.getTilesizeX()), md.player.getLevelYPos(md.levelSlot.getTilesizeY())).getId() == 7) {
     //figure out how to convert player position(fine) to map position
     md.message.addMessage("I see you found a key... Cool. It does nothing");
+    //so, currently this will add a message every frame..., which is less than ideal. Fix this!
   }
 
 }

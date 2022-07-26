@@ -30,7 +30,7 @@ int main() {
   Level levelSlot;
   Menu mainMenu;
   MusicPlayer musicPlayer;
-  Message message(34, 55);
+  Message message(34, 55, 20);
   MapData mapData(&player, &modeSwitcher, &levelSlot, &mainMenu, &musicPlayer, &message);
 
   mainMenu.spT.loadFromFile("assets/splash/mainmenu.png");
@@ -66,6 +66,7 @@ int main() {
   message.text.setCharacterSize(20);
   message.text.setFont(courier);
   message.text.setFillColor(sf::Color::White);
+  message.text.setString("Hello");
 
   customInit(mapData);
 
@@ -125,6 +126,10 @@ int main() {
       //update things
       player.update();
       window.draw(player.area);
+      message.handleMessages();
+      message.wrapMessage();
+      window.draw(message.text);
+      //std::cout << message.getMessage();
       break;
     default:
       //any custom modes would go here

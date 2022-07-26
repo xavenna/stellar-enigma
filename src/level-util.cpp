@@ -3,6 +3,7 @@
 
 // this provides some map utility functions, such as collision detection and screen scrolling
 
+//tbh, this could probably be encapsulated within Level (or maybe player?)
 int validMove(Level& l, Player& player) {
   //this needs to be modified to handle objects and entities
 

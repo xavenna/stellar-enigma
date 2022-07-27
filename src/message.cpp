@@ -9,9 +9,7 @@ bool Message::getPrinted() const {
   return printed;
 }
 void Message::addMessage(const std::string& str) {
-  if((printQueue.size() != 0 && printQueue.back() != str) || printQueue.size() == 0) {
-  //if(!(printQueue.size() == 0 && printQueue.back() == str)) {
-    //because of DeMorgan's theorems, I think this is equivalent to the last thingy
+  if((printQueue.size() != 0 && printQueue.back() != str) || (printQueue.size() == 0 && message != str)) {
     printQueue.push_back(str);
   }
 }

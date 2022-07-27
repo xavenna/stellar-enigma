@@ -28,9 +28,15 @@ void event0Handle(MapData& md) {  //this mode is used for the main menu
   
 }
 void event1Handle(MapData& md) {  //this is the primary mode
+  int oldXScr = md.player.getXScreen();
+  int oldYScr = md.player.getYScreen();
   sf::Keyboard::Key lk;
   while(md.modeSwitcher.getLastKey(lk)) {
     int tempSpeed;
+    if(lk == sf::Keyboard::Quote) {
+      //query message
+      std::cout << md.message.getMessage() << '\n';
+    }
     if(lk == sf::Keyboard::W) {
       md.player.setFacing(Up);
       tempSpeed = validMove(md.levelSlot, md.player);
@@ -69,6 +75,10 @@ void event1Handle(MapData& md) {  //this is the primary mode
     }
   }
   //post-handling thingies
+  md.player.update(md.levelSlot.getTilesizeX(), md.levelSlot.getTilesizeY());
+  if(oldXScr != md.player.getXScreen() || oldYScr != md.player.getYScreen()) {
+    md.levelSlot.displayUpdate = true;
+  }
   if(md.levelSlot.getNode(md.player.getLevelXPos(md.levelSlot.getTilesizeX()), md.player.getLevelYPos(md.levelSlot.getTilesizeY())).getId() == 7) {
     //figure out how to convert player position(fine) to map position
     md.message.addMessage("I see you found a key... Cool. It does nothing");

@@ -40,6 +40,11 @@ public:
    *  player lies on
    */
   int getLevelYPos(int tileHeight);
+  //! constructs player
+  /*!
+   *  
+   */
+  Player();
 };
 
 #endif

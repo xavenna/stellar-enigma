@@ -12,9 +12,9 @@ void Player::initialize() {
   area.setTexture(picture);
 }
 void Player::update(int tilesizeX, int tilesizeY) {
-  area.setPosition(xpos, ypos);  //this needs to be fixed to be relative to screen
   xScreen = (int(xpos / tilesizeX / WINDOW_WIDTH));
   yScreen = (int(ypos / tilesizeY / WINDOW_HEIGHT));
+  area.setPosition(xpos%(tilesizeX*WINDOW_WIDTH), ypos%(tilesizeY*WINDOW_HEIGHT));  //this needs to be fixed to be relative to screen
 }
 void Player::setSpeed(int n) {
   speed = n;
@@ -36,4 +36,8 @@ int Player::getLevelXPos(int tileWidth) {
 int Player::getLevelYPos(int tileHeight) {
   int temp = int((ypos+(tileHeight / 2)) / tileHeight);
   return temp;
+}
+
+Player::Player() {
+
 }

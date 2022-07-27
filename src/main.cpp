@@ -43,7 +43,7 @@ int main() {
   if(!textureMap.initialize("assets/texturemap/default.tm"))  //default texture map, stored in a file
     std::cout << "Error: texture map not found\n";
   try {
-    levelSlot.loadLevel("default");  // sel stands for `Stellar Enigma Level'
+    levelSlot.loadLevel("default");
   }
   catch (int e) {  //make these error codes better
     if(e == 0) {
@@ -61,14 +61,16 @@ int main() {
     return e;
   }
 
-  message.text.setPosition(4, levelSlot.getTilesizeY()*levelSlot.getHeight());
+  player.update(levelSlot.getTilesizeX(), levelSlot.getTilesizeY());
+
+  message.text.setPosition(4, levelSlot.getTilesizeY()*WINDOW_HEIGHT);
   //this will need to change if I adopt an explor-like scrolling mechanism
 
   //also, encapsulate this within Message, maybe in the constructor
   message.text.setCharacterSize(20);
   message.text.setFont(courier);
   message.text.setFillColor(sf::Color::White);
-  //message.text.setString("");
+  message.text.setString("");
 
   customInit(mapData);
 
@@ -127,12 +129,6 @@ int main() {
 	  window.draw(levelSlot.window[i][j].area);
 	}
       }
-      /*for(int i=0;i<levelSlot.getWidth();i++) {
-	for(int j=0;j<levelSlot.getHeight();j++) {
-	  levelSlot.assignTextureToNode(i, j, textureMap);
-	  window.draw(levelSlot.getNode(i,j).area);
-	  }
-	  }*/
 
       //update things
       player.update(levelSlot.getTilesizeX(), levelSlot.getTilesizeY());
@@ -141,6 +137,7 @@ int main() {
       message.handleMessages();
       message.wrapMessage();
       window.draw(message.text);
+      //this doesn't work
       break;
     default:
       //any custom modes would go here

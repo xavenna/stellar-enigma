@@ -1,19 +1,22 @@
 #include "level.h"
+#include <iostream>
 
 MapNode Level::getNode(const int& x, const int& y) const{
   return mapBase[x][y];
 }
 
 void Level::readyWindow(int xScreen, int yScreen) {
+  //std::cout << getWidth() << ',' << getHeight() << '\n';
   // xScreen and yScreen are the screen coordinates of the player, passed
   // this routine should only be called if the display needs to be updated
-  int xOff = xScreen * getWidth();
-  int yOff = yScreen * getHeight();
-  for(int i=0;i<getWidth();i++) {
-    for(int j=0;j<getHeight();j++) {
-      window[i][j] = mapBase[i+xOff][j+yOff];
+  int xOff = xScreen * WINDOW_WIDTH;
+  int yOff = yScreen * WINDOW_HEIGHT;
+  for(int i=0;i<WINDOW_WIDTH;i++) {
+    for(int j=0;j<WINDOW_HEIGHT;j++) {
+      window[i][j].setId(getNode(i+xOff,j+yOff).getId());
     }
   }
+  //this is much easier than in explor...
   displayUpdate = false;
 }
 
@@ -53,6 +56,8 @@ levelname_m.sel
 int Level::loadLevel(const std::string& levelname) {
   std::string complevel = "assets/level/" + levelname + ".sel";
   std::ifstream load(complevel);
+  if(!load.is_open())
+    return -8;
   std::string line;
   int section = 0;
   int column = 0;

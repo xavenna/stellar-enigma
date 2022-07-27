@@ -3,15 +3,43 @@
 MapNode Level::getNode(const int& x, const int& y) const{
   return mapBase[x][y];
 }
+
+void Level::readyWindow(int xScreen, int yScreen) {
+  // xScreen and yScreen are the screen coordinates of the player, passed
+  // this routine should only be called if the display needs to be updated
+  int xOff = xScreen * getWidth();
+  int yOff = yScreen * getHeight();
+  for(int i=0;i<getWidth();i++) {
+    for(int j=0;j<getHeight();j++) {
+      window[i][j] = mapBase[i+xOff][j+yOff];
+    }
+  }
+  displayUpdate = false;
+}
+
 void Level::updateNode(const int& x, const int& y, const MapNode& node) {
   mapBase[x][y] = node;
 }
 Level::Level(const size_t& x, const size_t& y) : mapBase{x, std::vector<MapNode>(y)} {
-
+  displayUpdate = true;
+  tilesizeX = 36;
+  tilesizeY = 36;
+  updateWindowPos();
 }
 Level::Level() : mapBase{1, std::vector<MapNode>(1)} {
   mapBase.resize(1);
   mapBase[0].resize(1);
+  displayUpdate = true;  //true, b/c display updates initially
+  tilesizeX = 36;
+  tilesizeY = 36;
+  updateWindowPos();
+}
+void Level::updateWindowPos() {
+  for(size_t i=0;i<WINDOW_WIDTH;i++) {
+    for(size_t j=0;j<WINDOW_HEIGHT;j++) {
+      window[i][j].area.setPosition(tilesizeX*i,tilesizeY*j);
+    }
+  }
 }
 /*  File Format for Levels, line-by-line view
 levelname_m.sel
@@ -136,6 +164,14 @@ int Level::getTilesizeY() const{
 void Level::assignTextureToNode(const int& x, const int& y, TextureMap& tema) {
   try {
     mapBase.at(x).at(y).area.setTexture(tema.mapping.at(mapBase.at(x).at(y).getId()));
+  }
+  catch (...) {
+    std::cout << "ERROR invalid set texture error.\n";
+  }
+}
+void Level::assignTextureToWinNode(const int& x, const int& y, TextureMap& tema) {
+  try {
+    window.at(x).at(y).area.setTexture(tema.mapping.at(window.at(x).at(y).getId()));
   }
   catch (...) {
     std::cout << "ERROR invalid set texture error.\n";

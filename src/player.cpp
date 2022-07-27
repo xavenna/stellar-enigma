@@ -1,5 +1,5 @@
 #include "player.h"
-#include <iostream>
+#include "level.h"
 
 void Player::initialize() {
   xpos = 0;
@@ -11,8 +11,10 @@ void Player::initialize() {
   picture.loadFromFile("assets/texture/player.png");
   area.setTexture(picture);
 }
-void Player::update() {
-  area.setPosition(xpos, ypos);
+void Player::update(int tilesizeX, int tilesizeY) {
+  area.setPosition(xpos, ypos);  //this needs to be fixed to be relative to screen
+  xScreen = (int(xpos / tilesizeX / WINDOW_WIDTH));
+  yScreen = (int(ypos / tilesizeY / WINDOW_HEIGHT));
 }
 void Player::setSpeed(int n) {
   speed = n;

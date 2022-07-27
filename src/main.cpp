@@ -34,9 +34,9 @@ int main() {
   MapData mapData(&player, &modeSwitcher, &levelSlot, &mainMenu, &musicPlayer, &message);
 
   mainMenu.spT.loadFromFile("assets/splash/mainmenu.png");
-  mainMenu.splash.setTexture(mainMenu.spT);
+  mainMenu.splash.setTexture(mainMenu.spT);  //this should likely go somewhere
 
-  sf::Font courier;
+  sf::Font courier;  //font maybe should go somewhere?
   courier.loadFromFile("assets/cour.ttf");
 
   TextureMap textureMap;
@@ -45,7 +45,7 @@ int main() {
   try {
     levelSlot.loadLevel("default");  // sel stands for `Stellar Enigma Level'
   }
-  catch (int e) {
+  catch (int e) {  //make these error codes better
     if(e == 0) {
       std::cout << "Error 0: Level not found\n";
     }
@@ -63,10 +63,12 @@ int main() {
 
   message.text.setPosition(4, levelSlot.getTilesizeY()*levelSlot.getHeight());
   //this will need to change if I adopt an explor-like scrolling mechanism
+
+  //also, encapsulate this within Message, maybe in the constructor
   message.text.setCharacterSize(20);
   message.text.setFont(courier);
   message.text.setFillColor(sf::Color::White);
-  message.text.setString("Hello");
+  //message.text.setString("");
 
   customInit(mapData);
 
@@ -116,20 +118,29 @@ int main() {
       break;
     case 1:
       //assign sprites
-      for(int i=0;i<levelSlot.getWidth();i++) {
+      if(levelSlot.displayUpdate) {
+	levelSlot.readyWindow(player.getXScreen(), player.getYScreen());
+      }
+      for(int i=0;i<WINDOW_WIDTH;i++) {
+	for(int j=0;j<WINDOW_HEIGHT;j++) {
+	  levelSlot.assignTextureToWinNode(i, j, textureMap);
+	  window.draw(levelSlot.window[i][j].area);
+	}
+      }
+      /*for(int i=0;i<levelSlot.getWidth();i++) {
 	for(int j=0;j<levelSlot.getHeight();j++) {
 	  levelSlot.assignTextureToNode(i, j, textureMap);
 	  window.draw(levelSlot.getNode(i,j).area);
-	}
-      }
-      //window.draw(message.text);
+	  }
+	  }*/
+
       //update things
-      player.update();
+      player.update(levelSlot.getTilesizeX(), levelSlot.getTilesizeY());
+      //this needs to eventually use player tile size
       window.draw(player.area);
       message.handleMessages();
       message.wrapMessage();
       window.draw(message.text);
-      //std::cout << message.getMessage();
       break;
     default:
       //any custom modes would go here

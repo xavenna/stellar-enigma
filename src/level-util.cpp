@@ -1,5 +1,7 @@
-#include "level-util.h"
 #include <cmath>
+
+#include "level-util.h"
+#include "direction.h"
 
 // this provides some map utility functions, such as collision detection and screen scrolling
 
@@ -21,8 +23,7 @@ int validMove(Level& l, Player& player) {
 
   //find destination square
   switch(player.getFacing()) {
-  case 0:
-    //up
+  case Up:
     if(player.getYPos() - player.getSpeed() < 0) {
       fullMove = false;
       moveDistance = player.getYPos();
@@ -43,7 +44,7 @@ int validMove(Level& l, Player& player) {
     }
     //test object collision
     break;
-  case 1:
+  case Right:
     if(phx + player.getSpeed() >= l.getWidth() * l.getTilesizeX()) {
       fullMove = false;
       moveDistance = l.getWidth() * l.getTilesizeX() - phx;
@@ -63,7 +64,7 @@ int validMove(Level& l, Player& player) {
       fullMove = false;
     }
     break;
-  case 2:
+  case Down:
     if(phy + player.getSpeed() >= l.getHeight() * l.getTilesizeY()) {
       fullMove = false;
       moveDistance = l.getHeight() * l.getTilesizeY() - phy;
@@ -80,11 +81,10 @@ int validMove(Level& l, Player& player) {
 	  moveDistance = moveDistance > tempSpeed ? tempSpeed : moveDistance;
 	}
       }
-      //std::cout << moveDistance << '\n';
       fullMove = false;
     }
     break;
-  case 3:
+  case Left:
     if(player.getXPos() - player.getSpeed() < 0) {
       fullMove = false;
       moveDistance = player.getXPos();

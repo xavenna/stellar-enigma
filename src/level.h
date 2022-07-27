@@ -1,6 +1,9 @@
 #ifndef LEVEL_H
 #define LEVEL_H
 
+#define WINDOW_WIDTH 8
+#define WINDOW_HEIGHT 8
+
 #include "mapnode.h"
 #include "object.h"
 #include "entity.h"
@@ -24,10 +27,18 @@ private:
 public:
   //! returns a copy of specified node
   MapNode getNode(const int&, const int&) const;
-  //! I'm not sure what this does
-  void updateNode(const int&, const int&, const MapNode&);
+  //! a fixed-size map that is actually drawn to the screen
+  std::array<std::array<MapNode, WINDOW_HEIGHT>, WINDOW_WIDTH> window;
+  //! overwrites the mapnode at position x,y with node
+  void updateNode(const int& x, const int& y, const MapNode& node);
+  //! This will copy the necessary nodes over to window in order to set it up
+  void readyWindow(int xScreen, int yScreen);
+  //! sets the positions of the sprites of the window
+  void updateWindowPos();
   //! Uses a texturemap to assign a texture to specified node
   void assignTextureToNode(const int&, const int&, TextureMap&);
+  //! Uses a texturemap to assign a texture to specified node in window
+  void assignTextureToWinNode(const int&, const int&, TextureMap&);
   //! Loads mapBase from file, specified by argument.
   /*! 
    *  Searches for file in /levels/
@@ -56,6 +67,7 @@ public:
    *  Doesn't set tilesize
    */
   Level();
+  bool displayUpdate;
 };
 
 //! parses a string containing a node, uses nodify

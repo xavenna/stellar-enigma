@@ -1,11 +1,17 @@
 #include "message.h"
 #include <iostream>
 
+// Find a way to eliminate message spam
+//maybe a cooldown?
+
+
 bool Message::getPrinted() const {
   return printed;
 }
 void Message::addMessage(const std::string& str) {
-  if(printQueue.size() != maxElem) {
+  if((printQueue.size() != 0 && printQueue.back() != str) || printQueue.size() == 0) {
+  //if(!(printQueue.size() == 0 && printQueue.back() == str)) {
+    //because of DeMorgan's theorems, I think this is equivalent to the last thingy
     printQueue.push_back(str);
   }
 }
@@ -44,6 +50,7 @@ void Message::handleMessages() {
     }
     else {
       message = printQueue.front();
+      formMessage.reserve(message.size());  //avoids reallocations later
       printQueue.pop_front();
       printed = false;
     }

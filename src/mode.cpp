@@ -24,6 +24,9 @@ bool ModeSwitcher::getLastKey(sf::Keyboard::Key& sk) {
   keyList.pop_front();
   return true;
 }
+void ModeSwitcher::ignoreKeypresses() {
+  keyList.clear();
+}
 
 ModeSwitcher::ModeSwitcher() {
   mode = 0;

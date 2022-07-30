@@ -31,7 +31,8 @@ int main() {
   Menu mainMenu;
   MusicPlayer musicPlayer;
   Message message(34, 55, 20);
-  MapData mapData(&player, &modeSwitcher, &levelSlot, &mainMenu, &musicPlayer, &message);
+  CutscenePlayer cutscenePlayer;
+  MapData mapData(&player, &modeSwitcher, &levelSlot, &mainMenu, &musicPlayer, &message, &cutscenePlayer);
 
   mainMenu.spT.loadFromFile("assets/splash/mainmenu.png");
   mainMenu.splash.setTexture(mainMenu.spT);  //this should likely go somewhere
@@ -64,7 +65,6 @@ int main() {
   player.update(levelSlot.getTilesizeX(), levelSlot.getTilesizeY());
 
   message.text.setPosition(4, levelSlot.getTilesizeY()*WINDOW_HEIGHT);
-  //this will need to change if I adopt an explor-like scrolling mechanism
 
   //also, encapsulate this within Message, maybe in the constructor
   message.text.setCharacterSize(20);
@@ -72,7 +72,7 @@ int main() {
   message.text.setFillColor(sf::Color::White);
   message.text.setString("");
 
-  customInit(mapData);
+  mapData.customInit();
 
   while(window.isOpen()) {
     sf::Event event;
@@ -98,17 +98,18 @@ int main() {
     
     if(currentMode == 0) {
       //main menu logic
-      event0Handle(mapData);
+      mapData.event0Handle();
     }
     else if(currentMode == 1) {
       //level player logic
       //handle key inputs:
-      event1Handle(mapData);
+      mapData.event1Handle();
       //other things
       
     }
-    else {
-      //invalid mode
+    else if(currentMode == 2) {
+      //cutscene player logic
+      mapData.event2Handle();
     }
     //final drawing
     window.clear();
@@ -119,6 +120,7 @@ int main() {
       window.draw(mainMenu.splash);
       break;
     case 1:
+    case 2:  //cutscenes work the same as normal
       //assign sprites
       if(levelSlot.displayUpdate) {
 	levelSlot.readyWindow(player.getXScreen(), player.getYScreen());
@@ -140,7 +142,7 @@ int main() {
       //this doesn't work
       break;
     default:
-      //any custom modes would go here
+      //any other modes would go here
       break;
     }
     window.display();

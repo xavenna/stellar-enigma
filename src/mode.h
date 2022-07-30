@@ -28,6 +28,13 @@ public:
   sf::Keyboard::Key getLastKey();
   //! Pops a keypress, and assigns it to passed reference. Returns false if no keys left
   bool getLastKey(sf::Keyboard::Key&);
+  //! Clears the list of keypresses
+  /*!
+   *  For situations such as cutscenes, where input is ignored.
+   *  This should only be used where player input is completely ignored, as
+   *  using it elsewhere can cause problems.
+   */
+  void ignoreKeypresses();
   //! Basic constructor: sets mode to 0
   ModeSwitcher();
 };

@@ -1,14 +1,19 @@
 #include "stellar-enigma.hpp"
+#include "mapdata.h"
 
-void customInit(MapData& md) {
-  md.modeSwitcher.setMode(0);
-  md.player.setXPos(36);
-  md.player.setYPos(36);
-  md.player.setSpeed(18);
-  //register audio?
+void MapData::customInit() {
+  //this function is where any custom code to be run before the main loop should go
+  modeSwitcher.setMode(0);
+  player.setXPos(36);
+  player.setYPos(36);
+  player.setSpeed(18);
   sf::SoundBuffer step;
   step.loadFromFile("assets/audio/thud.wav");
-  md.musicPlayer.registerSound("step", step);
+  musicPlayer.registerSound("step", step);
+  //cutscene
+  Cutscene cut;
+  cut.loadFromFile("assets/cutscene/text.sec");
+  cutscenePlayer.loadCutscene(cut);
 }
 
 void initialSetup(std::string& name, int& width, int& height, int& framerate) {
@@ -18,71 +23,85 @@ void initialSetup(std::string& name, int& width, int& height, int& framerate) {
   framerate = 30;   //the framerate
 }
 
-void event0Handle(MapData& md) {  //this mode is used for the main menu
+void MapData::event0Handle() {  //this mode is used for the main menu
   sf::Keyboard::Key lk;
-  while(md.modeSwitcher.getLastKey(lk)) {
+  while(modeSwitcher.getLastKey(lk)) {
     if(lk == sf::Keyboard::Enter) {
-      md.modeSwitcher.setMode(1);
+      modeSwitcher.setMode(1);
     }
   }
   
 }
-void event1Handle(MapData& md) {  //this is the primary mode
-  int oldXScr = md.player.getXScreen();
-  int oldYScr = md.player.getYScreen();
+void MapData::event1Handle() {  //this is the primary mode
+  int oldXScr = player.getXScreen();
+  int oldYScr = player.getYScreen();
   sf::Keyboard::Key lk;
-  while(md.modeSwitcher.getLastKey(lk)) {
+  while(modeSwitcher.getLastKey(lk)) {
     int tempSpeed;
     if(lk == sf::Keyboard::Quote) {
       //query message
-      std::cout << md.message.getMessage() << '\n';
+      std::cout << message.getMessage() << '\n';
     }
     if(lk == sf::Keyboard::W) {
-      md.player.setFacing(Up);
-      tempSpeed = validMove(md.levelSlot, md.player);
-      md.player.setYPos(md.player.getYPos() - tempSpeed);
+      player.setFacing(Up);
+      tempSpeed = validMove(levelSlot, player);
+      player.setYPos(player.getYPos() - tempSpeed);
       if(tempSpeed > 0) {
 	//move succeeded
-	md.musicPlayer.queueSound("step");
+	musicPlayer.queueSound("step");
       }
     }
     else if(lk == sf::Keyboard::A) {
-      md.player.setFacing(Left);
-      tempSpeed = validMove(md.levelSlot, md.player);
-      md.player.setXPos(md.player.getXPos() - tempSpeed);
+      player.setFacing(Left);
+      tempSpeed = validMove(levelSlot, player);
+      player.setXPos(player.getXPos() - tempSpeed);
       if(tempSpeed > 0) {
 	//move succeeded
-	md.musicPlayer.queueSound("step");
+	musicPlayer.queueSound("step");
       }
     }
     else if(lk == sf::Keyboard::S) {
-      md.player.setFacing(Down);
-      tempSpeed = validMove(md.levelSlot, md.player);
-      md.player.setYPos(md.player.getYPos() + tempSpeed);
+      player.setFacing(Down);
+      tempSpeed = validMove(levelSlot, player);
+      player.setYPos(player.getYPos() + tempSpeed);
       if(tempSpeed > 0) {
 	//move succeeded
-	md.musicPlayer.queueSound("step");
+	musicPlayer.queueSound("step");
       }
     }
     else if(lk == sf::Keyboard::D) {
-      md.player.setFacing(Right);
-      tempSpeed = validMove(md.levelSlot, md.player);
-      md.player.setXPos(md.player.getXPos() + tempSpeed);
+      player.setFacing(Right);
+      tempSpeed = validMove(levelSlot, player);
+      player.setXPos(player.getXPos() + tempSpeed);
       if(tempSpeed > 0) {
 	//move succeeded
-	md.musicPlayer.queueSound("step");
+	musicPlayer.queueSound("step");
       }
     }
   }
   //post-handling thingies
-  md.player.update(md.levelSlot.getTilesizeX(), md.levelSlot.getTilesizeY());
-  if(oldXScr != md.player.getXScreen() || oldYScr != md.player.getYScreen()) {
-    md.levelSlot.displayUpdate = true;
+  player.update(levelSlot.getTilesizeX(), levelSlot.getTilesizeY());
+  if(oldXScr != player.getXScreen() || oldYScr != player.getYScreen()) {
+    levelSlot.displayUpdate = true;
   }
-  if(md.levelSlot.getNode(md.player.getLevelXPos(md.levelSlot.getTilesizeX()), md.player.getLevelYPos(md.levelSlot.getTilesizeY())).getId() == 7) {
-    //figure out how to convert player position(fine) to map position
-    md.message.addMessage("I see you found a key... Cool. It does nothing");
+  if(levelSlot.getNode(player.getLevelXPos(levelSlot.getTilesizeX()), player.getLevelYPos(levelSlot.getTilesizeY())).getId() == 7) {
+    message.addMessage("I see you found a key... Cool. It does nothing");
     //so, currently this will add a message every frame..., which is less than ideal. Fix this!
+  }
+  if(levelSlot.getNode(player.getLevelXPos(levelSlot.getTilesizeX()), player.getLevelYPos(levelSlot.getTilesizeY())).getId() == 9) {
+    //messageboard
+    modeSwitcher.setMode(2);
+  }
+}
+
+
+void MapData::event2Handle() {  //this is the cutscene mode
+  if(cutscenePlayer.updateCutscene(player, modeSwitcher)) {
+    //I'm not sure if anything needs to go here
+  }
+  else {
+    //cutscene is over; do things now... 
+    modeSwitcher.setMode(1); //switch back to gameplay mode
   }
 
 }

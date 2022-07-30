@@ -27,6 +27,10 @@ void Mutable::setXPos(const int& n) {
 void Mutable::setYPos(const int& n) {
   ypos = n;
 }
+void Mutable::setPos(const int& m, const int& n) {
+  xpos = m;
+  ypos = n;
+}
 void Mutable::setWidth(const int& n) {
   width = n;
 }

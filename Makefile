@@ -40,13 +40,13 @@ $(EXE): $(OBJS)
 
 $(OBJ_DIR)/%.o: src/%.cpp
 	@$(CC) -MM -MP -MT $(df).o -MT $(df).d $(CPPFLAGS) $< > $(df).d
-	$(CC) $(CPPFLAGS) -c $< -o $@
+	$(CC) $(SFINCDIR) $(CPPFLAGS) -c $< -o $@
 
 -include $(AUTODEPS)
 
 remake: clean all
 
 clean :
-	rm -f obj/debug/*.o obj/release/*.o obj/debug/*.d obj/release/*.d ./yim
+	rm -f obj/debug/*.o obj/release/*.o obj/debug/*.d obj/release/*.d ./stellar
 tilde :
 	rm *~

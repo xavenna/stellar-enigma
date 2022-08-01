@@ -11,9 +11,10 @@ void MapData::customInit() {
   step.loadFromFile("assets/audio/thud.wav");
   musicPlayer.registerSound("step", step);
   //cutscene
-  Cutscene cut;
-  cut.loadFromFile("assets/cutscene/text.sec");
-  cutscenePlayer.loadCutscene(cut);
+  cutsceneManager.loadCutscenes("assets/cutscene/cutlist.txt");
+
+  mainMenu.spT.loadFromFile("assets/splash/mainmenu.png");
+  mainMenu.splash.setTexture(mainMenu.spT);  //this should likely go somewhere
 }
 
 void initialSetup(std::string& name, int& width, int& height, int& framerate) {
@@ -33,8 +34,10 @@ void MapData::event0Handle() {  //this mode is used for the main menu
   
 }
 void MapData::event1Handle() {  //this is the primary mode
-  int oldXScr = player.getXScreen();
+  int oldXScr = player.getXScreen(); //fix this?
   int oldYScr = player.getYScreen();
+  int oldX = player.getXPos();
+  int oldY = player.getYPos();
   sf::Keyboard::Key lk;
   while(modeSwitcher.getLastKey(lk)) {
     int tempSpeed;
@@ -80,28 +83,52 @@ void MapData::event1Handle() {  //this is the primary mode
     }
   }
   //post-handling thingies
+  //fix the algorithm for determining when this screen rolls over
   player.update(levelSlot.getTilesizeX(), levelSlot.getTilesizeY());
+  /*
   if(oldXScr != player.getXScreen() || oldYScr != player.getYScreen()) {
     levelSlot.displayUpdate = true;
+    } */
+  int xmod = WINDOW_WIDTH - 2;
+  int ymod = WINDOW_HEIGHT - 2;
+  int olpx = oldX / levelSlot.getTilesizeX();
+  int olpy = oldY / levelSlot.getTilesizeY();
+  int lpx = player.getXPos() / levelSlot.getTilesizeX();
+  int lpy = player.getYPos() / levelSlot.getTilesizeY();
+  //std::cout << olpx << ' ' << olpy << ' ' << lpx << ' ' << lpy << '\n';
+  if((olpx % xmod == 0 && lpx == olpx+1) ||
+     (lpx % xmod == 0 && olpx == lpx+1) ||
+     (olpy % ymod == 0 && lpy == olpy+1) ||
+     (lpy % ymod == 0 && olpy == lpy+1)) {
+
+    levelSlot.displayUpdate = true;
   }
+     
   if(levelSlot.getNode(player.getLevelXPos(levelSlot.getTilesizeX()), player.getLevelYPos(levelSlot.getTilesizeY())).getId() == 7) {
     message.addMessage("I see you found a key... Cool. It does nothing");
     //so, currently this will add a message every frame..., which is less than ideal. Fix this!
   }
   if(levelSlot.getNode(player.getLevelXPos(levelSlot.getTilesizeX()), player.getLevelYPos(levelSlot.getTilesizeY())).getId() == 9) {
     //messageboard
+    cutscenePlayer.loadCutscene(cutsceneManager.getCutscene("hello"));
     modeSwitcher.setMode(2);
   }
 }
 
 
 void MapData::event2Handle() {  //this is the cutscene mode
-  if(cutscenePlayer.updateCutscene(player, modeSwitcher)) {
+  int oldXScr = player.getXScreen(); //fix this?
+  int oldYScr = player.getYScreen();
+  if(cutscenePlayer.updateCutscene(player, message, levelSlot, modeSwitcher)) {
     //I'm not sure if anything needs to go here
   }
   else {
     //cutscene is over; do things now... 
     modeSwitcher.setMode(1); //switch back to gameplay mode
+  }
+  player.update(levelSlot.getTilesizeX(), levelSlot.getTilesizeY());
+  if(oldXScr != player.getXScreen() || oldYScr != player.getYScreen()) {
+    levelSlot.displayUpdate = true;
   }
 
 }

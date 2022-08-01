@@ -37,4 +37,5 @@ void parse(const std::string& n, std::vector<std::string>& th, std::string key) 
       cw += n[i];
     }
   }
+  th.push_back(cw);
 }

@@ -5,8 +5,26 @@ MapNode Level::getNode(const int& x, const int& y) const{
   return mapBase[x][y];
 }
 
+//so, this should be redone to provide visibility of adjacent screens
+void Level::newReadyWindow(int xpos, int ypos) {
+  //determine which screen to view
+  int xwid = WINDOW_WIDTH-2;
+  int ywid = WINDOW_HEIGHT-2;
+  int xscr = int((xpos-1) / xwid);
+  int yscr = int((ypos-1) / ywid);
+  int xOff = xscr * (xwid);
+  int yOff = yscr * (ywid);
+  //std::cout << xpos << ' ' << ypos << ' ' << xscr << ' ' << yscr << ' ' << xOff << ' ' << yOff << '\n';
+  for(int i=0;i<WINDOW_WIDTH;i++) {
+    for(int j=0;j<WINDOW_HEIGHT;j++) {
+      window[i][j].setId(getNode(i+xOff,j+yOff).getId());
+    }
+  }
+  displayUpdate = false;
+}
+
+//this is kept in case the new thingy breaks and I need to use this instead
 void Level::readyWindow(int xScreen, int yScreen) {
-  //std::cout << getWidth() << ',' << getHeight() << '\n';
   // xScreen and yScreen are the screen coordinates of the player, passed
   // this routine should only be called if the display needs to be updated
   int xOff = xScreen * WINDOW_WIDTH;

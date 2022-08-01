@@ -32,10 +32,9 @@ int main() {
   MusicPlayer musicPlayer;
   Message message(34, 55, 20);
   CutscenePlayer cutscenePlayer;
-  MapData mapData(&player, &modeSwitcher, &levelSlot, &mainMenu, &musicPlayer, &message, &cutscenePlayer);
+  CutsceneManager cutsceneManager;
+  MapData mapData(&player, &modeSwitcher, &levelSlot, &mainMenu, &musicPlayer, &message, &cutscenePlayer, &cutsceneManager);
 
-  mainMenu.spT.loadFromFile("assets/splash/mainmenu.png");
-  mainMenu.splash.setTexture(mainMenu.spT);  //this should likely go somewhere
 
   sf::Font courier;  //font maybe should go somewhere?
   courier.loadFromFile("assets/cour.ttf");
@@ -123,7 +122,7 @@ int main() {
     case 2:  //cutscenes work the same as normal
       //assign sprites
       if(levelSlot.displayUpdate) {
-	levelSlot.readyWindow(player.getXScreen(), player.getYScreen());
+	levelSlot.newReadyWindow(player.getXPos()/levelSlot.getTilesizeX(), player.getYPos()/levelSlot.getTilesizeY());
       }
       for(int i=0;i<WINDOW_WIDTH;i++) {
 	for(int j=0;j<WINDOW_HEIGHT;j++) {

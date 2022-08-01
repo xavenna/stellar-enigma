@@ -12,9 +12,10 @@ void Player::initialize() {
   area.setTexture(picture);
 }
 void Player::update(int tilesizeX, int tilesizeY) {
-  xScreen = (int(xpos / tilesizeX / WINDOW_WIDTH));
-  yScreen = (int(ypos / tilesizeY / WINDOW_HEIGHT));
-  area.setPosition(xpos%(tilesizeX*WINDOW_WIDTH), ypos%(tilesizeY*WINDOW_HEIGHT));  //this needs to be fixed to be relative to screen
+  xScreen = (int((xpos-1) / tilesizeX / (WINDOW_WIDTH-2)));
+  yScreen = (int((ypos-1) / tilesizeY / (WINDOW_HEIGHT-2)));
+  area.setPosition((xpos-tilesizeX)%(tilesizeX*(WINDOW_WIDTH-2))+tilesizeX, (ypos-tilesizeY)%(tilesizeY*(WINDOW_HEIGHT-2))+tilesizeY);
+  //this needs to be fixed to be relative to screen
 }
 void Player::setSpeed(int n) {
   speed = n;

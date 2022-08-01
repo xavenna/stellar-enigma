@@ -7,6 +7,7 @@
 #include "menu.h"
 #include "audio.h"
 #include "message.h"
+#include "cutscene-manager.h"
 //! Mapdata is the class that encapsulates all level components
 /*!
  *  It is passed to the functions found in custom.cpp to make the code cleaner
@@ -20,6 +21,7 @@ public:
   MusicPlayer& musicPlayer; //!< A reference to the music player
   Message& message;
   CutscenePlayer& cutscenePlayer;
+  CutsceneManager& cutsceneManager;
   //! Any custom initialization behavior goes here
   void customInit();  
   //! Handles events if the engine is in mode 0
@@ -33,7 +35,7 @@ public:
   //! Handles events if the engine is in mode 4
   void event4Handle();
   //! The constructor, takes pointers to the members and initializes the references with them
-  MapData(Player*, ModeSwitcher*, Level*, Menu*, MusicPlayer*, Message*, CutscenePlayer*);
+  MapData(Player*, ModeSwitcher*, Level*, Menu*, MusicPlayer*, Message*, CutscenePlayer*, CutsceneManager*);
 };
 
 //these have to be defined here to prevent a circular include loop

@@ -9,7 +9,7 @@ void CutscenePlayer::playCutscene() {
   //actually, this could be used when switching to mode 2
 }
 
-bool CutscenePlayer::updateCutscene(Player& pl, ModeSwitcher& ms) {
+bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwitcher& ms) {
   //make this start the next event, that would be pretty cool
   //okay, I think it does now. Yay
   Event e = cutscene.getEvent(pos);
@@ -29,7 +29,7 @@ bool CutscenePlayer::updateCutscene(Player& pl, ModeSwitcher& ms) {
 	else {
 	  pos++;
 	  //start next event?
-	  if(!playEvent(pl, ms)) {
+	  if(!playEvent(pl, me, le)) {
 	    //error: invalid event
 	    std::cout << "Error: invalid event in cutscene. Event skipped.\n";
 	  }
@@ -48,7 +48,7 @@ bool CutscenePlayer::updateCutscene(Player& pl, ModeSwitcher& ms) {
       else {
 	pos++;
 	//start next event?
-	if(!playEvent(pl, ms)) {
+	if(!playEvent(pl, me, le)) {
 	  //error: invalid event
 	  std::cout << "Error: invalid event in cutscene. Event skipped.\n";
 	  //set timer to 0?
@@ -62,7 +62,8 @@ bool CutscenePlayer::updateCutscene(Player& pl, ModeSwitcher& ms) {
   }
   return true;
 }
-bool CutscenePlayer::playEvent(Player& pl, ModeSwitcher& ms) {  //add bounds checking to this
+bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le) {
+  //add bounds checking to this
   Event e = cutscene.getEvent(pos);
   switch(e.getType()) {
     //currently, only plyerMove does anything
@@ -73,18 +74,22 @@ bool CutscenePlayer::playEvent(Player& pl, ModeSwitcher& ms) {  //add bounds che
     break;
   case Event::EntityMove:
     //move entity
+    return false;
     timer = e.getDuration();
     break;
   case Event::ObjectRemove:
     //remove object
+    return false;
     timer = e.getDuration();
     break;
   case Event::ObjectPlace:
     //place object
+    return false;
     timer = e.getDuration();
     break;
   case Event::MessageDisplay:
     //display message
+    me.addMessage(e.getText());
     timer = e.getDuration();
     break;
   case Event::ImageDisplay:

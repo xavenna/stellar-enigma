@@ -33,6 +33,8 @@ public:
   void updateNode(const int& x, const int& y, const MapNode& node);
   //! This will copy the necessary nodes over to window in order to set it up
   void readyWindow(int xScreen, int yScreen);
+  //! like readyWindow, but better
+  void newReadyWindow(int xpos, int ypos);
   //! sets the positions of the sprites of the window
   void updateWindowPos();
   //! Uses a texturemap to assign a texture to specified node

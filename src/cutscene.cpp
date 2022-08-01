@@ -34,5 +34,5 @@ bool Cutscene::loadFromFile(const std::string& filename) {
   }
   //set cutscene name
   name = filename.substr(0, filename.find("."));
-  return false;
+  return true;
 }

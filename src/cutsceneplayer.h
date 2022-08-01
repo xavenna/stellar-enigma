@@ -10,6 +10,7 @@
 #include "object.h"
 #include "entity.h"
 #include "mode.h"
+#include "level.h"
 
 #include "cutscene.h"
 
@@ -35,9 +36,9 @@ public:
    *  Returns false if the cutscene is over
    *  Returns true otherwise
    */
-  bool updateCutscene(Player&, ModeSwitcher&);
+  bool updateCutscene(Player&, Message&, Level&, ModeSwitcher&);
   //! Plays next event; called by updateCutscene if current event is finished
-  bool playEvent(Player&, ModeSwitcher&);
+  bool playEvent(Player&, Message&, Level&);
   CutscenePlayer();
 };
 

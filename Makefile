@@ -28,12 +28,17 @@ SRCS = $(wildcard src/*.cpp)
 df = $(OBJ_DIR)/$(*F)
 AUTODEPS:=$(patsubst src/%.cpp, $(OBJ_DIR)/%.d, $(SRCS))
 OBJS:=$(patsubst src/%.cpp, $(OBJ_DIR)/%.o, $(SRCS))
+LIBOBJS := $(filter-out custom.o main.o, $(OBJS))
 
 
-
-.PHONY : all clean tilde debug release remake
+.PHONY : all clean tilde debug release remake lib
 
 all: $(EXE)
+
+lib : libstellar.a
+
+libstellar.a : $(LIBOBJS)
+	ar rcs $@ $^
 
 $(EXE): $(OBJS)
 	$(CC) $(SFLIBDIR) $(LFLAGS) -o $@ $^ $(LLIB)

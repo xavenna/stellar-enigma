@@ -33,9 +33,8 @@ void MapData::event0Handle() {  //this mode is used for the main menu
   }
   
 }
-void MapData::event1Handle() {  //this is the primary mode
-  int oldXScr = player.getXScreen(); //fix this?
-  int oldYScr = player.getYScreen();
+void MapData::event1Handle() {
+  //this is the primary mode
   int oldX = player.getXPos();
   int oldY = player.getYPos();
   sf::Keyboard::Key lk;
@@ -103,7 +102,10 @@ void MapData::event1Handle() {  //this is the primary mode
 
     levelSlot.displayUpdate = true;
   }
-     
+
+  levelSlot.handleEntities();
+  levelSlot.handleObjects();
+
   if(levelSlot.getNode(player.getLevelXPos(levelSlot.getTilesizeX()), player.getLevelYPos(levelSlot.getTilesizeY())).getId() == 7) {
     message.addMessage("I see you found a key... Cool. It does nothing");
     //so, currently this will add a message every frame..., which is less than ideal. Fix this!
@@ -119,7 +121,7 @@ void MapData::event1Handle() {  //this is the primary mode
 void MapData::event2Handle() {  //this is the cutscene mode
   int oldXScr = player.getXScreen(); //fix this?
   int oldYScr = player.getYScreen();
-  if(cutscenePlayer.updateCutscene(player, message, levelSlot, modeSwitcher)) {
+  if(cutscenePlayer.updateCutscene(player, message, levelSlot, modeSwitcher, musicPlayer)) {
     //I'm not sure if anything needs to go here
   }
   else {

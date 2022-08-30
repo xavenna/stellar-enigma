@@ -83,6 +83,9 @@ int Level::loadLevel(const std::string& levelname) {
   while(load.peek() != EOF) {
     std::getline(load, line);
     //parse line
+    //add comments
+    if(line.size() == 0 || (line.size() > 0 && line[0] == '#'))
+      continue;
     if(section == 0) {
       if(isNum(line)) {
 	mapBase.resize(std::stoi(line));
@@ -184,6 +187,13 @@ int Level::getTilesizeX() const{
 int Level::getTilesizeY() const{
   return tilesizeY;
 }
+int Level::getObjNum() const {
+  return objectList.size();
+}
+int Level::getEntNum() const {
+  return entityList.size();
+}
+
 void Level::assignTextureToNode(const int& x, const int& y, TextureMap& tema) {
   try {
     mapBase.at(x).at(y).area.setTexture(tema.mapping.at(mapBase.at(x).at(y).getId()));
@@ -192,12 +202,40 @@ void Level::assignTextureToNode(const int& x, const int& y, TextureMap& tema) {
     std::cout << "ERROR invalid set texture error.\n";
   }
 }
+
 void Level::assignTextureToWinNode(const int& x, const int& y, TextureMap& tema) {
   try {
     window.at(x).at(y).area.setTexture(tema.mapping.at(window.at(x).at(y).getId()));
   }
   catch (...) {
     std::cout << "ERROR invalid set texture error.\n";
+  }
+}
+
+
+void Level::addEntity(const Entity& en) {
+  entityList.push_back(en);
+}
+void Level::removeEntity(unsigned index) {
+
+}
+void Level::addObject(const Object& ob) {
+  objectList.push_back(ob);
+}
+
+void Level::handleEntities() {
+  for(int i=0;i<entityList.size();i++) {
+    auto& x = entityList[i];
+    //do things for x.
+    // If you remove an entity, make sure to do i--;
+  }
+}
+
+void Level::handleObjects() {
+  for(int i=0;i<objectList.size();i++) {
+    auto& x = objectList[i];
+    //do things for x.
+    // If you remove an object, make sure to do i--;
   }
 }
 

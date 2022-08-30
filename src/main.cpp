@@ -9,7 +9,6 @@
 
 //This is the main file
 //Certain customizations need to be done here
-
 int main() {
   //initialization
   std::string windowName;  //this is the name of the window
@@ -131,6 +130,10 @@ int main() {
 	}
       }
 
+      for(int i=0;i<levelSlot.getObjNum();i++) {
+	//write this
+	(textureMap);
+      }
       //update things
       player.update(levelSlot.getTilesizeX(), levelSlot.getTilesizeY());
       //this needs to eventually use player tile size

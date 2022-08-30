@@ -21,7 +21,6 @@ bool CutsceneManager::loadCutscenes(const std::string& filename) {
     if(c.loadFromFile(compName)) {
       name = line.substr(0,line.find("."));
       cutlist.emplace(name, c);
-      std::cout << "loaded cutscene '" << name << "'\n";
     }
     else {
       std::cout << "cutscene not loaded from file '" << line << "'\n";

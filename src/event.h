@@ -20,7 +20,9 @@ public:
     ObjectRemove = 3,  //!< Removes an object
     MessageDisplay = 4,//!< Displays a message
     ImageDisplay = 5,  //!< Displays an image
-    GetInput = 6       //!< Waits for player input
+    GetInput = 6,      //!< Waits for player input
+    NodeUpdate = 7,     //!< Updates a node on the map
+    SoundPlay = 8
   };
   Event::Type getType();
   std::string getText();

@@ -20,7 +20,7 @@
 class Level {
 private:
   std::vector<std::vector<MapNode>> mapBase; //!< The level data of the map
-  std::vector<Object> spriteList; //!< A list of objects found in the map
+  std::vector<Object> objectList; //!< A list of objects found in the map
   std::vector<Entity> entityList; //!< A list of entities found in the map
   int tilesizeX;  //!< The width of a tile, in pixels? currently unused?
   int tilesizeY;  //!< The height of a tile, in pixels? currently unused?
@@ -59,6 +59,19 @@ public:
   int getTilesizeX() const;
   //! gets tile height
   int getTilesizeY() const;
+  //! gets the number of objects
+  int getObjNum() const;
+  //! gets the number of entities
+  int getEntNum() const;
+
+  //make functions for working with objects and entities
+  void addEntity(const Entity& en);
+  void addObject(const Object& ob);
+  void removeEntity(unsigned index);
+
+  void handleEntities();
+  void handleObjects();
+
   //! A constructor that sets the size of mapBase to (arg1, arg2)
   /*!
    *  Doesn't set tilesize
@@ -69,6 +82,7 @@ public:
    *  Doesn't set tilesize
    */
   Level();
+  //! This can be set to true to request a display update
   bool displayUpdate;
 };
 

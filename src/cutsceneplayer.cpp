@@ -9,7 +9,7 @@ void CutscenePlayer::playCutscene() {
   //actually, this could be used when switching to mode 2
 }
 
-bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwitcher& ms) {
+bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwitcher& ms, MusicPlayer& mp) {
   //make this start the next event, that would be pretty cool
   //okay, I think it does now. Yay
   Event e = cutscene.getEvent(pos);
@@ -29,7 +29,7 @@ bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwit
 	else {
 	  pos++;
 	  //start next event?
-	  if(!playEvent(pl, me, le)) {
+	  if(!playEvent(pl, me, le, mp)) {
 	    //error: invalid event
 	    std::cout << "Error: invalid event in cutscene. Event skipped.\n";
 	  }
@@ -48,7 +48,7 @@ bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwit
       else {
 	pos++;
 	//start next event?
-	if(!playEvent(pl, me, le)) {
+	if(!playEvent(pl, me, le, mp)) {
 	  //error: invalid event
 	  std::cout << "Error: invalid event in cutscene. Event skipped.\n";
 	  //set timer to 0?
@@ -62,7 +62,8 @@ bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwit
   }
   return true;
 }
-bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le) {
+
+bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le, MusicPlayer& mp) {
   //add bounds checking to this
   Event e = cutscene.getEvent(pos);
   switch(e.getType()) {
@@ -84,7 +85,11 @@ bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le) {
     break;
   case Event::ObjectPlace:
     //place object
-    return false;
+
+    //create object
+    //add it to list
+    le.addObject(Object(e.getArg(0), e.getArg(1), e.getArg(2),
+			e.getArg(3), e.getArg(4), e.getArg(5), e.getArg(6)));
     timer = e.getDuration();
     break;
   case Event::MessageDisplay:
@@ -99,6 +104,13 @@ bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le) {
   case Event::GetInput:
     //wait for input
     //nothing needs to happen here
+    break;
+  case Event::NodeUpdate:
+    //update a node on the map
+    break;
+  case Event::SoundPlay:
+    //plays a sound
+    mp.queueSound(e.getText());
     break;
   }
   return true;

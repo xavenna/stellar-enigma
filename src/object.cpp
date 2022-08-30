@@ -12,3 +12,15 @@ bool Object::getCollectable() const{
 void Object::setCollectable(const bool& n) {
   id = n;
 }
+
+Object::Object(int x, int y, int wid, int hei, int i, bool sol, bool col) {
+  //xpos, ypos, width, height, id, solid, collectable
+  xpos = x;
+  ypos = y;
+  width = wid;
+  height = hei;
+  id = i;
+  solid = sol;
+  collectable = col;
+  
+}

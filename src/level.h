@@ -83,7 +83,7 @@ public:
    */
   Level();
   //! This can be set to true to request a display update
-  bool displayUpdate;
+  bool displayUpdate = true;
 };
 
 //! parses a string containing a node, uses nodify

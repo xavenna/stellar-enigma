@@ -84,10 +84,6 @@ void MapData::event1Handle() {
   //post-handling thingies
   //fix the algorithm for determining when this screen rolls over
   player.update(levelSlot.getTilesizeX(), levelSlot.getTilesizeY());
-  /*
-  if(oldXScr != player.getXScreen() || oldYScr != player.getYScreen()) {
-    levelSlot.displayUpdate = true;
-    } */
   int xmod = WINDOW_WIDTH - 2;
   int ymod = WINDOW_HEIGHT - 2;
   int olpx = oldX / levelSlot.getTilesizeX();
@@ -106,13 +102,9 @@ void MapData::event1Handle() {
   levelSlot.handleEntities();
   levelSlot.handleObjects();
 
-  if(levelSlot.getNode(player.getLevelXPos(levelSlot.getTilesizeX()), player.getLevelYPos(levelSlot.getTilesizeY())).getId() == 7) {
-    message.addMessage("I see you found a key... Cool. It does nothing");
-    //so, currently this will add a message every frame..., which is less than ideal. Fix this!
-  }
-  if(levelSlot.getNode(player.getLevelXPos(levelSlot.getTilesizeX()), player.getLevelYPos(levelSlot.getTilesizeY())).getId() == 9) {
-    //messageboard
-    cutscenePlayer.loadCutscene(cutsceneManager.getCutscene("hello"));
+  std::string cn = levelSlot.getNode(player.getLevelXPos(levelSlot.getTilesizeX()), player.getLevelYPos(levelSlot.getTilesizeY())).getCutname();
+  if(cn != "") {
+    cutscenePlayer.loadCutscene(cutsceneManager.getCutscene(cn));
     modeSwitcher.setMode(2);
   }
 }

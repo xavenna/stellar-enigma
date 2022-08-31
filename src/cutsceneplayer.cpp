@@ -107,6 +107,8 @@ bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le, MusicPlayer& 
     break;
   case Event::NodeUpdate:
     //update a node on the map
+    le.updateNode(e.getArg(0), e.getArg(1), MapNode(e.getArg(2), e.getText()));
+    le.displayUpdate = true;
     break;
   case Event::SoundPlay:
     //plays a sound

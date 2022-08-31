@@ -5,7 +5,6 @@ MapNode Level::getNode(const int& x, const int& y) const{
   return mapBase[x][y];
 }
 
-//so, this should be redone to provide visibility of adjacent screens
 void Level::newReadyWindow(int xpos, int ypos) {
   //determine which screen to view
   int xwid = WINDOW_WIDTH-2;
@@ -42,15 +41,11 @@ void Level::updateNode(const int& x, const int& y, const MapNode& node) {
   mapBase[x][y] = node;
 }
 Level::Level(const size_t& x, const size_t& y) : mapBase{x, std::vector<MapNode>(y)} {
-  displayUpdate = true;
-  tilesizeX = 36;
+  tilesizeX = 36;  //for now, this is constant, but it may change in the future
   tilesizeY = 36;
   updateWindowPos();
 }
 Level::Level() : mapBase{1, std::vector<MapNode>(1)} {
-  mapBase.resize(1);
-  mapBase[0].resize(1);
-  displayUpdate = true;  //true, b/c display updates initially
   tilesizeX = 36;
   tilesizeY = 36;
   updateWindowPos();
@@ -93,7 +88,6 @@ int Level::loadLevel(const std::string& levelname) {
       }
       else {
 	throw -1;  //invalid level: non-integer found in integer parameter;
-	//error: invalid level
       }
     }
     else if(section == 1) {
@@ -278,12 +272,16 @@ bool strToNode(const std::string& line, MapNode& node) {
 	  node.setId(std::stoi(accum));
 	}
 	break;
+      case 1:
+	node.setCutname(accum);
+	break;
       default:
 	//invalid field
 	throw -2;  //error: nonexistent field
 	break;
       }
       field++;
+      accum.clear();
     }
     else {
       accum += x;

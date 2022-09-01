@@ -284,36 +284,6 @@ int Level::validMove(Player& player) const {
   int moveDistance = player.getSpeed();
   int tempSpeed = player.getSpeed();
 
-
-  int proPlX = player.getXPos();  //prospective position
-  int proPlY = player.getYPos();
-  //determine where player will be if move is successful
-  switch(player.getFacing()) {
-  case Up:
-    proPlY -= moveDistance;
-    if(proPlY < 0) {
-      proPlY = 0;
-    }
-    break;
-  case Right:
-    proPlX += moveDistance;
-    if(proPlX > getWidth() * getTilesizeX()) {
-      proPlX = getWidth() * getTilesizeX();
-    }
-    break;
-  case Down:
-    proPlY += moveDistance;
-    if(proPlY > getHeight() * getTilesizeY()) {
-      proPlY = getHeight()*getTilesizeY();
-    }
-    break;
-  case Left:
-    proPlX -= moveDistance;
-    if(proPlX < 0) {
-      proPlX = 0;
-    }
-    break;
-  }
   //find destination square
   switch(player.getFacing()) {
   case Up:
@@ -404,10 +374,51 @@ int Level::validMove(Player& player) const {
 
   //make sure to prevent player becoming trapped inside a solid object
 
+  //
+  tempSpeed = moveDistance;
+  // std::cout //<< "ox " << x.getXPos() << "oy " << x.getYPos() << "\npx "
+  //   	      << player.getXPos() << "py " << player.getYPos() << "phx " << phx
+  //   	      << "phy " << phy << "ts " << tempSpeed << '\n';
   for(auto x : objectList) {
-    
+    if(!x.getSolid()) {
+      std::cout << "not solid\n";
+      continue;
+    }
+    switch (player.getFacing()) {
+    case Up:
+      if(!(player.getXPos() >= x.getXPos()+x.getWidth() || phx <= x.getXPos())
+	 && player.getYPos() >= x.getYPos()+x.getHeight()
+	 && player.getYPos()-tempSpeed < x.getYPos()+x.getHeight()) {
+	tempSpeed = -(x.getYPos()+x.getHeight() - player.getYPos());
+	fullMove = false;
+	moveDistance = moveDistance > tempSpeed ? tempSpeed : moveDistance;
+      }
+      break;
+    case Right:
+      if(!(player.getYPos() >= x.getYPos()+x.getHeight() || phy <= x.getYPos()) && (phx <= x.getXPos() && phx+tempSpeed > x.getXPos())) {
+	tempSpeed = x.getXPos() - phx;  //the math checks out
+	fullMove = false;
+	moveDistance = moveDistance > tempSpeed ? tempSpeed : moveDistance;
+      }
+      break;
+    case Down:
+      if(!(player.getXPos() >= x.getXPos()+x.getWidth() || phx <= x.getXPos()) && (phy <= x.getYPos() && phy+tempSpeed > x.getYPos())) {
+	tempSpeed = x.getYPos() - phy;  //the math checks out
+	fullMove = false;
+	moveDistance = moveDistance > tempSpeed ? tempSpeed : moveDistance;
+      }
+      break;
+    case Left:
+      if(!(player.getYPos() >= x.getYPos()+x.getHeight() || phy <= x.getYPos())
+	 && player.getXPos() >= x.getXPos()+x.getWidth()
+	 && player.getXPos()-tempSpeed < x.getXPos()+x.getWidth()) {
+	tempSpeed = -(x.getXPos()+x.getWidth() - player.getXPos());
+	fullMove = false;
+	moveDistance = moveDistance > tempSpeed ? tempSpeed : moveDistance;
+      }
+      break;
+    }
   }
-  
   return fullMove ? player.getSpeed() : moveDistance;
 }
 

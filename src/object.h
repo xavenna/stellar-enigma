@@ -21,6 +21,8 @@ public:
   //! set the collectability of the object
   void setCollectable(const bool&);
   Object(int x, int y, int wid, int hei, int i, bool sol, bool col);
+  //! empty constructor
+  Object();
 };
 
 #endif

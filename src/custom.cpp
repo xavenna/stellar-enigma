@@ -90,7 +90,6 @@ void MapData::event1Handle() {
   int olpy = oldY / levelSlot.getTilesizeY();
   int lpx = player.getXPos() / levelSlot.getTilesizeX();
   int lpy = player.getYPos() / levelSlot.getTilesizeY();
-  //std::cout << olpx << ' ' << olpy << ' ' << lpx << ' ' << lpy << '\n';
   if((olpx % xmod == 0 && lpx == olpx+1) ||
      (lpx % xmod == 0 && olpx == lpx+1) ||
      (olpy % ymod == 0 && lpy == olpy+1) ||
@@ -111,8 +110,8 @@ void MapData::event1Handle() {
 
 
 void MapData::event2Handle() {  //this is the cutscene mode
-  int oldXScr = player.getXScreen(); //fix this?
-  int oldYScr = player.getYScreen();
+  int oldX = player.getXPos();
+  int oldY = player.getYPos();
   if(cutscenePlayer.updateCutscene(player, message, levelSlot, modeSwitcher, musicPlayer)) {
     //I'm not sure if anything needs to go here
   }
@@ -121,8 +120,17 @@ void MapData::event2Handle() {  //this is the cutscene mode
     modeSwitcher.setMode(1); //switch back to gameplay mode
   }
   player.update(levelSlot.getTilesizeX(), levelSlot.getTilesizeY());
-  if(oldXScr != player.getXScreen() || oldYScr != player.getYScreen()) {
+  int xmod = WINDOW_WIDTH - 2;
+  int ymod = WINDOW_HEIGHT - 2;
+  int olpx = oldX / levelSlot.getTilesizeX();
+  int olpy = oldY / levelSlot.getTilesizeY();
+  int lpx = player.getXPos() / levelSlot.getTilesizeX();
+  int lpy = player.getYPos() / levelSlot.getTilesizeY();
+  if((olpx % xmod == 0 && lpx == olpx+1) ||
+     (lpx % xmod == 0 && olpx == lpx+1) ||
+     (olpy % ymod == 0 && lpy == olpy+1) ||
+     (lpy % ymod == 0 && olpy == lpy+1)) {
+
     levelSlot.displayUpdate = true;
   }
-
 }

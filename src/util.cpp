@@ -9,6 +9,9 @@ bool isNum(const std::string& st) {
   }
   return true;
 }
+bool isBool(const std::string& st) {
+  return (st == "0" || st == "1");
+}
 std::string lowercase(const std::string& in) {
   std::string e;
   for(auto x : in) {

@@ -37,6 +37,8 @@ public:
   //! A function which returns the number of textures stored
   int size() const;
 
+  const int objectOffset = 10; //!< The point where object textures begin
+
   //! Constructor that initializes the textures with supplied argument
   TextureMap(const std::string&);
   //! The default constructor, takes no arguments

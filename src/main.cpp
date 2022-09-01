@@ -132,7 +132,10 @@ int main() {
 
       for(int i=0;i<levelSlot.getObjNum();i++) {
 	//write this
-	(textureMap);
+	levelSlot.assignTextureToObject(i, textureMap);
+	if(levelSlot.displayObject(i)) {
+	  window.draw(levelSlot.getObj(i).area);
+	}
       }
       //update things
       player.update(levelSlot.getTilesizeX(), levelSlot.getTilesizeY());

@@ -24,3 +24,13 @@ Object::Object(int x, int y, int wid, int hei, int i, bool sol, bool col) {
   collectable = col;
   
 }
+
+Object::Object() {
+  xpos = 0;
+  ypos = 0;
+  width = 0;
+  height = 0;
+  id = 0;
+  solid = false;
+  collectable = false;
+}

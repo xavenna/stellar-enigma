@@ -5,6 +5,10 @@ MapNode Level::getNode(const int& x, const int& y) const{
   return mapBase[x][y];
 }
 
+Object Level::getObj(int index) const {
+  return objectList.at(index);
+}
+
 void Level::newReadyWindow(int xpos, int ypos) {
   //determine which screen to view
   int xwid = WINDOW_WIDTH-2;
@@ -13,12 +17,13 @@ void Level::newReadyWindow(int xpos, int ypos) {
   int yscr = int((ypos-1) / ywid);
   int xOff = xscr * (xwid);
   int yOff = yscr * (ywid);
-  //std::cout << xpos << ' ' << ypos << ' ' << xscr << ' ' << yscr << ' ' << xOff << ' ' << yOff << '\n';
   for(int i=0;i<WINDOW_WIDTH;i++) {
     for(int j=0;j<WINDOW_HEIGHT;j++) {
       window[i][j].setId(getNode(i+xOff,j+yOff).getId());
     }
   }
+  winOffY = yOff;
+  winOffX = xOff;
   displayUpdate = false;
 }
 
@@ -143,31 +148,35 @@ int Level::loadLevel(const std::string& levelname) {
   return 0;
 }
 //format:
-// 1 char: [noe]; eNtity, Object, or Enemy
+// 1 char: [oe]; Object or Entity
 //if_o:  oxpos`ypos`width`height`solid?`id`collectable?
 void Level::loadMutables(const std::string& levelname) {
-  return; /*
   std::string complevel = "assets/level/" + levelname + ".sml";  //stellar mutable list
   std::ifstream get(complevel);
   std::string line;
   std::string accum;
   Entity n;
   Object o;  //these are defined now so they don't have to be every loop
-  Enemy e;
   if(!get.is_open()) {
     throw 0;
   }
   while(get.peek() != EOF) {
     std::getline(get, line);
+    if(line.size() == 0 || line[0] == '#') {
+      continue; //skip line
+    }
     //parse `line' as a mutable
     if(line[0] == 'o') {
       //object
-      
+      str2obj(line.substr(1), o);
+      o.area.setPosition(o.getXPos(), o.getYPos());
+      objectList.push_back(o);
+      //add o to object list
     }
+    //the others will be written once objects work
     
   }
   return;
-	  */
 }
 int Level::getWidth() const{
   return mapBase.size();
@@ -206,19 +215,30 @@ void Level::assignTextureToWinNode(const int& x, const int& y, TextureMap& tema)
   }
 }
 
+void Level::assignTextureToObject(int index, TextureMap& tema) {
+  try {
+    objectList.at(index).area.setTexture(tema.mapping.at(tema.objectOffset+objectList.at(index).getId()));
+  }
+  catch (...) {
+    std::cout << "ERROR invalid set texture error.\n";
+  }
+}
 
 void Level::addEntity(const Entity& en) {
   entityList.push_back(en);
 }
 void Level::removeEntity(unsigned index) {
-
+  if(index >= entityList.size()) {
+    throw std::invalid_argument("Level::removeEntity() : Invalid index");
+  }
+  entityList.erase(entityList.begin()+index);
 }
 void Level::addObject(const Object& ob) {
   objectList.push_back(ob);
 }
 
 void Level::handleEntities() {
-  for(int i=0;i<entityList.size();i++) {
+  for(unsigned i=0;i<entityList.size();i++) {
     auto& x = entityList[i];
     //do things for x.
     // If you remove an entity, make sure to do i--;
@@ -226,11 +246,31 @@ void Level::handleEntities() {
 }
 
 void Level::handleObjects() {
-  for(int i=0;i<objectList.size();i++) {
+  for(unsigned i=0;i<objectList.size();i++) {
     auto& x = objectList[i];
     //do things for x.
+    x.area.setPosition(x.getXPos() % (WINDOW_WIDTH*tilesizeX), x.getYPos()%(WINDOW_WIDTH*tilesizeY));
     // If you remove an object, make sure to do i--;
+    // update display position
   }
+}
+bool Level::displayObject(unsigned index) {
+  int xMin = winOffX*tilesizeX;
+  int yMin = winOffY*tilesizeY;
+  int xMax = xMin + (WINDOW_WIDTH*tilesizeX);
+  int yMax = yMin + (WINDOW_HEIGHT*tilesizeY);
+  if(objectList.size() <= index) {
+    std::cout << "bad\n";
+    return false;
+  }
+
+  if(objectList[index].getXPos() >= xMin &&
+     objectList[index].getYPos() >= yMin &&
+     objectList[index].getXPos() < xMax &&
+     objectList[index].getYPos() < yMax) {
+    return true;
+  }
+  return false;
 }
 
 // nodify destroys the passed string, maybe this should be rewritten
@@ -274,6 +314,86 @@ bool strToNode(const std::string& line, MapNode& node) {
 	break;
       case 1:
 	node.setCutname(accum);
+	break;
+      default:
+	//invalid field
+	throw -2;  //error: nonexistent field
+	break;
+      }
+      field++;
+      accum.clear();
+    }
+    else {
+      accum += x;
+    }
+  }
+  return true;
+}
+
+bool str2obj(const std::string& line, Object& obj) {
+  //#oxpos`ypos`width`height`solid?`id`collectable?
+  int field = 0;  
+  std::string accum;
+  for(auto x : line) {
+    if(x == '`') {
+      //add accum to appropriate field
+      switch(field) {
+      case 0:
+	if(!isNum(accum)) {
+	  return false;
+	}
+	else {
+	  obj.setXPos(std::stoi(accum));
+	}
+	break;
+      case 1:
+	if(!isNum(accum)) {
+	  return false;
+	}
+	else {
+	  obj.setYPos(std::stoi(accum));
+	}
+	break;
+      case 2:
+	if(!isNum(accum)) {
+	  return false;
+	}
+	else {
+	  obj.setWidth(std::stoi(accum));
+	}
+	break;
+      case 3:
+	if(!isNum(accum)) {
+	  return false;
+	}
+	else {
+	  obj.setHeight(std::stoi(accum));
+	}
+	break;
+      case 4:
+	//this should be a bool
+	if(!isBool(accum)) {
+	  return false;
+	}
+	else {
+	  obj.setSolid(std::stoi(accum));
+	}
+	break;
+      case 5:
+	if(!isNum(accum)) {
+	  return false;
+	}
+	else {
+	  obj.setId(std::stoi(accum));
+	}
+	break;
+      case 6:
+	if(!isBool(accum)) {
+	  return false;
+	}
+	else {
+	  obj.setCollectable(std::stoi(accum));
+	}
 	break;
       default:
 	//invalid field

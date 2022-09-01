@@ -24,9 +24,13 @@ private:
   std::vector<Entity> entityList; //!< A list of entities found in the map
   int tilesizeX;  //!< The width of a tile, in pixels? currently unused?
   int tilesizeY;  //!< The height of a tile, in pixels? currently unused?
+  int winOffX = 0;
+  int winOffY = 0;
 public:
   //! returns a copy of specified node
   MapNode getNode(const int&, const int&) const;
+  //! returns a copy of specified object
+  Object getObj(int index) const;
   //! a fixed-size map that is actually drawn to the screen
   std::array<std::array<MapNode, WINDOW_HEIGHT>, WINDOW_WIDTH> window;
   //! overwrites the mapnode at position x,y with node
@@ -41,6 +45,8 @@ public:
   void assignTextureToNode(const int&, const int&, TextureMap&);
   //! Uses a texturemap to assign a texture to specified node in window
   void assignTextureToWinNode(const int&, const int&, TextureMap&);
+  //! Uses a texturemap to assign a texture to the specified object
+  void assignTextureToObject(int, TextureMap&);
   //! Loads mapBase from file, specified by argument.
   /*! 
    *  Searches for file in /levels/
@@ -71,6 +77,7 @@ public:
 
   void handleEntities();
   void handleObjects();
+  bool displayObject(unsigned index);
 
   //! A constructor that sets the size of mapBase to (arg1, arg2)
   /*!
@@ -90,5 +97,7 @@ public:
 bool nodify(std::string&, MapNode&);
 //! creates a node from a string representation of a node
 bool strToNode(const std::string&, MapNode&);
+//! creates an object from a string representation of an object
+bool str2obj(const std::string& line, Object& node);
 
 #endif

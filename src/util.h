@@ -12,6 +12,7 @@ std::string lowercase(const std::string&);
 bool ifMatch(char n, std::string key);
 //! returns true if supplied string is a number
 bool isNum(const std::string& st);
+bool isBool(const std::string& st);
 //! breaks n into a vector, breaking wherever a component of key is found
 void parse(const std::string& n, std::vector<std::string>& th, std::string key = "./\\-");
 #endif

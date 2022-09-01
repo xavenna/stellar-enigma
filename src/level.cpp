@@ -1,7 +1,7 @@
 #include "level.h"
 #include <iostream>
 
-MapNode Level::getNode(const int& x, const int& y) const{
+MapNode Level::getNode(const int& x, const int& y) const {
   return mapBase[x][y];
 }
 
@@ -83,7 +83,6 @@ int Level::loadLevel(const std::string& levelname) {
   while(load.peek() != EOF) {
     std::getline(load, line);
     //parse line
-    //add comments
     if(line.size() == 0 || (line.size() > 0 && line[0] == '#'))
       continue;
     if(section == 0) {
@@ -254,7 +253,7 @@ void Level::handleObjects() {
     // update display position
   }
 }
-bool Level::displayObject(unsigned index) {
+bool Level::displayObject(unsigned index) const {
   int xMin = winOffX*tilesizeX;
   int yMin = winOffY*tilesizeY;
   int xMax = xMin + (WINDOW_WIDTH*tilesizeX);
@@ -271,6 +270,145 @@ bool Level::displayObject(unsigned index) {
     return true;
   }
   return false;
+}
+
+int Level::validMove(Player& player) const {
+  //this needs to be modified to handle objects and entities
+
+  //convert player coordinates to level coordinates
+  int playX = int(player.getXPos() / getTilesizeX());
+  int playY = int(player.getYPos() / getTilesizeY());
+  int phx = player.getXPos() + player.getWidth();
+  int phy = player.getYPos() + player.getHeight();
+  bool fullMove = true;
+  int moveDistance = player.getSpeed();
+  int tempSpeed = player.getSpeed();
+
+
+  int proPlX = player.getXPos();  //prospective position
+  int proPlY = player.getYPos();
+  //determine where player will be if move is successful
+  switch(player.getFacing()) {
+  case Up:
+    proPlY -= moveDistance;
+    if(proPlY < 0) {
+      proPlY = 0;
+    }
+    break;
+  case Right:
+    proPlX += moveDistance;
+    if(proPlX > getWidth() * getTilesizeX()) {
+      proPlX = getWidth() * getTilesizeX();
+    }
+    break;
+  case Down:
+    proPlY += moveDistance;
+    if(proPlY > getHeight() * getTilesizeY()) {
+      proPlY = getHeight()*getTilesizeY();
+    }
+    break;
+  case Left:
+    proPlX -= moveDistance;
+    if(proPlX < 0) {
+      proPlX = 0;
+    }
+    break;
+  }
+  //find destination square
+  switch(player.getFacing()) {
+  case Up:
+    if(player.getYPos() - player.getSpeed() < 0) {
+      fullMove = false;
+      moveDistance = player.getYPos();
+    }
+    if(playY != 0) {
+      int numTiles = int(player.getWidth() / getTilesizeX());
+      int extraTile = (phx % getTilesizeX() == 0) ? 0 : 1;
+      for(int i=0; i<numTiles+extraTile; i++) {
+	int cxP = player.getXPos() + i * getTilesizeX();
+	if(cxP > phx)
+	  cxP = phx;
+	if(!passableSpace(getNode(int(cxP/getTilesizeX()), int(player.getYPos()/getTilesizeY())-1).getId())) {
+	  tempSpeed = player.getYPos() - playY * getTilesizeY();
+	  moveDistance = moveDistance > tempSpeed ? tempSpeed : moveDistance;
+	}
+      }
+      fullMove = false;
+    }
+    //test object collision
+    break;
+  case Right:
+    if(phx + player.getSpeed() >= getWidth() * getTilesizeX()) {
+      fullMove = false;
+      moveDistance = getWidth() * getTilesizeX() - phx;
+    }
+    if(playX != getWidth()) {
+      int numTiles = int(player.getHeight() / getTilesizeY());
+      int extraTile = (phy % getTilesizeY() == 0) ? 0 : 1;
+      for(int i=0;i<numTiles+extraTile; i++) {
+	int cyP = player.getYPos() + i * getTilesizeY();
+	if(cyP > phy)
+	  cyP = phy;
+	if(!passableSpace(getNode(int((phx)/getTilesizeX()), int(cyP/getTilesizeY())).getId())) {
+	  tempSpeed = int(phx / getTilesizeX()) * getTilesizeX() - phx;
+	  moveDistance = moveDistance > tempSpeed ? tempSpeed : moveDistance;
+	}
+      }
+      fullMove = false;
+    }
+    break;
+  case Down:
+    if(phy + player.getSpeed() >= getHeight() * getTilesizeY()) {
+      fullMove = false;
+      moveDistance = getHeight() * getTilesizeY() - phy;
+    }
+    if(playY != getHeight()) {
+      int numTiles = int(player.getWidth() / getTilesizeX());
+      int extraTile = (phx % getTilesizeX() == 0) ? 0 : 1;
+      for(int i=0; i<numTiles+extraTile; i++) {
+	int cxP = player.getXPos() + i * getTilesizeX();
+	if(cxP > phx)
+	  cxP = phx;
+	if(!passableSpace(getNode(int(cxP/getTilesizeX()), int((phy)/getTilesizeY())).getId())) {
+	  tempSpeed = int(phy / getTilesizeY()) * getTilesizeY() - phy;
+	  moveDistance = moveDistance > tempSpeed ? tempSpeed : moveDistance;
+	}
+      }
+      fullMove = false;
+    }
+    break;
+  case Left:
+    if(player.getXPos() - player.getSpeed() < 0) {
+      fullMove = false;
+      moveDistance = player.getXPos();
+    }
+    if(playX != 0) {
+      int numTiles = int(player.getHeight() / getTilesizeY());
+      int extraTile = (phy % getTilesizeY() == 0) ? 0 : 1;
+      for(int i=0; i<numTiles+extraTile; i++) {
+	int cyP = player.getYPos() + i * getTilesizeY();
+	if(cyP > phy)
+	  cyP = phy;
+	if(!passableSpace(getNode(int(player.getXPos()/getTilesizeX())-1, int(cyP/getTilesizeY())).getId())) {
+	  tempSpeed = player.getXPos() - playX * getTilesizeX();
+	  moveDistance = moveDistance > tempSpeed ? tempSpeed : moveDistance;
+	}
+      }
+      fullMove = false;
+    }
+    break;
+  }
+
+  //now, iterate through all objects, check if they are solid, and if so,
+  //check if they block player's path. If so, shorten move distance.
+
+  //make sure to prevent player becoming trapped inside a solid object
+
+  for(auto x : objectList) {
+    
+  }
+  
+  return fullMove ? player.getSpeed() : moveDistance;
 }
 
 // nodify destroys the passed string, maybe this should be rewritten

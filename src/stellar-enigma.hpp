@@ -23,7 +23,6 @@
 #include "menu.h"
 #include "mapdata.h"
 #include "mode.h"
-#include "level-util.h"
 #include "audio.h"
 
 

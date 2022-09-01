@@ -46,7 +46,7 @@ void MapData::event1Handle() {
     }
     if(lk == sf::Keyboard::W) {
       player.setFacing(Up);
-      tempSpeed = validMove(levelSlot, player);
+      tempSpeed = levelSlot.validMove(player);
       player.setYPos(player.getYPos() - tempSpeed);
       if(tempSpeed > 0) {
 	//move succeeded
@@ -55,7 +55,7 @@ void MapData::event1Handle() {
     }
     else if(lk == sf::Keyboard::A) {
       player.setFacing(Left);
-      tempSpeed = validMove(levelSlot, player);
+      tempSpeed = levelSlot.validMove(player);
       player.setXPos(player.getXPos() - tempSpeed);
       if(tempSpeed > 0) {
 	//move succeeded
@@ -64,7 +64,7 @@ void MapData::event1Handle() {
     }
     else if(lk == sf::Keyboard::S) {
       player.setFacing(Down);
-      tempSpeed = validMove(levelSlot, player);
+      tempSpeed = levelSlot.validMove(player);
       player.setYPos(player.getYPos() + tempSpeed);
       if(tempSpeed > 0) {
 	//move succeeded
@@ -73,7 +73,7 @@ void MapData::event1Handle() {
     }
     else if(lk == sf::Keyboard::D) {
       player.setFacing(Right);
-      tempSpeed = validMove(levelSlot, player);
+      tempSpeed = levelSlot.validMove(player);
       player.setXPos(player.getXPos() + tempSpeed);
       if(tempSpeed > 0) {
 	//move succeeded

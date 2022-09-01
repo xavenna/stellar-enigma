@@ -8,6 +8,7 @@
 #include "object.h"
 #include "entity.h"
 #include "texturemap.h"
+#include "player.h"
 #include <iostream>
 #include <fstream>
 #include "util.h"
@@ -77,8 +78,11 @@ public:
 
   void handleEntities();
   void handleObjects();
-  bool displayObject(unsigned index);
+  //! Tells whether object is on the correct screen to be displayed
+  bool displayObject(unsigned index) const;
 
+  //! Determines how far the player can move before running into an obstacle
+  int validMove(Player& player) const;
   //! A constructor that sets the size of mapBase to (arg1, arg2)
   /*!
    *  Doesn't set tilesize

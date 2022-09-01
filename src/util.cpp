@@ -2,6 +2,20 @@
 
 // util: various utility functions used by other parts of the code. None of these are stellar-enigma specific
 
+bool passableSpace(int n) {
+  switch(n) {
+  case 2:
+  case 3:
+  case 4:
+  case 5:
+  case 6:
+  case 8:
+    return false;
+  default:
+    return true;
+  }
+}
+
 bool isNum(const std::string& st) {
   for( auto x : st) {
     if(!isdigit(x))

@@ -273,7 +273,9 @@ bool Level::displayObject(unsigned index) const {
 }
 
 int Level::validMove(Player& player) const {
-  //this needs to be modified to handle objects and entities
+  //this needs to be modified to handle entities
+
+  //sorry about how awful this code is
 
   //convert player coordinates to level coordinates
   int playX = int(player.getXPos() / getTilesizeX());
@@ -298,7 +300,7 @@ int Level::validMove(Player& player) const {
 	int cxP = player.getXPos() + i * getTilesizeX();
 	if(cxP > phx)
 	  cxP = phx;
-	if(!passableSpace(getNode(int(cxP/getTilesizeX()), int(player.getYPos()/getTilesizeY())-1).getId())) {
+	if(getNode(int(cxP/getTilesizeX()), int(player.getYPos()/getTilesizeY())-1).getSolid(Up)) {
 	  tempSpeed = player.getYPos() - playY * getTilesizeY();
 	  moveDistance = moveDistance > tempSpeed ? tempSpeed : moveDistance;
 	}
@@ -319,7 +321,7 @@ int Level::validMove(Player& player) const {
 	int cyP = player.getYPos() + i * getTilesizeY();
 	if(cyP > phy)
 	  cyP = phy;
-	if(!passableSpace(getNode(int((phx)/getTilesizeX()), int(cyP/getTilesizeY())).getId())) {
+	if(getNode(int((phx)/getTilesizeX()), int(cyP/getTilesizeY())).getSolid(Right)) {
 	  tempSpeed = int(phx / getTilesizeX()) * getTilesizeX() - phx;
 	  moveDistance = moveDistance > tempSpeed ? tempSpeed : moveDistance;
 	}
@@ -339,7 +341,7 @@ int Level::validMove(Player& player) const {
 	int cxP = player.getXPos() + i * getTilesizeX();
 	if(cxP > phx)
 	  cxP = phx;
-	if(!passableSpace(getNode(int(cxP/getTilesizeX()), int((phy)/getTilesizeY())).getId())) {
+	if(getNode(int(cxP/getTilesizeX()), int((phy)/getTilesizeY())).getSolid(Down)) {
 	  tempSpeed = int(phy / getTilesizeY()) * getTilesizeY() - phy;
 	  moveDistance = moveDistance > tempSpeed ? tempSpeed : moveDistance;
 	}
@@ -359,7 +361,7 @@ int Level::validMove(Player& player) const {
 	int cyP = player.getYPos() + i * getTilesizeY();
 	if(cyP > phy)
 	  cyP = phy;
-	if(!passableSpace(getNode(int(player.getXPos()/getTilesizeX())-1, int(cyP/getTilesizeY())).getId())) {
+	if(getNode(int(player.getXPos()/getTilesizeX())-1, int(cyP/getTilesizeY())).getSolid(Left)) {
 	  tempSpeed = player.getXPos() - playX * getTilesizeX();
 	  moveDistance = moveDistance > tempSpeed ? tempSpeed : moveDistance;
 	}
@@ -374,11 +376,8 @@ int Level::validMove(Player& player) const {
 
   //make sure to prevent player becoming trapped inside a solid object
 
-  //
+  //just repeat this with entities, if necessary
   tempSpeed = moveDistance;
-  // std::cout //<< "ox " << x.getXPos() << "oy " << x.getYPos() << "\npx "
-  //   	      << player.getXPos() << "py " << player.getYPos() << "phx " << phx
-  //   	      << "phy " << phy << "ts " << tempSpeed << '\n';
   for(auto x : objectList) {
     if(!x.getSolid()) {
       std::cout << "not solid\n";
@@ -462,6 +461,15 @@ bool strToNode(const std::string& line, MapNode& node) {
 	}
 	break;
       case 1:
+	if(!isNum(accum) || std::stoi(accum) < 0 || std::stoi(accum) > 15) {
+	  return false;
+	}
+	node.setSolid(Up, std::stoi(accum) & 1);
+	node.setSolid(Right, !!((std::stoi(accum) & 2) >> 1));
+	node.setSolid(Down, !!((std::stoi(accum) & 4) >> 2));
+	node.setSolid(Left, !!((std::stoi(accum) & 8) >> 3));
+	break;
+      case 2:
 	node.setCutname(accum);
 	break;
       default:

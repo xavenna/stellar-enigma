@@ -6,8 +6,6 @@
 
 //Documnted
 
-//! Returns true if player can move into space with specified id
-bool passableSpace(int);
 //! Takes a string and turns it into lowercase
 std::string lowercase(const std::string&);
 //! determines whether n is contained in key

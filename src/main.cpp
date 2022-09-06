@@ -59,9 +59,6 @@ int main() {
     }
     return e;
   }
-
-  player.update(levelSlot.getTilesizeX(), levelSlot.getTilesizeY());
-
   message.text.setPosition(4, levelSlot.getTilesizeY()*WINDOW_HEIGHT);
 
   //also, encapsulate this within Message, maybe in the constructor
@@ -71,6 +68,8 @@ int main() {
   message.text.setString("");
 
   mapData.customInit();
+
+  player.update();
 
   while(window.isOpen()) {
     sf::Event event;
@@ -138,7 +137,7 @@ int main() {
 	}
       }
       //update things
-      player.update(levelSlot.getTilesizeX(), levelSlot.getTilesizeY());
+      player.update();
       //this needs to eventually use player tile size
       window.draw(player.area);
       message.handleMessages();

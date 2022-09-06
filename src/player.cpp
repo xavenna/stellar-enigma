@@ -4,18 +4,14 @@
 void Player::initialize() {
   xpos = 0;
   ypos = 0;
-  speed = 18;  //this is arbitrary
-  width = 36;
-  height = 36;
   facingDir = Up;
   picture.loadFromFile("assets/texture/player.png");
   area.setTexture(picture);
 }
-void Player::update(int tilesizeX, int tilesizeY) {
-  xScreen = (int((xpos-1) / tilesizeX / (WINDOW_WIDTH-2)));
-  yScreen = (int((ypos-1) / tilesizeY / (WINDOW_HEIGHT-2)));
-  area.setPosition((xpos-tilesizeX)%(tilesizeX*(WINDOW_WIDTH-2))+tilesizeX, (ypos-tilesizeY)%(tilesizeY*(WINDOW_HEIGHT-2))+tilesizeY);
-  //this needs to be fixed to be relative to screen
+void Player::update() {
+  xScreen = (int((xpos-1) / width / (WINDOW_WIDTH-2)));
+  yScreen = (int((ypos-1) / height / (WINDOW_HEIGHT-2)));
+  area.setPosition((xpos-width)%(width*(WINDOW_WIDTH-2))+width, (ypos-height)%(height*(WINDOW_HEIGHT-2))+height);
 }
 void Player::setSpeed(int n) {
   speed = n;

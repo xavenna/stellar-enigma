@@ -19,7 +19,7 @@ public:
   /*!
    *  Sets the sprite's position based on where the player is located
    */
-  void update(int, int);
+  void update();
   //! Gets the speed of the player
   int getSpeed() const;
   //! Gets the direction of the player

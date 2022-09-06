@@ -6,6 +6,8 @@ void MapData::customInit() {
   modeSwitcher.setMode(0);
   player.setXPos(36);
   player.setYPos(36);
+  player.setWidth(36);
+  player.setHeight(36);
   player.setSpeed(18);
   sf::SoundBuffer step;
   step.loadFromFile("assets/audio/thud.wav");
@@ -83,7 +85,7 @@ void MapData::event1Handle() {
   }
   //post-handling thingies
   //fix the algorithm for determining when this screen rolls over
-  player.update(levelSlot.getTilesizeX(), levelSlot.getTilesizeY());
+  player.update();
   int xmod = WINDOW_WIDTH - 2;
   int ymod = WINDOW_HEIGHT - 2;
   int olpx = oldX / levelSlot.getTilesizeX();
@@ -119,7 +121,7 @@ void MapData::event2Handle() {  //this is the cutscene mode
     //cutscene is over; do things now... 
     modeSwitcher.setMode(1); //switch back to gameplay mode
   }
-  player.update(levelSlot.getTilesizeX(), levelSlot.getTilesizeY());
+  player.update();
   int xmod = WINDOW_WIDTH - 2;
   int ymod = WINDOW_HEIGHT - 2;
   int olpx = oldX / levelSlot.getTilesizeX();

@@ -14,8 +14,8 @@ protected:
   int ypos; //!< Y position of the mutable
   int xScreen; //!< Which screen mutable is on horizontally
   int yScreen; //!< Which screen mutable is on vertically
-  int width; //!< width of the mutable (I forget what the units are)
-  int height; //!< height of the mutable
+  int width; //!< width of the mutable in pixels
+  int height; //!< height of the mutable in pixels
   bool solid; //!< whether the mutable can be passed through (I think)
 public:
   //! Get the x position of the mutable

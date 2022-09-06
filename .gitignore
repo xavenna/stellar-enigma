@@ -1,6 +1,5 @@
 # Prerequisites
 *.d
-
 # Compiled Object files
 *.slo
 *.lo
@@ -35,6 +34,8 @@ stellar
 # Documentation (for now)
 doc/
 
+# Assets (for now)
+assets/
 # Unused files
 unused/
 # Emacs tilde files

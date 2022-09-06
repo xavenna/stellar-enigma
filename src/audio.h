@@ -53,6 +53,8 @@ private:
   std::array<Status, 8> soundStatus; //!< The status of each sound player
   std::deque<std::string> soundQueue; //!< The queue of sounds to be played
   SoundRegistry SR; //!< An internal registry of soundBuffers and names
+
+  sf::Music music; //!< Music player
 public:
   //! Attempts to assign queued sounds to sound Players
   /*!
@@ -91,6 +93,8 @@ public:
   void manageSounds();
   //! Adds a sound to the Sound Registry
   void registerSound(const std::string& name, sf::SoundBuffer soundBuf);
+  //! Chooses a new music file
+  void playMusic(const std::string& filename);
   //! Gets a sound buffer from a sound
   /*!
    *  Returns a reference to the soundBuffer associated with the supplied file
@@ -99,8 +103,6 @@ public:
   sf::SoundBuffer& getSound(std::string name);
   //! constructs the Music player
   MusicPlayer();
-  //! Currently unused
-  sf::Music* music;
 };
 
 

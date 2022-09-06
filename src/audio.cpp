@@ -1,5 +1,6 @@
 
 #include "audio.h"
+#include <iostream>
 
 // Audio Module:
 // This contains the audio player, as well as the functions used to control it
@@ -25,6 +26,13 @@ sf::SoundBuffer& MusicPlayer::getSound(std::string name) {
   return SR.getSound(name);
 }
 
+void MusicPlayer::playMusic(const std::string& filename) {
+  std::string nfn = "assets/audio/" + filename;
+  if(!music.openFromFile(nfn)) {
+    std::cout << "Error: file '" << nfn << "' not found\n";
+  }
+  music.play();
+}
 bool MusicPlayer::findOpenSlot(int& slotNum) {
   for(int i=0;i<8;i++) {
     if(soundStatus[i] == 0) {

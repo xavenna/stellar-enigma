@@ -12,6 +12,7 @@ void MapData::customInit() {
   sf::SoundBuffer step;
   step.loadFromFile("assets/audio/thud.wav");
   musicPlayer.registerSound("step", step);
+  musicPlayer.playMusic("axolotl.ogg");
   //cutscene
   cutsceneManager.loadCutscenes("assets/cutscene/cutlist.txt");
 

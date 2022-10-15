@@ -14,7 +14,7 @@
 class Message {
 private:
   std::string message;  //!< This holds the string currently being displayed
-  std::string formMessage;
+  std::string formMessage;  //!< The part of message that has been displayed
   size_t pointer;  //!< This holds the position of the last-printed character
   const size_t width;  //!< The width of the screen, in characters. Used for wrapping text
   bool printed;  //!< Is the current string finished printing?
@@ -44,13 +44,16 @@ public:
   void wrapMessage();
 
   //These next functions are only for debugging, remove later
+  //! Returns the currently printing message
   std::string getMessage();
+  //! Prints the size of the message queue
   int getSize();
   
   //! Text member that can be drawn
   sf::Text text;
-  //! constructor: sets width to arg1, and maximum cooldown to arg2
-  Message(size_t, size_t, size_t);
+  //! constructor: sets width to arg1, maximum cooldown to arg2, and maxElem
+  //to arg3
+  Message(unsigned, unsigned, unsigned);
 };
 
 #endif

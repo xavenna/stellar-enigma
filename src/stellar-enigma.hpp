@@ -24,9 +24,10 @@
 #include "mapdata.h"
 #include "mode.h"
 #include "audio.h"
+#include "interface-manager.h"
 
 
-void initialSetup(std::string&, int&, int&, int&);
+void initialSetup(std::string&, int&);
 
 
 #endif

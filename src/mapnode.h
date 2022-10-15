@@ -13,7 +13,7 @@ class MapNode {
 private:
   int id;  //!< The identifier of which tile exists here
   std::string cutname;  //!< The name of a cutscene to trigger. \0 if no cutscene
-  DirectionalBool solid;
+  DirectionalBool solid; //!< whether the node is solid from each direction
   
 public:
   //! Gets the id of the node
@@ -23,7 +23,7 @@ public:
   //! sets solidity in one direction
   bool getSolid(Direction) const;
   //! Get the cutname
-  std::string getCutname();
+  std::string getCutname() const;
   //! Gets solidity in one direction
   void setSolid(Direction, bool);
   //! Set the cutname
@@ -36,7 +36,8 @@ public:
   sf::Sprite area;
   //! The basic constructor. Sets id to 0 and area position to (0,0)
   MapNode();
-  MapNode(int n, std::string cutn);
+  //! Constructs the MapNode with passed attributes
+  MapNode(int n, DirectionalBool b, std::string cutn);
 };
 
 #endif

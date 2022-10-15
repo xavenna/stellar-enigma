@@ -20,7 +20,7 @@ enum Status {
   ReservedAssigned  //!< The slot is reserved and assigned, but not playing
 };
 
-//! A class that handles a registry of sf::SoundBuffers to names
+//! A class that handles a registry of sf::SoundBuffers and names
 /*!
  *  MusicPlayer uses SoundRegistry to handle sounds, so a sound's name can
  *  be used to play it
@@ -29,7 +29,7 @@ class SoundRegistry {
 private:
   std::map<std::string, sf::SoundBuffer> registry; //!< The internal map of names and sf::SoundBuffers
 public:
-  //! Get the number of sounds in registry
+  //! Gets the number of sounds in registry
   int getNumSounds();
   //! Adds a pair of a string and a soundbuffer to the registry
   void registerSound(const std::string&, const sf::SoundBuffer&);
@@ -42,10 +42,15 @@ public:
   sf::SoundBuffer& getSound(std::string name);
 };
 
-//! The class that handles sound playing
+//! The class that handles sound and music playing
 /*!
- *  Eventually, it will handle music as well, but this capability doesn't exist
- *  yet.
+ *  To play a sound, call queueSound(sound name). The sound will be added to
+ *  internal queue of sounds to be played, and it will play as soon as a sound
+ *  slot is available.
+ *  To play music, call playMusic(sound_file_name). As music is streamed from
+ *  a file and not stored in a buffer, like Sounds, there is no need for a
+ *  registry.
+ *  Music looping is currently not implemented.
  */
 class MusicPlayer {
 private:

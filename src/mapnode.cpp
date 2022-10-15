@@ -12,7 +12,7 @@ void MapNode::setId(const int& n) {
 void MapNode::setSolid(Direction d, bool b) {
   solid.set(d, b);
 }
-std::string MapNode::getCutname() {
+std::string MapNode::getCutname() const {
   return cutname;
 }
 void MapNode::setCutname(const std::string& n) {
@@ -23,5 +23,5 @@ MapNode::MapNode() {
   area.setPosition(0,0);
 }
 
-MapNode::MapNode(int n, std::string cutn) : id{n}, cutname{cutn} {
+MapNode::MapNode(int n, DirectionalBool b, std::string cutn) : id{n}, cutname{cutn}, solid{b} {
 }

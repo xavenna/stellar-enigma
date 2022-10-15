@@ -14,16 +14,14 @@ void MapData::customInit() {
   musicPlayer.registerSound("step", step);
   musicPlayer.playMusic("axolotl.ogg");
   //cutscene
-  cutsceneManager.loadCutscenes("assets/cutscene/cutlist.txt");
+  cutsceneManager.loadCutscenes("default");
 
   mainMenu.spT.loadFromFile("assets/splash/mainmenu.png");
   mainMenu.splash.setTexture(mainMenu.spT);  //this should likely go somewhere
 }
 
-void initialSetup(std::string& name, int& width, int& height, int& framerate) {
+void initialSetup(std::string& name, int& framerate) {
   name = "Stellar Enigma Engine Test";  //this is the name of the window
-  width = 416;  //this is the width of the window, in pixels
-  height = 416;  //this is the height of the window
   framerate = 30;   //the framerate
 }
 
@@ -37,7 +35,7 @@ void MapData::event0Handle() {  //this mode is used for the main menu
   
 }
 void MapData::event1Handle() {
-  //this is the primary mode
+  //this is the basic gameplay mode
   int oldX = player.getXPos();
   int oldY = player.getYPos();
   sf::Keyboard::Key lk;
@@ -85,7 +83,6 @@ void MapData::event1Handle() {
     }
   }
   //post-handling thingies
-  //fix the algorithm for determining when this screen rolls over
   player.update();
   int xmod = WINDOW_WIDTH - 2;
   int ymod = WINDOW_HEIGHT - 2;
@@ -115,7 +112,7 @@ void MapData::event1Handle() {
 void MapData::event2Handle() {  //this is the cutscene mode
   int oldX = player.getXPos();
   int oldY = player.getYPos();
-  if(cutscenePlayer.updateCutscene(player, message, levelSlot, modeSwitcher, musicPlayer)) {
+  if(cutscenePlayer.updateCutscene(player, message, levelSlot, modeSwitcher, musicPlayer, cutsceneManager)) {
     //I'm not sure if anything needs to go here
   }
   else {

@@ -15,6 +15,9 @@ int Event::getArg(int index) {
   return arguments[index];
 }
 
+int Event::operator[](int index) {
+  return getArg(index);
+}
 int Event::getDuration() {
   return duration;
 }

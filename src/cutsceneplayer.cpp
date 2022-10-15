@@ -4,12 +4,11 @@
 
 // there should probably be a cutscene registry, similar to texturemap
 
-void CutscenePlayer::playCutscene() {
-  //this may be completely useless
+void CutscenePlayer::playCutscene() {//this may be completely useless
   //actually, this could be used when switching to mode 2
 }
 
-bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwitcher& ms, MusicPlayer& mp) {
+bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwitcher& ms, MusicPlayer& mp, CutsceneManager& cm) {
   //make this start the next event, that would be pretty cool
   //okay, I think it does now. Yay
   Event e = cutscene.getEvent(pos);
@@ -20,7 +19,7 @@ bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwit
     sf::Keyboard::Key k;
     while(ms.getLastKey(k)) {
       //check if key is valid
-      if(e.getArg(1) == 1 || (e.getArg(1) == 0 && e.getArg(0) == k)) {
+      if(e[1] == 1 || (e[1] == 0 && e[0] == k)) {
 	//event is over
 	if(finalEvent) {
 	  //cutscene is over, return or whatever
@@ -29,7 +28,7 @@ bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwit
 	else {
 	  pos++;
 	  //start next event?
-	  if(!playEvent(pl, me, le, mp)) {
+	  if(!playEvent(pl, me, le, mp, cm)) {
 	    //error: invalid event
 	    std::cout << "Error: invalid event in cutscene. Event skipped.\n";
 	  }
@@ -48,7 +47,7 @@ bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwit
       else {
 	pos++;
 	//start next event?
-	if(!playEvent(pl, me, le, mp)) {
+	if(!playEvent(pl, me, le, mp, cm)) {
 	  //error: invalid event
 	  std::cout << "Error: invalid event in cutscene. Event skipped.\n";
 	  //set timer to 0?
@@ -63,14 +62,19 @@ bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwit
   return true;
 }
 
-bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le, MusicPlayer& mp) {
+bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le, MusicPlayer& mp, CutsceneManager& cm) {
   //add bounds checking to this
   Event e = cutscene.getEvent(pos);
   switch(e.getType()) {
     //currently, only plyerMove does anything
-  case Event::PlayerMove:
+  case Event::PlayerUpdate:
     //move player
-    pl.setPos(e.getArg(0), e.getArg(1));
+    pl.setPos(e[0], e[1]);
+    pl.setSpeed(e[2]);
+    pl.setFacing(static_cast<Direction>(e[3]));
+    //if text isn't null, then set texture to
+    //"assets/texture/"+e.getText()+".png"
+    //set width and height to texture.getSize().x & texture.getSize().y
     timer = e.getDuration();
     break;
   case Event::EntityMove:
@@ -88,8 +92,7 @@ bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le, MusicPlayer& 
 
     //create object
     //add it to list
-    le.addObject(Object(e.getArg(0), e.getArg(1), e.getArg(2),
-			e.getArg(3), e.getArg(4), e.getArg(5), e.getArg(6)));
+    le.addObject(Object(e[0], e[1], e[2], e[3], e[4], e[5], e[6]));
     timer = e.getDuration();
     break;
   case Event::MessageDisplay:
@@ -107,12 +110,23 @@ bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le, MusicPlayer& 
     break;
   case Event::NodeUpdate:
     //update a node on the map
-    le.updateNode(e.getArg(0), e.getArg(1), MapNode(e.getArg(2), e.getText()));
+    le.updateNode(e[0], e[1], MapNode(e[2], DirectionalBool(e[3]), e.getText()));
     le.displayUpdate = true;
     break;
   case Event::SoundPlay:
     //plays a sound
     mp.queueSound(e.getText());
+    break;
+  case Event::MusicPlay:
+    //plays music
+    mp.playMusic(e.getText());
+    break;
+  case Event::MapLoad:
+    //load a new map
+    le.loadLevel(e.getText());
+    cm.loadCutscenes(e.getText());
+    pl.setXPos(e[0]);
+    pl.setYPos(e[1]);
     break;
   }
   return true;

@@ -11,11 +11,16 @@ private:
   std::vector<Event> eventList;
   std::string name;
 public:
-  //! Get the length of the list
+  //! Get the number of cutscenes stored
   int getListLen();
-  //! Get an event from the list
+  //! Gets specified event from eventList
   Event getEvent(unsigned pos);
-  //! Load a cutscene from a file (not implemented yet)
+  //! Loads a cutscene from a file.
+  /*!
+   *  Returns false if an error is detected in the file.
+   *  If the operation fails, eventList is emptied (to avoid unexpected
+   *  behavior from partially loaded cutscenes)
+   */
   bool loadFromFile(const std::string& filename);
 };
 

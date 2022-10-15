@@ -15,7 +15,8 @@
  *   texture for a Node, the idTh texture is chosen.
  */
 class TextureMap {
-  //contains texture mappings for use when assigning textures to sprites
+  int objectOffset=0; //!< The point where object textures begin
+  int entityOffset=0; //!< The point where entity textures begin
 public:
   std::vector<sf::Texture> mapping; //!< the vector that stores Textures
   //This should probably be encapsulated...
@@ -37,7 +38,10 @@ public:
   //! A function which returns the number of textures stored
   int size() const;
 
-  const int objectOffset = 10; //!< The point where object textures begin
+  //! Gets the object offset
+  int getObjOff() const;
+  //! Gets the entity offset
+  int getEntOff() const;
 
   //! Constructor that initializes the textures with supplied argument
   TextureMap(const std::string&);

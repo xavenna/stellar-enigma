@@ -11,7 +11,7 @@ void Player::initialize() {
 void Player::update() {
   xScreen = (int((xpos-1) / width / (WINDOW_WIDTH-2)));
   yScreen = (int((ypos-1) / height / (WINDOW_HEIGHT-2)));
-  area.setPosition((xpos-width)%(width*(WINDOW_WIDTH-2))+width, (ypos-height)%(height*(WINDOW_HEIGHT-2))+height);
+  area.setPosition((xpos-width)%(width*(WINDOW_WIDTH-2))+width+36, (ypos-height)%(height*(WINDOW_HEIGHT-2))+height+36);
 }
 void Player::setSpeed(int n) {
   speed = n;

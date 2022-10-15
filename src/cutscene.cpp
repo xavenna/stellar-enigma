@@ -26,6 +26,7 @@ bool Cutscene::loadFromFile(const std::string& filename) {
     if(line.size() > 0 && line[0] != '#' && !line2event(line, tempEv)) {
       //event was not valid
       std::cout << "Error at line " << counter << ": Event is invalid\n";
+      eventList.clear();
       return false;
     }
     //append event to list

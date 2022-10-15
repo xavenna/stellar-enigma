@@ -41,6 +41,7 @@ void Level::readyWindow(int xScreen, int yScreen) {
   //this is much easier than in explor...
   displayUpdate = false;
 }
+// currently unused
 
 void Level::updateNode(const int& x, const int& y, const MapNode& node) {
   mapBase[x][y] = node;
@@ -58,7 +59,7 @@ Level::Level() : mapBase{1, std::vector<MapNode>(1)} {
 void Level::updateWindowPos() {
   for(size_t i=0;i<WINDOW_WIDTH;i++) {
     for(size_t j=0;j<WINDOW_HEIGHT;j++) {
-      window[i][j].area.setPosition(tilesizeX*i,tilesizeY*j);
+      window[i][j].area.setPosition(tilesizeX*(i+1),(tilesizeY)*(j+1));
     }
   }
 }
@@ -137,12 +138,6 @@ int Level::loadLevel(const std::string& levelname) {
     }
     
   }
-  //cleanup things?
-  for(size_t i=0;i<mapBase.size();i++) {
-    for(size_t j=0;j<mapBase[0].size();j++) {
-      mapBase[i][j].area.setPosition(tilesizeX*i,tilesizeY*j);
-    }
-  }
   loadMutables(levelname);
   return 0;
 }
@@ -177,16 +172,16 @@ void Level::loadMutables(const std::string& levelname) {
   }
   return;
 }
-int Level::getWidth() const{
+int Level::getWidth() const {
   return mapBase.size();
 }
-int Level::getHeight() const{
+int Level::getHeight() const {
   return mapBase[0].size();
 }
-int Level::getTilesizeX() const{
+int Level::getTilesizeX() const {
   return tilesizeX;
 }
-int Level::getTilesizeY() const{
+int Level::getTilesizeY() const {
   return tilesizeY;
 }
 int Level::getObjNum() const {
@@ -216,7 +211,16 @@ void Level::assignTextureToWinNode(const int& x, const int& y, TextureMap& tema)
 
 void Level::assignTextureToObject(int index, TextureMap& tema) {
   try {
-    objectList.at(index).area.setTexture(tema.mapping.at(tema.objectOffset+objectList.at(index).getId()));
+    objectList.at(index).area.setTexture(tema.mapping.at(tema.getObjOff()+objectList.at(index).getId()));
+  }
+  catch (...) {
+    std::cout << "ERROR invalid set texture error.\n";
+  }
+}
+
+void Level::assignTextureToEntity(int index, TextureMap& tema) {
+  try {
+    entityList.at(index).area.setTexture(tema.mapping.at(tema.getEntOff()+objectList.at(index).getId()));
   }
   catch (...) {
     std::cout << "ERROR invalid set texture error.\n";
@@ -235,7 +239,12 @@ void Level::removeEntity(unsigned index) {
 void Level::addObject(const Object& ob) {
   objectList.push_back(ob);
 }
-
+void Level::removeObject(unsigned index) {
+  if(index >= objectList.size()) {
+    throw std::invalid_argument("Level::removeObject() : Invalid index");
+  }
+  objectList.erase(objectList.begin()+index);
+}
 void Level::handleEntities() {
   for(unsigned i=0;i<entityList.size();i++) {
     auto& x = entityList[i];
@@ -248,7 +257,7 @@ void Level::handleObjects() {
   for(unsigned i=0;i<objectList.size();i++) {
     auto& x = objectList[i];
     //do things for x.
-    x.area.setPosition(x.getXPos() % (WINDOW_WIDTH*tilesizeX), x.getYPos()%(WINDOW_WIDTH*tilesizeY));
+    x.area.setPosition(x.getXPos() % (WINDOW_WIDTH*tilesizeX)+36, x.getYPos()%(WINDOW_WIDTH*tilesizeY)+36);
     // If you remove an object, make sure to do i--;
     // update display position
   }
@@ -380,7 +389,6 @@ int Level::validMove(Player& player) const {
   tempSpeed = moveDistance;
   for(auto x : objectList) {
     if(!x.getSolid()) {
-      std::cout << "not solid\n";
       continue;
     }
     switch (player.getFacing()) {

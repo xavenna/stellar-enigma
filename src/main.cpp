@@ -11,14 +11,20 @@
 //Certain customizations need to be done here
 int main() {
   //initialization
+
+  //this needs to be reordered to suit the new interface manager system
+  int panOfX;
+  int msgOfY;
+  sf::Vector2i windowSize;
+  InterfaceManager interfaceManager;
+  windowSize = interfaceManager.initializeInterface(sf::Vector2i(288, 288), msgOfY, panOfX);
+
   std::string windowName;  //this is the name of the window
-  int windowWidth;  //this is the width of the window, in pixels
-  int windowHeight;  //this is the height of the window
   int frameRate;   //the framerate
-  initialSetup(windowName, windowWidth, windowHeight, frameRate);
+  initialSetup(windowName, frameRate);
 
 
-  sf::RenderWindow window(sf::VideoMode(windowWidth,windowHeight), windowName);
+  sf::RenderWindow window(sf::VideoMode(windowSize.x,windowSize.y), windowName);
   window.setVerticalSyncEnabled(true);
   window.setFramerateLimit(frameRate);
 
@@ -29,7 +35,7 @@ int main() {
   Level levelSlot;
   Menu mainMenu;
   MusicPlayer musicPlayer;
-  Message message(34, 55, 20);
+  Message message(int(0.082126 * 288), 55, 20);
   CutscenePlayer cutscenePlayer;
   CutsceneManager cutsceneManager;
   MapData mapData(&player, &modeSwitcher, &levelSlot, &mainMenu, &musicPlayer, &message, &cutscenePlayer, &cutsceneManager);
@@ -59,7 +65,7 @@ int main() {
     }
     return e;
   }
-  message.text.setPosition(4, levelSlot.getTilesizeY()*WINDOW_HEIGHT);
+  message.text.setPosition(40, msgOfY);
 
   //also, encapsulate this within Message, maybe in the constructor
   message.text.setCharacterSize(20);
@@ -143,7 +149,11 @@ int main() {
       message.handleMessages();
       message.wrapMessage();
       window.draw(message.text);
-      //this doesn't work
+
+      //now, draw border
+      for(int i=0;i<interfaceManager.getBorderLen();i++) {
+	window.draw(interfaceManager.getBorderElem(i));
+      }
       break;
     default:
       //any other modes would go here

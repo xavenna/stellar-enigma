@@ -6,7 +6,7 @@
 //! A class for entities capable of moving around. Extends mutable
 /*! 
  * Extends Mutable with additional attributes specific to entities. 
- * Used for things such as NPCs and Enemies
+ * Can be used for things such as NPCs and Enemies
  */
 class Entity : public Mutable {
 protected:

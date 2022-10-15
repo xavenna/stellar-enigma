@@ -14,32 +14,36 @@
 #include "audio.h"
 
 #include "cutscene.h"
+#include "cutscene-manager.h"
 
 
-//! A class that will eventually handle the playing of cutscenes
+//! A class that handles the playing of cutscenes
 /*! 
- *  It has not been written yet, but will be able to display video-style
- *  cutscenes, which have no player input, and interactive cutscenes, which
- *  can (at least) print messages which the player can respond to
+ *   
  */
 class CutscenePlayer {
 private:
   Cutscene cutscene;
   int timer;
-  unsigned pos;  //position in the cutscene
+  unsigned pos;  //!< position in the cutscene
 public:
-  //! Doesn't do anything yet
+  //! Doesn't do anything. I'm not sure what I intended it to do
   void playCutscene();
-  //! Doesn't do anything yet
+  //! Loads specified cutscene
   void loadCutscene(const Cutscene&);
-  //! This will be run every frame and update the cutscene
+  //! Runs every frame and checks the status of the cutscene.
   /*!
-   *  Returns false if the cutscene is over
-   *  Returns true otherwise
+   *  If the current event has finished cooling down, calls playEvent on next
+   *  event in the list. Otherwise, decrements cooldown timer.
+   *  Returns false if the cutscene is over, Otherwise returns true
    */
-  bool updateCutscene(Player&, Message&, Level&, ModeSwitcher&, MusicPlayer&);
+  bool updateCutscene(Player&, Message&, Level&, ModeSwitcher&, MusicPlayer&, CutsceneManager&);
   //! Plays next event; called by updateCutscene if current event is finished
-  bool playEvent(Player&, Message&, Level&, MusicPlayer&);
+  /*!
+   *  This function executes the current event in the cutscene
+   */
+  bool playEvent(Player&, Message&, Level&, MusicPlayer&, CutsceneManager&);
+  //! Basic constructor
   CutscenePlayer();
 };
 

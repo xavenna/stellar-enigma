@@ -15,3 +15,7 @@ void DirectionalBool::set(Direction d, bool b) {
 DirectionalBool::DirectionalBool() {
   bools = 0xf;
 }
+
+DirectionalBool::DirectionalBool(int n) {
+  bools = n & 0xf;
+}

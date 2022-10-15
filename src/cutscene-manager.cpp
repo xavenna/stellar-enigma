@@ -8,7 +8,8 @@ bool CutsceneManager::loadCutscenes(const std::string& filename) {
   std::string line;
   std::string name;
   std::string compName;
-  load.open(filename);
+  std::string nfn = "assets/cutscene/" + filename + ".csl";
+  load.open(nfn);
   if(!load.is_open()) {
     //error
     return false;
@@ -33,7 +34,9 @@ bool CutsceneManager::loadCutscenes(const std::string& filename) {
 
 Cutscene CutsceneManager::getCutscene(const std::string& name) {
   if(cutlist.find(name) == cutlist.end()) {
-    throw std::out_of_range("CutsceneManager::getCutscene() : Cutscene of that name does not exist");
+    std::string error = "CutsceneManager::getCutscene() : Cutscene of name '" +
+      name + "' does not exist";
+    throw std::out_of_range(error);
   }
   return cutlist[name];
 }

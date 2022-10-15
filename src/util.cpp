@@ -4,8 +4,8 @@
 
 
 bool isNum(const std::string& st) {
-  for( auto x : st) {
-    if(!isdigit(x))
+  for(unsigned i=0;i<st.size();i++) {
+    if(!isdigit(st[i]) && (st[i] != '-' || i != 0))
       return false;
   }
   return true;

@@ -15,7 +15,6 @@
 
 //! The class that holds a complete level
 /*!
- *  This is supposed to be fully encapsulated
  *  Mutable loading isn't complete yet
  */
 class Level {
@@ -48,6 +47,8 @@ public:
   void assignTextureToWinNode(const int&, const int&, TextureMap&);
   //! Uses a texturemap to assign a texture to the specified object
   void assignTextureToObject(int, TextureMap&);
+  //! Uses a texturemap to assign a texture to the specified entity
+  void assignTextureToEntity(int, TextureMap&);
   //! Loads mapBase from file, specified by argument.
   /*! 
    *  Searches for file in /levels/
@@ -71,12 +72,21 @@ public:
   //! gets the number of entities
   int getEntNum() const;
 
-  //make functions for working with objects and entities
+  //! Adds passed entity to entityList
   void addEntity(const Entity& en);
+  //! Adds passed Object to objectList
   void addObject(const Object& ob);
+  //! Removes specified entity from entity list
   void removeEntity(unsigned index);
+  //! Removes specified object from object list
+  void removeObject(unsigned index);
 
+  //! Doesn't do anything yet
   void handleEntities();
+  //! Handles objects
+  /*!
+   *  Updates entity tile positions
+   */
   void handleObjects();
   //! Tells whether object is on the correct screen to be displayed
   bool displayObject(unsigned index) const;

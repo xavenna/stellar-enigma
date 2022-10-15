@@ -66,7 +66,7 @@ void Message::wrapMessage() {
   }
   text.setString(out);
 }
-Message::Message(size_t n, size_t o, size_t p) : width{n}, maxCool{o}, maxElem{p} {
+Message::Message(unsigned n, unsigned o, unsigned p) : width{n}, maxCool{o}, maxElem{p} {
   text.setString("");
   printed = false;
   pointer = 0;

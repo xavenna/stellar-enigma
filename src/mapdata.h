@@ -19,9 +19,9 @@ public:
   Level& levelSlot; //!< A reference to the level container
   Menu& mainMenu; //!< A reference to the main menu
   MusicPlayer& musicPlayer; //!< A reference to the music player
-  Message& message;
-  CutscenePlayer& cutscenePlayer;
-  CutsceneManager& cutsceneManager;
+  Message& message; //!< A reference to the message displayer
+  CutscenePlayer& cutscenePlayer; //!< A reference to the cutscene player
+  CutsceneManager& cutsceneManager; //!< A reference to the cutscene manager
   //! Any custom initialization behavior goes here
   void customInit();  
   //! Handles events if the engine is in mode 0
@@ -37,9 +37,4 @@ public:
   //! The constructor, takes pointers to the members and initializes the references with them
   MapData(Player*, ModeSwitcher*, Level*, Menu*, MusicPlayer*, Message*, CutscenePlayer*, CutsceneManager*);
 };
-
-//these have to be defined here to prevent a circular include loop
-
-//maybe some of these should be encapsulated into MapData
-
 #endif

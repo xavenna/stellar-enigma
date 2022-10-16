@@ -159,12 +159,15 @@ void Level::loadMutables(const std::string& levelname) {
     if(line.size() == 0 || line[0] == '#') {
       continue; //skip line
     }
+    if(line.back() != '`')
+      line += '`';
     //parse `line' as a mutable
     if(line[0] == 'o') {
       //object
       str2obj(line.substr(1), o);
-      o.area.setPosition(o.getXPos(), o.getYPos());
+      o.area.setPosition(o.getXPos()+tilesizeX, o.getYPos()+tilesizeY);
       objectList.push_back(o);
+      //std::cout << o.getId()<<'\n';
       //add o to object list
     }
     //the others will be written once objects work
@@ -257,16 +260,25 @@ void Level::handleObjects() {
   for(unsigned i=0;i<objectList.size();i++) {
     auto& x = objectList[i];
     //do things for x.
-    x.area.setPosition(x.getXPos() % (WINDOW_WIDTH*tilesizeX)+36, x.getYPos()%(WINDOW_WIDTH*tilesizeY)+36);
+
+    x.area.setPosition((x.getXPos()-x.getWidth())%(x.getWidth()*(WINDOW_WIDTH-2))+x.getWidth()+36, (x.getYPos()-x.getHeight())%(x.getHeight()*(WINDOW_HEIGHT-2))+x.getHeight()+36);
     // If you remove an object, make sure to do i--;
     // update display position
   }
 }
-bool Level::displayObject(unsigned index) const {
-  int xMin = winOffX*tilesizeX;
-  int yMin = winOffY*tilesizeY;
+bool Level::displayObject(unsigned index, sf::Vector2i ppos, sf::Vector2i size) const {
+  int pxRel = (ppos.x-size.x)%(size.x*(WINDOW_WIDTH-2))+size.x;
+  int pyRel = (ppos.y-size.y)%(size.y*(WINDOW_HEIGHT-2))+size.y;
+
+  int pscrx = (ppos.x-pxRel)/((WINDOW_WIDTH-2)*tilesizeX);
+  int pscry = (ppos.y-pyRel)/((WINDOW_HEIGHT-2)*tilesizeY);
+
+  int xMin = pscrx*WINDOW_WIDTH*tilesizeX;
+  int yMin = pscry*WINDOW_HEIGHT*tilesizeY;
   int xMax = xMin + (WINDOW_WIDTH*tilesizeX);
   int yMax = yMin + (WINDOW_HEIGHT*tilesizeY);
+
+
   if(objectList.size() <= index) {
     std::cout << "bad\n";
     return false;
@@ -496,7 +508,7 @@ bool strToNode(const std::string& line, MapNode& node) {
 }
 
 bool str2obj(const std::string& line, Object& obj) {
-  //#oxpos`ypos`width`height`solid?`id`collectable?
+  //#oxpos`ypos`width`height`solid?`id`collectable?`text
   int field = 0;  
   std::string accum;
   for(auto x : line) {
@@ -559,6 +571,9 @@ bool str2obj(const std::string& line, Object& obj) {
 	else {
 	  obj.setCollectable(std::stoi(accum));
 	}
+	break;
+      case 7:
+	obj.setText(accum);
 	break;
       default:
 	//invalid field

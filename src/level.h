@@ -89,7 +89,7 @@ public:
    */
   void handleObjects();
   //! Tells whether object is on the correct screen to be displayed
-  bool displayObject(unsigned index) const;
+  bool displayObject(unsigned index, sf::Vector2i ppos, sf::Vector2i size) const;
 
   //! Determines how far the player can move before running into an obstacle
   int validMove(Player& player) const;

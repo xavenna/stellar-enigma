@@ -40,3 +40,7 @@ Cutscene CutsceneManager::getCutscene(const std::string& name) {
   }
   return cutlist[name];
 }
+
+bool CutsceneManager::cutsceneExists(const std::string& name) const {
+  return cutlist.find(name)!=cutlist.end();
+}

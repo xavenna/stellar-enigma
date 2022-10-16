@@ -138,7 +138,7 @@ int main() {
       for(int i=0;i<levelSlot.getObjNum();i++) {
 	//write this
 	levelSlot.assignTextureToObject(i, textureMap);
-	if(levelSlot.displayObject(i)) {
+	if(levelSlot.displayObject(i, player.getPos(), player.getSize())) {
 	  window.draw(levelSlot.getObj(i).area);
 	}
       }

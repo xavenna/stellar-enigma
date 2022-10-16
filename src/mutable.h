@@ -32,6 +32,14 @@ public:
   int getYScreen() const;
   //! Get the solidity of the mutable
   bool getSolid() const;
+
+  //! get the size of the mutable as a sf::Vector2i
+  sf::Vector2i getPos() const;
+  //! get the size of the mutable as a sf::Vector2i
+  sf::Vector2i getSize() const;
+  //! get the screen-pos of the mutable as a sf::Vector2i
+  sf::Vector2i getScreen() const;
+
   //! set the x position of the mutable
   void setXPos(const int&);
   //! set the y position of the mutable

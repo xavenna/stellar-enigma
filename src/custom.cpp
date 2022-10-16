@@ -32,8 +32,8 @@ void MapData::event0Handle() {  //this mode is used for the main menu
       modeSwitcher.setMode(1);
     }
   }
-  
 }
+
 void MapData::event1Handle() {
   //this is the basic gameplay mode
   int oldX = player.getXPos();
@@ -83,6 +83,68 @@ void MapData::event1Handle() {
     }
   }
   //post-handling thingies
+
+  //check for interaction between player and objects/entities
+
+  //for each element of the object/entity vectors, check if it intersects with the player
+  //If so, do something...maybe run a callback from the object/entity
+  for(int i=0;i<levelSlot.getObjNum();i++) {
+    //check for collision between player and levelSlot.getObject(i);
+    Object ob{levelSlot.getObj(i)};
+    sf::Vector2i pmin{player.getPos()};
+    sf::Vector2i pmax{pmin+player.getSize()-sf::Vector2i(1,1)};
+
+    sf::Vector2i omin{ob.getPos()};
+    sf::Vector2i omax{omin+ob.getSize()-sf::Vector2i(1,1)};
+
+    if(pmin.x > omax.x || omin.x > pmax.x || pmin.y > omax.y || omin.y > pmax.y) {
+      //no interaction
+    }
+    else {
+      //interaction happens
+      //what type of interaction is it?
+      //use object id for this
+      switch(ob.getId()) {
+      case 0:
+	//stone: no interaction
+	break;
+      case 1:
+	//crate: attempts to move playerSpeed units in player facing direction
+
+	break;
+      case 2:
+	//key: is picked up, and something happens. Attempts to play the cutscene specified
+	//in ob.text. If a valid cutscene is not specified, play cutscene `key'
+
+	if(cutsceneManager.cutsceneExists(ob.getText())) {
+	  cutscenePlayer.loadCutscene(cutsceneManager.getCutscene(ob.getText()));
+	}
+	else {
+	  cutscenePlayer.loadCutscene(cutsceneManager.getCutscene("key"));
+	}
+	modeSwitcher.setMode(2);
+	//destroy object, decrement i;
+	levelSlot.removeObject(i);
+	i--;
+	break;
+      case 3:
+	//board
+	//play the message found in text
+	if(ob.getText() != "") {
+	  message.addMessage(ob.getText());
+	}
+	break;
+      default:
+	//No interaction
+	break;
+      }
+    }
+  }
+
+  for(int i=0;i<levelSlot.getEntNum();i++) {
+    
+  }
+
   player.update();
   int xmod = WINDOW_WIDTH - 2;
   int ymod = WINDOW_HEIGHT - 2;

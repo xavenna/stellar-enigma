@@ -92,7 +92,7 @@ bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le, MusicPlayer& 
 
     //create object
     //add it to list
-    le.addObject(Object(e[0], e[1], e[2], e[3], e[4], e[5], e[6]));
+    le.addObject(Object(e[0], e[1], e[2], e[3], e[4], e[5], e[6], e.getText()));
     timer = e.getDuration();
     break;
   case Event::MessageDisplay:

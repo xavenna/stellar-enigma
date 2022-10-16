@@ -21,6 +21,18 @@ int Mutable::getYScreen() const{
 bool Mutable::getSolid() const{
   return solid;
 }
+
+sf::Vector2i Mutable::getPos() const {
+  return sf::Vector2i(xpos, ypos);
+}
+sf::Vector2i Mutable::getSize() const {
+  return sf::Vector2i(width, height);
+}
+sf::Vector2i Mutable::getScreen() const {
+  return sf::Vector2i(xScreen, yScreen);
+}
+
+
 void Mutable::setXPos(const int& n) {
   xpos = n;
 }

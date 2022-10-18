@@ -31,3 +31,12 @@ void ModeSwitcher::ignoreKeypresses() {
 ModeSwitcher::ModeSwitcher() {
   mode = 0;
 }
+
+
+void ModeSwitcher::updateKeysPressed() {
+  for(int i=0;i<sf::Keyboard::KeyCount;i++) {
+    if(sf::Keyboard::isKeyPressed(static_cast<sf::Keyboard::Key>(i))) {
+      addKey(static_cast<sf::Keyboard::Key>(i));
+    }
+  }
+}

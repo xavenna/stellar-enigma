@@ -8,7 +8,7 @@ void MapData::customInit() {
   player.setYPos(36);
   player.setWidth(36);
   player.setHeight(36);
-  player.setSpeed(18);
+  player.setSpeed(6);
   sf::SoundBuffer step;
   step.loadFromFile("assets/audio/thud.wav");
   musicPlayer.registerSound("step", step);
@@ -47,7 +47,7 @@ void MapData::event1Handle() {
     }
     if(lk == sf::Keyboard::W) {
       player.setFacing(Up);
-      tempSpeed = levelSlot.validMove(player);
+      tempSpeed = levelSlot.validMove(player.getPos(), player.getSize(), player.getSpeed(), player.getFacing());
       player.setYPos(player.getYPos() - tempSpeed);
       if(tempSpeed > 0) {
 	//move succeeded
@@ -56,7 +56,7 @@ void MapData::event1Handle() {
     }
     else if(lk == sf::Keyboard::A) {
       player.setFacing(Left);
-      tempSpeed = levelSlot.validMove(player);
+      tempSpeed = levelSlot.validMove(player.getPos(), player.getSize(), player.getSpeed(), player.getFacing());
       player.setXPos(player.getXPos() - tempSpeed);
       if(tempSpeed > 0) {
 	//move succeeded
@@ -65,7 +65,7 @@ void MapData::event1Handle() {
     }
     else if(lk == sf::Keyboard::S) {
       player.setFacing(Down);
-      tempSpeed = levelSlot.validMove(player);
+      tempSpeed = levelSlot.validMove(player.getPos(), player.getSize(), player.getSpeed(), player.getFacing());
       player.setYPos(player.getYPos() + tempSpeed);
       if(tempSpeed > 0) {
 	//move succeeded
@@ -74,7 +74,7 @@ void MapData::event1Handle() {
     }
     else if(lk == sf::Keyboard::D) {
       player.setFacing(Right);
-      tempSpeed = levelSlot.validMove(player);
+      tempSpeed = levelSlot.validMove(player.getPos(), player.getSize(), player.getSpeed(), player.getFacing());
       player.setXPos(player.getXPos() + tempSpeed);
       if(tempSpeed > 0) {
 	//move succeeded
@@ -85,6 +85,8 @@ void MapData::event1Handle() {
   //post-handling thingies
 
   //check for interaction between player and objects/entities
+
+  //this might make more sense to be a separate function
 
   //for each element of the object/entity vectors, check if it intersects with the player
   //If so, do something...maybe run a callback from the object/entity
@@ -108,9 +110,52 @@ void MapData::event1Handle() {
       case 0:
 	//stone: no interaction
 	break;
-      case 1:
+      case 1: {
 	//crate: attempts to move playerSpeed units in player facing direction
-
+	//calculate potential final position, check if anything is in the way (maybe use a modified version of Level::validMove?)
+	
+	//calculate how far inside the crate player moves
+	int residSpeed;
+	switch(player.getFacing()) {
+	case Right:
+	  residSpeed = player.getXPos()+player.getSize().x-ob.getXPos();
+	  break;
+	case Down:
+	  residSpeed = player.getYPos()+player.getSize().y-ob.getYPos();
+	  break;
+	case Left:
+	  residSpeed = ob.getXPos()+ob.getSize().x-player.getXPos();
+	  break;
+	case Up:
+	  residSpeed = ob.getYPos()+ob.getSize().y-player.getYPos();
+	  break;
+	}
+	if(player.getFacing() == Up || player.getFacing() == Down) {
+	}
+	else {
+	}
+	int moveDistance = levelSlot.validMove(ob.getPos(), ob.getSize(), residSpeed, player.getFacing(), i );
+	//move the object moveDistance Units in player.getFacing() direction
+	switch(player.getFacing()) {
+	case Right:
+	  ob.setXPos(ob.getXPos()+moveDistance);
+	  player.setXPos(player.getXPos()-(residSpeed-moveDistance));
+	  break;
+	case Down:
+	  ob.setYPos(ob.getYPos()+moveDistance);
+	  player.setYPos(player.getYPos()-(residSpeed-moveDistance));
+	  break;
+	case Left:
+	  ob.setXPos(ob.getXPos()-moveDistance);
+	  player.setXPos(player.getXPos()+(residSpeed-moveDistance));
+	  break;
+	case Up:
+	  ob.setYPos(ob.getYPos()-moveDistance);
+	  player.setYPos(player.getYPos()+(residSpeed-moveDistance));
+	  break;
+	}
+      }
+	levelSlot.updateObj(i, ob);
 	break;
       case 2:
 	//key: is picked up, and something happens. Attempts to play the cutscene specified
@@ -134,6 +179,14 @@ void MapData::event1Handle() {
 	  message.addMessage(ob.getText());
 	}
 	break;
+      case 4:
+	//cutscene player
+	
+	if(cutsceneManager.cutsceneExists(ob.getText())) {
+	  cutscenePlayer.loadCutscene(cutsceneManager.getCutscene(ob.getText()));
+	  modeSwitcher.setMode(2);
+	}
+	break;
       default:
 	//No interaction
 	break;
@@ -142,7 +195,25 @@ void MapData::event1Handle() {
   }
 
   for(int i=0;i<levelSlot.getEntNum();i++) {
-    
+    //handle entities
+    Entity en{levelSlot.getEnt(i)};
+    sf::Vector2i pmin{player.getPos()};
+    sf::Vector2i pmax{pmin+player.getSize()-sf::Vector2i(1,1)};
+
+    sf::Vector2i emin{en.getPos()};
+    sf::Vector2i emax{emin+en.getSize()-sf::Vector2i(1,1)};
+
+    if(pmin.x > emax.x || emin.x > pmax.x || pmin.y > emax.y || emin.y > pmax.y) {
+      //no interaction
+    }
+    else {
+      //make player interact with entity
+      switch(en.getType()) {
+      default:
+	//no interaction
+	break;
+      }
+    }
   }
 
   player.update();
@@ -161,7 +232,7 @@ void MapData::event1Handle() {
   }
 
   levelSlot.handleEntities();
-  levelSlot.handleObjects();
+  levelSlot.handleObjects(player.getPos(), player.getSize());
 
   std::string cn = levelSlot.getNode(player.getLevelXPos(levelSlot.getTilesizeX()), player.getLevelYPos(levelSlot.getTilesizeY())).getCutname();
   if(cn != "") {

@@ -28,6 +28,7 @@ public:
   sf::Keyboard::Key getLastKey();
   //! Pops a keypress, and assigns it to passed reference. Returns false if no keys left
   bool getLastKey(sf::Keyboard::Key&);
+  void updateKeysPressed();
   //! Clears the list of keypresses
   /*!
    *  For situations such as cutscenes, where input is ignored.

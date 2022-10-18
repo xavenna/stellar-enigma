@@ -9,6 +9,13 @@ Object Level::getObj(int index) const {
   return objectList.at(index);
 }
 
+void Level::updateObj(int index, const Object& ob) {
+  objectList.at(index) = ob;
+}
+
+Entity Level::getEnt(int index) const {
+  return entityList.at(index);
+}
 void Level::newReadyWindow(int xpos, int ypos) {
   //determine which screen to view
   int xwid = WINDOW_WIDTH-2;
@@ -256,17 +263,46 @@ void Level::handleEntities() {
   }
 }
 
-void Level::handleObjects() {
+void Level::handleObjects(sf::Vector2i pos, sf::Vector2i size) {
   for(unsigned i=0;i<objectList.size();i++) {
     auto& x = objectList[i];
     //do things for x.
 
-    x.area.setPosition((x.getXPos()-x.getWidth())%(x.getWidth()*(WINDOW_WIDTH-2))+x.getWidth()+36, (x.getYPos()-x.getHeight())%(x.getHeight()*(WINDOW_HEIGHT-2))+x.getHeight()+36);
+    // int pxRel = (pos.x-size.x)%(size.x*(WINDOW_WIDTH-2))+size.x;
+    // int pyRel = (pos.y-size.y)%(size.y*(WINDOW_HEIGHT-2))+size.y;
+    
+    // int pscrx = (pos.x-pxRel)/((WINDOW_WIDTH-2)*tilesizeX);
+    // int pscry = (pos.y-pyRel)/((WINDOW_HEIGHT-2)*tilesizeY);
+
+    int pscrx = (pos.x-tilesizeX) / (tilesizeX*(WINDOW_WIDTH-2));
+    int pscry = (pos.y-tilesizeY) / (tilesizeY*(WINDOW_HEIGHT-2));
+    
+    //calculate objects position on player's screen. If it can be displayed, display it:
+
+    sf::Vector2i relPos(x.getXPos()-(WINDOW_WIDTH-2)*tilesizeX*pscrx+tilesizeX,
+			x.getYPos()-(WINDOW_HEIGHT-2)*tilesizeY*pscry+tilesizeY);
+    x.area.setPosition(relPos.x,relPos.y);
+    //x.area.setPosition((x.getXPos()-x.getWidth())%(x.getWidth()*(WINDOW_WIDTH-2))+x.getWidth()+36, (x.getYPos()-x.getHeight())%(x.getHeight()*(WINDOW_HEIGHT-2))+x.getHeight()+36);
+    //this is slightly broken
     // If you remove an object, make sure to do i--;
     // update display position
   }
 }
 bool Level::displayObject(unsigned index, sf::Vector2i ppos, sf::Vector2i size) const {
+
+  if(objectList.size() <= index) {
+    return false;
+  }
+
+  Object ob{objectList[index]};
+  //don't display invisible objects
+  switch(ob.getId()) {
+  case 4:
+    return false;
+  default:
+    break;
+  }
+
   int pxRel = (ppos.x-size.x)%(size.x*(WINDOW_WIDTH-2))+size.x;
   int pyRel = (ppos.y-size.y)%(size.y*(WINDOW_HEIGHT-2))+size.y;
 
@@ -279,50 +315,54 @@ bool Level::displayObject(unsigned index, sf::Vector2i ppos, sf::Vector2i size) 
   int yMax = yMin + (WINDOW_HEIGHT*tilesizeY);
 
 
-  if(objectList.size() <= index) {
-    std::cout << "bad\n";
+  //calculate objects position on player's screen. If it can be displayed, display it:
+
+  sf::Vector2i relPos(ob.getXPos()-(WINDOW_WIDTH-2)*tilesizeX*pscrx,
+		      ob.getYPos()-(WINDOW_HEIGHT-2)*tilesizeY*pscry);
+
+  if(relPos.x < 0 || relPos.y < 0 || relPos.x + ob.getSize().x > (WINDOW_WIDTH+1)*tilesizeX ||
+     relPos.y + ob.getSize().y > (WINDOW_HEIGHT+1)*tilesizeY) {
     return false;
   }
+  return true;
 
   if(objectList[index].getXPos() >= xMin &&
      objectList[index].getYPos() >= yMin &&
-     objectList[index].getXPos() < xMax &&
-     objectList[index].getYPos() < yMax) {
+     objectList[index].getXPos()+objectList[index].getSize().x < xMax &&
+     objectList[index].getYPos()+objectList[index].getSize().y < yMax) {
     return true;
   }
   return false;
 }
 
-int Level::validMove(Player& player) const {
-  //this needs to be modified to handle entities
-
+int Level::validMove(sf::Vector2i pos, sf::Vector2i size, int speed,  Direction facing, int ignore) const {
   //sorry about how awful this code is
 
   //convert player coordinates to level coordinates
-  int playX = int(player.getXPos() / getTilesizeX());
-  int playY = int(player.getYPos() / getTilesizeY());
-  int phx = player.getXPos() + player.getWidth();
-  int phy = player.getYPos() + player.getHeight();
+  int playX = int(pos.x / getTilesizeX());
+  int playY = int(pos.y / getTilesizeY());
+  int phx = pos.x + size.x;
+  int phy = pos.y + size.y;
   bool fullMove = true;
-  int moveDistance = player.getSpeed();
-  int tempSpeed = player.getSpeed();
+  int moveDistance = speed;
+  int tempSpeed = speed;
 
   //find destination square
-  switch(player.getFacing()) {
+  switch(facing) {
   case Up:
-    if(player.getYPos() - player.getSpeed() < 0) {
+    if(pos.y - speed < 0) {
       fullMove = false;
-      moveDistance = player.getYPos();
+      moveDistance = pos.y;
     }
     if(playY != 0) {
-      int numTiles = int(player.getWidth() / getTilesizeX());
+      int numTiles = int(size.x / getTilesizeX());
       int extraTile = (phx % getTilesizeX() == 0) ? 0 : 1;
       for(int i=0; i<numTiles+extraTile; i++) {
-	int cxP = player.getXPos() + i * getTilesizeX();
+	int cxP = pos.x + i * getTilesizeX();
 	if(cxP > phx)
 	  cxP = phx;
-	if(getNode(int(cxP/getTilesizeX()), int(player.getYPos()/getTilesizeY())-1).getSolid(Up)) {
-	  tempSpeed = player.getYPos() - playY * getTilesizeY();
+	if(getNode(int(cxP/getTilesizeX()), int(pos.y/getTilesizeY())-1).getSolid(Up)) {
+	  tempSpeed = pos.y - playY * getTilesizeY();
 	  moveDistance = moveDistance > tempSpeed ? tempSpeed : moveDistance;
 	}
       }
@@ -331,15 +371,15 @@ int Level::validMove(Player& player) const {
     //test object collision
     break;
   case Right:
-    if(phx + player.getSpeed() >= getWidth() * getTilesizeX()) {
+    if(phx + speed >= getWidth() * getTilesizeX()) {
       fullMove = false;
       moveDistance = getWidth() * getTilesizeX() - phx;
     }
     if(playX != getWidth()) {
-      int numTiles = int(player.getHeight() / getTilesizeY());
+      int numTiles = int(size.y / getTilesizeY());
       int extraTile = (phy % getTilesizeY() == 0) ? 0 : 1;
       for(int i=0;i<numTiles+extraTile; i++) {
-	int cyP = player.getYPos() + i * getTilesizeY();
+	int cyP = pos.y + i * getTilesizeY();
 	if(cyP > phy)
 	  cyP = phy;
 	if(getNode(int((phx)/getTilesizeX()), int(cyP/getTilesizeY())).getSolid(Right)) {
@@ -351,15 +391,15 @@ int Level::validMove(Player& player) const {
     }
     break;
   case Down:
-    if(phy + player.getSpeed() >= getHeight() * getTilesizeY()) {
+    if(phy + speed >= getHeight() * getTilesizeY()) {
       fullMove = false;
       moveDistance = getHeight() * getTilesizeY() - phy;
     }
     if(playY != getHeight()) {
-      int numTiles = int(player.getWidth() / getTilesizeX());
+      int numTiles = int(size.x / getTilesizeX());
       int extraTile = (phx % getTilesizeX() == 0) ? 0 : 1;
       for(int i=0; i<numTiles+extraTile; i++) {
-	int cxP = player.getXPos() + i * getTilesizeX();
+	int cxP = pos.x + i * getTilesizeX();
 	if(cxP > phx)
 	  cxP = phx;
 	if(getNode(int(cxP/getTilesizeX()), int((phy)/getTilesizeY())).getSolid(Down)) {
@@ -371,19 +411,19 @@ int Level::validMove(Player& player) const {
     }
     break;
   case Left:
-    if(player.getXPos() - player.getSpeed() < 0) {
+    if(pos.x - speed < 0) {
       fullMove = false;
-      moveDistance = player.getXPos();
+      moveDistance = pos.x;
     }
     if(playX != 0) {
-      int numTiles = int(player.getHeight() / getTilesizeY());
+      int numTiles = int(size.y / getTilesizeY());
       int extraTile = (phy % getTilesizeY() == 0) ? 0 : 1;
       for(int i=0; i<numTiles+extraTile; i++) {
-	int cyP = player.getYPos() + i * getTilesizeY();
+	int cyP = pos.y + i * getTilesizeY();
 	if(cyP > phy)
 	  cyP = phy;
-	if(getNode(int(player.getXPos()/getTilesizeX())-1, int(cyP/getTilesizeY())).getSolid(Left)) {
-	  tempSpeed = player.getXPos() - playX * getTilesizeX();
+	if(getNode(int(pos.x/getTilesizeX())-1, int(cyP/getTilesizeY())).getSolid(Left)) {
+	  tempSpeed = pos.x - playX * getTilesizeX();
 	  moveDistance = moveDistance > tempSpeed ? tempSpeed : moveDistance;
 	}
       }
@@ -399,46 +439,50 @@ int Level::validMove(Player& player) const {
 
   //just repeat this with entities, if necessary
   tempSpeed = moveDistance;
-  for(auto x : objectList) {
+  for(int i=0;i<static_cast<int>(objectList.size());i++) {
+    auto x = objectList[i];
+    if(i == ignore) {
+      continue;
+    }
     if(!x.getSolid()) {
       continue;
     }
-    switch (player.getFacing()) {
+    switch (facing) {
     case Up:
-      if(!(player.getXPos() >= x.getXPos()+x.getWidth() || phx <= x.getXPos())
-	 && player.getYPos() >= x.getYPos()+x.getHeight()
-	 && player.getYPos()-tempSpeed < x.getYPos()+x.getHeight()) {
-	tempSpeed = -(x.getYPos()+x.getHeight() - player.getYPos());
+      if(!(pos.x >= x.getXPos()+x.getWidth() || phx <= x.getXPos())
+	 && pos.y >= x.getYPos()+x.getHeight()
+	 && pos.y-tempSpeed < x.getYPos()+x.getHeight()) {
+	tempSpeed = -(x.getYPos()+x.getHeight() - pos.y);
 	fullMove = false;
 	moveDistance = moveDistance > tempSpeed ? tempSpeed : moveDistance;
       }
       break;
     case Right:
-      if(!(player.getYPos() >= x.getYPos()+x.getHeight() || phy <= x.getYPos()) && (phx <= x.getXPos() && phx+tempSpeed > x.getXPos())) {
+      if(!(pos.y >= x.getYPos()+x.getHeight() || phy <= x.getYPos()) && (phx <= x.getXPos() && phx+tempSpeed > x.getXPos())) {
 	tempSpeed = x.getXPos() - phx;  //the math checks out
 	fullMove = false;
 	moveDistance = moveDistance > tempSpeed ? tempSpeed : moveDistance;
       }
       break;
     case Down:
-      if(!(player.getXPos() >= x.getXPos()+x.getWidth() || phx <= x.getXPos()) && (phy <= x.getYPos() && phy+tempSpeed > x.getYPos())) {
+      if(!(pos.x >= x.getXPos()+x.getWidth() || phx <= x.getXPos()) && (phy <= x.getYPos() && phy+tempSpeed > x.getYPos())) {
 	tempSpeed = x.getYPos() - phy;  //the math checks out
 	fullMove = false;
 	moveDistance = moveDistance > tempSpeed ? tempSpeed : moveDistance;
       }
       break;
     case Left:
-      if(!(player.getYPos() >= x.getYPos()+x.getHeight() || phy <= x.getYPos())
-	 && player.getXPos() >= x.getXPos()+x.getWidth()
-	 && player.getXPos()-tempSpeed < x.getXPos()+x.getWidth()) {
-	tempSpeed = -(x.getXPos()+x.getWidth() - player.getXPos());
+      if(!(pos.y >= x.getYPos()+x.getHeight() || phy <= x.getYPos())
+	 && pos.x >= x.getXPos()+x.getWidth()
+	 && pos.x-tempSpeed < x.getXPos()+x.getWidth()) {
+	tempSpeed = -(x.getXPos()+x.getWidth() - pos.x);
 	fullMove = false;
 	moveDistance = moveDistance > tempSpeed ? tempSpeed : moveDistance;
       }
       break;
     }
   }
-  return fullMove ? player.getSpeed() : moveDistance;
+  return fullMove ? speed : moveDistance;
 }
 
 // nodify destroys the passed string, maybe this should be rewritten

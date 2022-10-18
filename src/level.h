@@ -31,6 +31,10 @@ public:
   MapNode getNode(const int&, const int&) const;
   //! returns a copy of specified object
   Object getObj(int index) const;
+  //! returns a copy of specified entity
+  Entity getEnt(int index) const;
+  //! updates specified object with passed object
+  void updateObj(int index, const Object&);
   //! a fixed-size map that is actually drawn to the screen
   std::array<std::array<MapNode, WINDOW_HEIGHT>, WINDOW_WIDTH> window;
   //! overwrites the mapnode at position x,y with node
@@ -87,12 +91,12 @@ public:
   /*!
    *  Updates entity tile positions
    */
-  void handleObjects();
+  void handleObjects(sf::Vector2i pos, sf::Vector2i size);
   //! Tells whether object is on the correct screen to be displayed
   bool displayObject(unsigned index, sf::Vector2i ppos, sf::Vector2i size) const;
 
   //! Determines how far the player can move before running into an obstacle
-  int validMove(Player& player) const;
+  int validMove(sf::Vector2i pos, sf::Vector2i size, int speed,  Direction facing, int ignore=-1) const;
   //! A constructor that sets the size of mapBase to (arg1, arg2)
   /*!
    *  Doesn't set tilesize

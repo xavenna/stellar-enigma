@@ -85,8 +85,7 @@ int main() {
 	window.close();
 	break;
       case sf::Event::KeyPressed:
-	modeSwitcher.addKey(event.key.code);
-	if(event.key.code == sf::Keyboard::Enter)
+	// I changed how this works, so this is empty now
 	break;
       default:
 	break;
@@ -94,6 +93,10 @@ int main() {
     }
     if(!window.isOpen())
       return 0;
+
+    //check if every key is pressed. If key is pressed, call ModeSwitcher::addKey()
+
+    modeSwitcher.updateKeysPressed();
     int currentMode = modeSwitcher.getMode();
     //mode-non-specific
     musicPlayer.assignSounds();

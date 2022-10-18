@@ -8,10 +8,11 @@ void Player::initialize() {
   picture.loadFromFile("assets/texture/player.png");
   area.setTexture(picture);
 }
-void Player::update() {
-  xScreen = (int((xpos-1) / width / (WINDOW_WIDTH-2)));
-  yScreen = (int((ypos-1) / height / (WINDOW_HEIGHT-2)));
-  area.setPosition((xpos-width)%(width*(WINDOW_WIDTH-2))+width+36, (ypos-height)%(height*(WINDOW_HEIGHT-2))+height+36);
+void Player::update(sf::Vector2i tilesize) {
+  sf::Vector2i mid(xpos+width/2, ypos+height/2);
+  xScreen = (mid.x-tilesize.x) / (tilesize.x*(WINDOW_WIDTH-2));
+  yScreen = (mid.y-tilesize.y) / (tilesize.y*(WINDOW_HEIGHT-2));
+  area.setPosition((mid.x-tilesize.x)%(tilesize.x*(WINDOW_WIDTH-2))+tilesize.x*2-(width/2), (mid.y-tilesize.y)%(tilesize.y*(WINDOW_HEIGHT-2))+tilesize.y*2-(height/2));
 }
 void Player::setSpeed(int n) {
   speed = n;

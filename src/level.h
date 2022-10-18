@@ -42,7 +42,7 @@ public:
   //! This will copy the necessary nodes over to window in order to set it up
   void readyWindow(int xScreen, int yScreen);
   //! like readyWindow, but better
-  void newReadyWindow(int xpos, int ypos);
+  void newReadyWindow(int xscr, int yscr);
   //! sets the positions of the sprites of the window
   void updateWindowPos();
   //! Uses a texturemap to assign a texture to specified node
@@ -71,6 +71,8 @@ public:
   int getTilesizeX() const;
   //! gets tile height
   int getTilesizeY() const;
+  //! gets tilesize as a sf::Vector2i
+  sf::Vector2i getTilesize() const;
   //! gets the number of objects
   int getObjNum() const;
   //! gets the number of entities

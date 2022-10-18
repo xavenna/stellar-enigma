@@ -216,7 +216,15 @@ void MapData::event1Handle() {
     }
   }
 
-  player.update();
+  sf::Vector2i oldps(player.getXScreen(), player.getYScreen());
+  player.update(levelSlot.getTilesize());
+  sf::Vector2i newps(player.getXScreen(), player.getYScreen());
+
+  if(oldps != newps)
+    levelSlot.displayUpdate = true;
+  //player.getScreen()
+
+  /*
   int xmod = WINDOW_WIDTH - 2;
   int ymod = WINDOW_HEIGHT - 2;
   int olpx = oldX / levelSlot.getTilesizeX();
@@ -230,6 +238,7 @@ void MapData::event1Handle() {
 
     levelSlot.displayUpdate = true;
   }
+  */
 
   levelSlot.handleEntities();
   levelSlot.handleObjects(player.getPos(), player.getSize());
@@ -252,7 +261,7 @@ void MapData::event2Handle() {  //this is the cutscene mode
     //cutscene is over; do things now... 
     modeSwitcher.setMode(1); //switch back to gameplay mode
   }
-  player.update();
+  player.update(levelSlot.getTilesize());
   int xmod = WINDOW_WIDTH - 2;
   int ymod = WINDOW_HEIGHT - 2;
   int olpx = oldX / levelSlot.getTilesizeX();

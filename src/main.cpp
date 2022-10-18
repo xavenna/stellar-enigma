@@ -75,7 +75,7 @@ int main() {
 
   mapData.customInit();
 
-  player.update();
+  player.update(levelSlot.getTilesize());
 
   while(window.isOpen()) {
     sf::Event event;
@@ -129,7 +129,7 @@ int main() {
     case 2:  //cutscenes work the same as normal
       //assign sprites
       if(levelSlot.displayUpdate) {
-	levelSlot.newReadyWindow(player.getXPos()/levelSlot.getTilesizeX(), player.getYPos()/levelSlot.getTilesizeY());
+	levelSlot.newReadyWindow(player.getXScreen(), player.getYScreen());
       }
       for(int i=0;i<WINDOW_WIDTH;i++) {
 	for(int j=0;j<WINDOW_HEIGHT;j++) {
@@ -146,7 +146,7 @@ int main() {
 	}
       }
       //update things
-      player.update();
+      player.update(levelSlot.getTilesize());
       //this needs to eventually use player tile size
       window.draw(player.area);
       message.handleMessages();

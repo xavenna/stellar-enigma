@@ -16,12 +16,10 @@ void Level::updateObj(int index, const Object& ob) {
 Entity Level::getEnt(int index) const {
   return entityList.at(index);
 }
-void Level::newReadyWindow(int xpos, int ypos) {
+void Level::newReadyWindow(int xscr, int yscr) {
   //determine which screen to view
   int xwid = WINDOW_WIDTH-2;
   int ywid = WINDOW_HEIGHT-2;
-  int xscr = int((xpos-1) / xwid);
-  int yscr = int((ypos-1) / ywid);
   int xOff = xscr * (xwid);
   int yOff = yscr * (ywid);
   for(int i=0;i<WINDOW_WIDTH;i++) {
@@ -194,6 +192,9 @@ int Level::getTilesizeX() const {
 int Level::getTilesizeY() const {
   return tilesizeY;
 }
+sf::Vector2i Level::getTilesize() const {
+  return sf::Vector2i(tilesizeX, tilesizeY);
+}
 int Level::getObjNum() const {
   return objectList.size();
 }
@@ -274,18 +275,19 @@ void Level::handleObjects(sf::Vector2i pos, sf::Vector2i size) {
     // int pscrx = (pos.x-pxRel)/((WINDOW_WIDTH-2)*tilesizeX);
     // int pscry = (pos.y-pyRel)/((WINDOW_HEIGHT-2)*tilesizeY);
 
-    int pscrx = (pos.x-tilesizeX) / (tilesizeX*(WINDOW_WIDTH-2));
-    int pscry = (pos.y-tilesizeY) / (tilesizeY*(WINDOW_HEIGHT-2));
+    sf::Vector2i mid(pos.x+size.x/2, pos.y+size.y/2);
+    int pscrx = (mid.x-tilesizeX) / (tilesizeX*(WINDOW_WIDTH-2));
+    int pscry = (mid.y-tilesizeY) / (tilesizeY*(WINDOW_HEIGHT-2));
     
+    sf::Vector2i omid(x.getXPos()+x.getSize().x/2, x.getPos().y+x.getSize().y/2);
     //calculate objects position on player's screen. If it can be displayed, display it:
 
     sf::Vector2i relPos(x.getXPos()-(WINDOW_WIDTH-2)*tilesizeX*pscrx+tilesizeX,
 			x.getYPos()-(WINDOW_HEIGHT-2)*tilesizeY*pscry+tilesizeY);
     x.area.setPosition(relPos.x,relPos.y);
-    //x.area.setPosition((x.getXPos()-x.getWidth())%(x.getWidth()*(WINDOW_WIDTH-2))+x.getWidth()+36, (x.getYPos()-x.getHeight())%(x.getHeight()*(WINDOW_HEIGHT-2))+x.getHeight()+36);
-    //this is slightly broken
+    //area.setPosition((mid.x-tilesize.x)%(tilesize.x*(WINDOW_WIDTH-2))+tilesize.x*2-(width/2), (mid.y-tilesize.y)%(tilesize.y*(WINDOW_HEIGHT-2))+tilesize.y*2-(height/2));
+
     // If you remove an object, make sure to do i--;
-    // update display position
   }
 }
 bool Level::displayObject(unsigned index, sf::Vector2i ppos, sf::Vector2i size) const {
@@ -303,36 +305,27 @@ bool Level::displayObject(unsigned index, sf::Vector2i ppos, sf::Vector2i size) 
     break;
   }
 
-  int pxRel = (ppos.x-size.x)%(size.x*(WINDOW_WIDTH-2))+size.x;
-  int pyRel = (ppos.y-size.y)%(size.y*(WINDOW_HEIGHT-2))+size.y;
+  sf::Vector2i mid(ppos.x+size.x/2, ppos.y+size.y/2);
 
-  int pscrx = (ppos.x-pxRel)/((WINDOW_WIDTH-2)*tilesizeX);
-  int pscry = (ppos.y-pyRel)/((WINDOW_HEIGHT-2)*tilesizeY);
+  int pxRel = (mid.x-size.x)%(size.x*(WINDOW_WIDTH-2))+size.x;
+  int pyRel = (mid.y-size.y)%(size.y*(WINDOW_HEIGHT-2))+size.y;
 
-  int xMin = pscrx*WINDOW_WIDTH*tilesizeX;
-  int yMin = pscry*WINDOW_HEIGHT*tilesizeY;
-  int xMax = xMin + (WINDOW_WIDTH*tilesizeX);
-  int yMax = yMin + (WINDOW_HEIGHT*tilesizeY);
-
+  int pscrx = (mid.x-pxRel)/((WINDOW_WIDTH-2)*tilesizeX);
+  int pscry = (mid.y-pyRel)/((WINDOW_HEIGHT-2)*tilesizeY);
 
   //calculate objects position on player's screen. If it can be displayed, display it:
 
   sf::Vector2i relPos(ob.getXPos()-(WINDOW_WIDTH-2)*tilesizeX*pscrx,
 		      ob.getYPos()-(WINDOW_HEIGHT-2)*tilesizeY*pscry);
 
-  if(relPos.x < 0 || relPos.y < 0 || relPos.x + ob.getSize().x > (WINDOW_WIDTH+1)*tilesizeX ||
+  if(relPos.x+ob.getSize().x < 0 ||
+     relPos.y+ob.getSize().y < 0 ||
+     relPos.x + ob.getSize().x > (WINDOW_WIDTH+1)*tilesizeX ||
      relPos.y + ob.getSize().y > (WINDOW_HEIGHT+1)*tilesizeY) {
     return false;
   }
   return true;
 
-  if(objectList[index].getXPos() >= xMin &&
-     objectList[index].getYPos() >= yMin &&
-     objectList[index].getXPos()+objectList[index].getSize().x < xMax &&
-     objectList[index].getYPos()+objectList[index].getSize().y < yMax) {
-    return true;
-  }
-  return false;
 }
 
 int Level::validMove(sf::Vector2i pos, sf::Vector2i size, int speed,  Direction facing, int ignore) const {

@@ -110,6 +110,7 @@ bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le, MusicPlayer& 
     break;
   case Event::NodeUpdate:
     //update a node on the map
+    std::cout << "updating node\n";
     le.updateNode(e[0], e[1], MapNode(e[2], DirectionalBool(e[3]), e.getText()));
     le.displayUpdate = true;
     break;

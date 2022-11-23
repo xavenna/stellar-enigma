@@ -26,7 +26,6 @@ public:
   void setCollectable(const bool&);
   //! set the text of the object
   void setText(const std::string&);
-
   //! full parametrized constructor
   Object(int x, int y, int wid, int hei, int i, bool sol, bool col, const std::string& txt);
   //! empty constructor

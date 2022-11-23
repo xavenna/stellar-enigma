@@ -9,7 +9,10 @@ Object Level::getObj(int index) const {
   return objectList.at(index);
 }
 
-void Level::updateObj(int index, const Object& ob) {
+void Level::updateObj(unsigned index, const Object& ob) {
+  if(index >= objectList.size()) {
+    throw std::invalid_argument("Level::updateObj() : Invalid index");
+  }
   objectList.at(index) = ob;
 }
 
@@ -254,7 +257,7 @@ void Level::removeObject(unsigned index) {
   if(index >= objectList.size()) {
     throw std::invalid_argument("Level::removeObject() : Invalid index");
   }
-  objectList.erase(objectList.begin()+index);
+  objectList.erase(std::next(objectList.begin(),index));
 }
 void Level::handleEntities() {
   for(unsigned i=0;i<entityList.size();i++) {
@@ -287,6 +290,7 @@ void Level::handleObjects(sf::Vector2i pos, sf::Vector2i size) {
     x.area.setPosition(relPos.x,relPos.y);
     //area.setPosition((mid.x-tilesize.x)%(tilesize.x*(WINDOW_WIDTH-2))+tilesize.x*2-(width/2), (mid.y-tilesize.y)%(tilesize.y*(WINDOW_HEIGHT-2))+tilesize.y*2-(height/2));
 
+    x.setLastPos(x.getPos());
     // If you remove an object, make sure to do i--;
   }
 }

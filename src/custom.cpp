@@ -1,5 +1,6 @@
 #include "stellar-enigma.hpp"
 #include "mapdata.h"
+#include "callback.h"
 
 void MapData::customInit() {
   //this function is where any custom code to be run before the main loop should go
@@ -36,8 +37,6 @@ void MapData::event0Handle() {  //this mode is used for the main menu
 
 void MapData::event1Handle() {
   //this is the basic gameplay mode
-  int oldX = player.getXPos();
-  int oldY = player.getYPos();
   sf::Keyboard::Key lk;
   while(modeSwitcher.getLastKey(lk)) {
     int tempSpeed;
@@ -91,6 +90,7 @@ void MapData::event1Handle() {
   //for each element of the object/entity vectors, check if it intersects with the player
   //If so, do something...maybe run a callback from the object/entity
   for(int i=0;i<levelSlot.getObjNum();i++) {
+    int j = i;
     //check for collision between player and levelSlot.getObject(i);
     Object ob{levelSlot.getObj(i)};
     sf::Vector2i pmin{player.getPos()};
@@ -98,6 +98,8 @@ void MapData::event1Handle() {
 
     sf::Vector2i omin{ob.getPos()};
     sf::Vector2i omax{omin+ob.getSize()-sf::Vector2i(1,1)};
+
+    //I really think there is a better way to do this whole interaction thing
 
     if(pmin.x > omax.x || omin.x > pmax.x || pmin.y > omax.y || omin.y > pmax.y) {
       //no interaction
@@ -108,54 +110,12 @@ void MapData::event1Handle() {
       //use object id for this
       switch(ob.getId()) {
       case 0:
-	//stone: no interaction
+	//stone: push player out
+	solidBehave(ob, this);
 	break;
-      case 1: {
-	//crate: attempts to move playerSpeed units in player facing direction
-	//calculate potential final position, check if anything is in the way (maybe use a modified version of Level::validMove?)
-	
-	//calculate how far inside the crate player moves
-	int residSpeed;
-	switch(player.getFacing()) {
-	case Right:
-	  residSpeed = player.getXPos()+player.getSize().x-ob.getXPos();
-	  break;
-	case Down:
-	  residSpeed = player.getYPos()+player.getSize().y-ob.getYPos();
-	  break;
-	case Left:
-	  residSpeed = ob.getXPos()+ob.getSize().x-player.getXPos();
-	  break;
-	case Up:
-	  residSpeed = ob.getYPos()+ob.getSize().y-player.getYPos();
-	  break;
-	}
-	if(player.getFacing() == Up || player.getFacing() == Down) {
-	}
-	else {
-	}
-	int moveDistance = levelSlot.validMove(ob.getPos(), ob.getSize(), residSpeed, player.getFacing(), i );
-	//move the object moveDistance Units in player.getFacing() direction
-	switch(player.getFacing()) {
-	case Right:
-	  ob.setXPos(ob.getXPos()+moveDistance);
-	  player.setXPos(player.getXPos()-(residSpeed-moveDistance));
-	  break;
-	case Down:
-	  ob.setYPos(ob.getYPos()+moveDistance);
-	  player.setYPos(player.getYPos()-(residSpeed-moveDistance));
-	  break;
-	case Left:
-	  ob.setXPos(ob.getXPos()-moveDistance);
-	  player.setXPos(player.getXPos()+(residSpeed-moveDistance));
-	  break;
-	case Up:
-	  ob.setYPos(ob.getYPos()-moveDistance);
-	  player.setYPos(player.getYPos()+(residSpeed-moveDistance));
-	  break;
-	}
-      }
-	levelSlot.updateObj(i, ob);
+      case 1:
+
+	pushBehave(ob, this);
 	break;
       case 2:
 	//key: is picked up, and something happens. Attempts to play the cutscene specified
@@ -191,6 +151,11 @@ void MapData::event1Handle() {
 	//No interaction
 	break;
       }
+      if(i == j) {
+	levelSlot.updateObj(i, ob);
+      }
+    //if(i >= levelSlot.getObjNum()) {
+    //break;  // this is necessary until I find a better way, otherwise it attempts to read from removed nodes
     }
   }
 
@@ -222,23 +187,6 @@ void MapData::event1Handle() {
 
   if(oldps != newps)
     levelSlot.displayUpdate = true;
-  //player.getScreen()
-
-  /*
-  int xmod = WINDOW_WIDTH - 2;
-  int ymod = WINDOW_HEIGHT - 2;
-  int olpx = oldX / levelSlot.getTilesizeX();
-  int olpy = oldY / levelSlot.getTilesizeY();
-  int lpx = player.getXPos() / levelSlot.getTilesizeX();
-  int lpy = player.getYPos() / levelSlot.getTilesizeY();
-  if((olpx % xmod == 0 && lpx == olpx+1) ||
-     (lpx % xmod == 0 && olpx == lpx+1) ||
-     (olpy % ymod == 0 && lpy == olpy+1) ||
-     (lpy % ymod == 0 && olpy == lpy+1)) {
-
-    levelSlot.displayUpdate = true;
-  }
-  */
 
   levelSlot.handleEntities();
   levelSlot.handleObjects(player.getPos(), player.getSize());
@@ -252,8 +200,6 @@ void MapData::event1Handle() {
 
 
 void MapData::event2Handle() {  //this is the cutscene mode
-  int oldX = player.getXPos();
-  int oldY = player.getYPos();
   if(cutscenePlayer.updateCutscene(player, message, levelSlot, modeSwitcher, musicPlayer, cutsceneManager)) {
     //I'm not sure if anything needs to go here
   }
@@ -261,18 +207,10 @@ void MapData::event2Handle() {  //this is the cutscene mode
     //cutscene is over; do things now... 
     modeSwitcher.setMode(1); //switch back to gameplay mode
   }
+  sf::Vector2i oldps(player.getXScreen(), player.getYScreen());
   player.update(levelSlot.getTilesize());
-  int xmod = WINDOW_WIDTH - 2;
-  int ymod = WINDOW_HEIGHT - 2;
-  int olpx = oldX / levelSlot.getTilesizeX();
-  int olpy = oldY / levelSlot.getTilesizeY();
-  int lpx = player.getXPos() / levelSlot.getTilesizeX();
-  int lpy = player.getYPos() / levelSlot.getTilesizeY();
-  if((olpx % xmod == 0 && lpx == olpx+1) ||
-     (lpx % xmod == 0 && olpx == lpx+1) ||
-     (olpy % ymod == 0 && lpy == olpy+1) ||
-     (lpy % ymod == 0 && olpy == lpy+1)) {
+  sf::Vector2i newps(player.getXScreen(), player.getYScreen());
 
+  if(oldps != newps)
     levelSlot.displayUpdate = true;
-  }
 }

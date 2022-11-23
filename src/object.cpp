@@ -19,20 +19,20 @@ void Object::setText(const std::string& n) {
   text = n;
 }
 Object::Object(int x, int y, int wid, int hei, int i, bool sol, bool col, const std::string& txt) : text{txt} {
-  xpos = x;
-  ypos = y;
-  width = wid;
-  height = hei;
+  pos.x = x;
+  pos.y = y;
+  size.x = wid;
+  size.y = hei;
   id = i;
   solid = sol;
   collectable = col;
 }
 
 Object::Object() {
-  xpos = 0;
-  ypos = 0;
-  width = 0;
-  height = 0;
+  pos.x = 0;
+  pos.y = 0;
+  size.x = 0;
+  size.y = 0;
   id = 0;
   solid = false;
   collectable = false;

@@ -10,12 +10,10 @@
  */
 class Mutable {
 protected:
-  int xpos; //!< X position of the mutable
-  int ypos; //!< Y position of the mutable
-  int xScreen; //!< Which screen mutable is on horizontally
-  int yScreen; //!< Which screen mutable is on vertically
-  int width; //!< width of the mutable in pixels
-  int height; //!< height of the mutable in pixels
+  sf::Vector2i pos;
+  sf::Vector2i lastPos; //!< Where the mutable was before its most recent move
+  sf::Vector2i screen;
+  sf::Vector2i size;
   bool solid; //!< whether the mutable can be passed through (I think)
 public:
   //! Get the x position of the mutable
@@ -33,12 +31,23 @@ public:
   //! Get the solidity of the mutable
   bool getSolid() const;
 
-  //! get the size of the mutable as a sf::Vector2i
+  //! get the position of the mutable as a sf::Vector2i
   sf::Vector2i getPos() const;
+  //! get the last position of the mutable as a sf::Vector2i
+  sf::Vector2i getLastPos() const;
   //! get the size of the mutable as a sf::Vector2i
   sf::Vector2i getSize() const;
   //! get the screen-pos of the mutable as a sf::Vector2i
   sf::Vector2i getScreen() const;
+
+  //! set the position of the mutable as a sf::Vector2i
+  void setPos(sf::Vector2i);
+  //! set the last position of the mutable as a sf::Vector2i
+  void setLastPos(sf::Vector2i);
+  //! set the size of the mutable as a sf::Vector2i
+  void setSize(sf::Vector2i);
+  //! set the screen-pos of the mutable as a sf::Vector2i
+  void setScreen(sf::Vector2i);
 
   //! set the x position of the mutable
   void setXPos(const int&);

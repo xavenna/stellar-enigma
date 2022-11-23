@@ -1,59 +1,74 @@
 #include "mutable.h"
 
 int Mutable::getXPos() const{
-  return xpos;
+  return pos.x;
 }
 int Mutable::getYPos() const{
-  return ypos;
+  return pos.y;
 }
 int Mutable::getWidth() const{
-  return width;
+  return size.x;
 }
 int Mutable::getHeight() const{
-  return height;
+  return size.y;
 }
 int Mutable::getXScreen() const{
-  return xScreen;
+  return screen.x;
 }
 int Mutable::getYScreen() const{
-  return yScreen;
+  return screen.y;
 }
 bool Mutable::getSolid() const{
   return solid;
 }
 
 sf::Vector2i Mutable::getPos() const {
-  return sf::Vector2i(xpos, ypos);
+  return pos;
+}
+sf::Vector2i Mutable::getLastPos() const {
+  return lastPos;
 }
 sf::Vector2i Mutable::getSize() const {
-  return sf::Vector2i(width, height);
+  return size;
 }
 sf::Vector2i Mutable::getScreen() const {
-  return sf::Vector2i(xScreen, yScreen);
+  return screen;
 }
 
+void Mutable::setPos(sf::Vector2i n) {
+  pos = n;
+}
+void Mutable::setLastPos(sf::Vector2i n) {
+  lastPos = n;
+}
+void Mutable::setSize(sf::Vector2i n) {
+  size = n;
+}
+void Mutable::setScreen(sf::Vector2i n) {
+  screen = n;
+}
 
 void Mutable::setXPos(const int& n) {
-  xpos = n;
+  pos.x = n;
 }
 void Mutable::setYPos(const int& n) {
-  ypos = n;
+  pos.y = n;
 }
 void Mutable::setPos(const int& m, const int& n) {
-  xpos = m;
-  ypos = n;
+  pos.x = m;
+  pos.y = n;
 }
 void Mutable::setWidth(const int& n) {
-  width = n;
+  size.x = n;
 }
 void Mutable::setHeight(const int& n) {
-  height = n;
+  size.y = n;
 }
 void Mutable::setXScreen(const int& n) {
-  xScreen = n;
+  screen.x = n;
 }
 void Mutable::setYScreen(const int& n) {
-  yScreen = n;
+  screen.y = n;
 }
 void Mutable::setSolid(const bool& n) {
   solid = n;

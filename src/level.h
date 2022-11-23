@@ -34,7 +34,7 @@ public:
   //! returns a copy of specified entity
   Entity getEnt(int index) const;
   //! updates specified object with passed object
-  void updateObj(int index, const Object&);
+  void updateObj(unsigned index, const Object&);
   //! a fixed-size map that is actually drawn to the screen
   std::array<std::array<MapNode, WINDOW_HEIGHT>, WINDOW_WIDTH> window;
   //! overwrites the mapnode at position x,y with node

@@ -98,7 +98,7 @@ public:
   bool displayObject(unsigned index, sf::Vector2i ppos, sf::Vector2i size) const;
 
   //! Determines how far the player can move before running into an obstacle
-  int validMove(sf::Vector2i pos, sf::Vector2i size, int speed,  Direction facing, int ignore=-1) const;
+  sf::Vector2i validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i speed, int ignore=-1) const;
   //! A constructor that sets the size of mapBase to (arg1, arg2)
   /*!
    *  Doesn't set tilesize

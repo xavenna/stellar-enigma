@@ -15,7 +15,6 @@ void nullBehave(Object& ob, Player& player, Level& level) {
   level.getTilesizeX();
 }
 
-//so, diagonal movement breaks this
 void solidBehave(Object& ob, MapData* md) {
   sf::Vector2i pmin{md->player.getPos()};
   sf::Vector2i pmax{pmin+md->player.getSize()-sf::Vector2i(1,1)};
@@ -55,7 +54,6 @@ void solidBehave(Object& ob, MapData* md) {
   }
 }
 
-//so, diagonal movement breaks this
 void pushBehave(Object& ob, MapData* md) {
   //crate: attempts to move md->playerSpeed units in md->player facing direction
   
@@ -107,6 +105,8 @@ void pushBehave(Object& ob, MapData* md) {
     py = -1;
   }
   sf::Vector2i moveDistance;
+  moveDistance = md->levelSlot.validMove(ob.getPos(), ob.getSize(), residSpeed);
+  /*
   if(px == 1) {
     moveDistance.x = md->levelSlot.validMove(ob.getPos(), ob.getSize(), residSpeed.x, Right);
   }
@@ -125,7 +125,8 @@ void pushBehave(Object& ob, MapData* md) {
   else {
     moveDistance.y = 0;
   }
-  moveDistance.y = md->levelSlot.validMove(ob.getPos(), ob.getSize(), residSpeed.y, md->player.getFacing());
+  */
+  //moveDistance.y = md->levelSlot.validMove(ob.getPos(), ob.getSize(), residSpeed.y, md->player.getFacing());
   //move the object moveDistance Units in md->player.getFacing() direction
   if(xInt && pmin.x < omin.x) {
     ob.setXPos(ob.getXPos()+moveDistance.x);

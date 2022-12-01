@@ -35,34 +35,54 @@ void MapData::event0Handle() {  //this mode is used for the main menu
   }
 }
 
+// TODO: modify this function to fix diagonal movement bug MkII 
+
 void MapData::event1Handle() {
   //this is the basic gameplay mode
   sf::Keyboard::Key lk;
+  sf::Vector2i moveDir(0,0);
   while(modeSwitcher.getLastKey(lk)) {
-    int tempSpeed;
     if(lk == sf::Keyboard::Quote) {
       //query message
       std::cout << message.getMessage() << '\n';
     }
     if(lk == sf::Keyboard::W) {
-      player.setFacing(Up);
-      tempSpeed = levelSlot.validMove(player.getPos(), player.getSize(), player.getSpeed(), player.getFacing());
-      player.setYPos(player.getYPos() - tempSpeed);
-      if(tempSpeed > 0) {
-	//move succeeded
-	musicPlayer.queueSound("step");
-      }
+      if(moveDir.y == 0)
+	moveDir.y = -1;
+      else
+	moveDir.y = 0;
     }
     else if(lk == sf::Keyboard::A) {
-      player.setFacing(Left);
-      tempSpeed = levelSlot.validMove(player.getPos(), player.getSize(), player.getSpeed(), player.getFacing());
-      player.setXPos(player.getXPos() - tempSpeed);
-      if(tempSpeed > 0) {
-	//move succeeded
-	musicPlayer.queueSound("step");
-      }
+      if(moveDir.x == 0)
+	moveDir.x = -1;
+      else
+	moveDir.x = 0;
     }
     else if(lk == sf::Keyboard::S) {
+      if(moveDir.y == 0)
+	moveDir.y = 1;
+      else
+	moveDir.y = 0;
+    }
+    else if(lk == sf::Keyboard::D) {
+      if(moveDir.x == 0)
+	moveDir.x = 1;
+      else
+	moveDir.x = 0;
+    }
+  }
+  //std::cout << moveDir.x << ',' << moveDir.y << '\n';
+  //now that all input has been gathered, handle movement
+  int tempSpeed;
+  sf::Vector2i sp(moveDir.x * player.getSpeed(), moveDir.y * player.getSpeed());
+  /*
+  if(moveDir.x == 0) {
+    if(moveDir.y == 0) {
+      //no motion
+
+    }
+    else if(moveDir.y == 1) {
+      //move down
       player.setFacing(Down);
       tempSpeed = levelSlot.validMove(player.getPos(), player.getSize(), player.getSpeed(), player.getFacing());
       player.setYPos(player.getYPos() + tempSpeed);
@@ -71,7 +91,20 @@ void MapData::event1Handle() {
 	musicPlayer.queueSound("step");
       }
     }
-    else if(lk == sf::Keyboard::D) {
+    else if(moveDir.y == -1) {
+      //move up
+      player.setFacing(Up);
+      tempSpeed = levelSlot.validMove(player.getPos(), player.getSize(), player.getSpeed(), player.getFacing());
+      player.setYPos(player.getYPos() - tempSpeed);
+      if(tempSpeed > 0) {
+	//move succeeded
+	musicPlayer.queueSound("step");
+      }
+    }
+  }
+  else if(moveDir.x == 1) {
+    if(moveDir.y == 0) {
+      //move right
       player.setFacing(Right);
       tempSpeed = levelSlot.validMove(player.getPos(), player.getSize(), player.getSpeed(), player.getFacing());
       player.setXPos(player.getXPos() + tempSpeed);
@@ -80,9 +113,35 @@ void MapData::event1Handle() {
 	musicPlayer.queueSound("step");
       }
     }
+    else if(moveDir.y == 1) {
+      //down right
+    }
+    else if(moveDir.y == -1) {
+      //up right
+    }
   }
-  //post-handling thingies
+  else if(moveDir.x == -1) {
+    if(moveDir.y == 0) {
+      //move left
+      player.setFacing(Left);
+      tempSpeed = levelSlot.validMove(player.getPos(), player.getSize(), player.getSpeed(), player.getFacing());
+      player.setXPos(player.getXPos() - tempSpeed);
+      if(tempSpeed > 0) {
+	//move succeeded
+	musicPlayer.queueSound("step");
+      }
+    }
+    else if(moveDir.y == 1) {
+      //down left
+    }
+    else if(moveDir.y == -1) {
+      //up left
+    }
+  }
+  */
 
+  sp = levelSlot.validMove(player.getPos(), player.getSize(), sp);
+  player.setPos(player.getPos() + sp);
   //check for interaction between player and objects/entities
 
   //this might make more sense to be a separate function

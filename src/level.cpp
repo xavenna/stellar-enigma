@@ -175,7 +175,6 @@ void Level::loadMutables(const std::string& levelname) {
       str2obj(line.substr(1), o);
       o.area.setPosition(o.getXPos()+tilesizeX, o.getYPos()+tilesizeY);
       objectList.push_back(o);
-      //std::cout << o.getId()<<'\n';
       //add o to object list
     }
     //the others will be written once objects work
@@ -332,27 +331,31 @@ bool Level::displayObject(unsigned index, sf::Vector2i ppos, sf::Vector2i size) 
 
 }
 
-int Level::validMove(sf::Vector2i pos, sf::Vector2i size, int speed,  Direction facing, int ignore) const {
+sf::Vector2i Level::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i speed, int ignore) const {
   //sorry about how awful this code is
 
   //convert player coordinates to level coordinates
   int playX = int(pos.x / getTilesizeX());
   int playY = int(pos.y / getTilesizeY());
+  int playXg = int((pos.x+size.x-1) / getTilesizeX());
+  int playYg = int((pos.y+size.y-1) / getTilesizeY());
   int phx = pos.x + size.x;
   int phy = pos.y + size.y;
   bool fullMove = true;
-  int moveDistance = speed;
-  int tempSpeed = speed;
+  sf::Vector2i moveDistance = speed;
+  sf::Vector2i deltaR;
+  int tempSpeed = 0;
 
   //find destination square
-  switch(facing) {
-  case Up:
-    if(pos.y - speed < 0) {
+  
+  if(speed.y < 0) {
+    //std::cout << speed.x << '\n';
+    if(pos.y < speed.y) {
       fullMove = false;
-      moveDistance = pos.y;
+      moveDistance.y = pos.y;
     }
-    if(playY != 0) {
-      int numTiles = int(size.x / getTilesizeX());
+    if(playY != 0) { //if the player isn't at the bottom edge of the map
+      int numTiles = int(size.x / getTilesizeX()); //how many tiles to check for collision
       int extraTile = (phx % getTilesizeX() == 0) ? 0 : 1;
       for(int i=0; i<numTiles+extraTile; i++) {
 	int cxP = pos.x + i * getTilesizeX();
@@ -360,37 +363,16 @@ int Level::validMove(sf::Vector2i pos, sf::Vector2i size, int speed,  Direction 
 	  cxP = phx;
 	if(getNode(int(cxP/getTilesizeX()), int(pos.y/getTilesizeY())-1).getSolid(Up)) {
 	  tempSpeed = pos.y - playY * getTilesizeY();
-	  moveDistance = moveDistance > tempSpeed ? tempSpeed : moveDistance;
+	  moveDistance.y = abs(moveDistance.y) > abs(tempSpeed) ? tempSpeed : moveDistance.y;
 	}
       }
       fullMove = false;
     }
-    //test object collision
-    break;
-  case Right:
-    if(phx + speed >= getWidth() * getTilesizeX()) {
+  }
+  else if(speed.y > 0) {
+    if(phy + speed.y >= getHeight() * getTilesizeY()) {
       fullMove = false;
-      moveDistance = getWidth() * getTilesizeX() - phx;
-    }
-    if(playX != getWidth()) {
-      int numTiles = int(size.y / getTilesizeY());
-      int extraTile = (phy % getTilesizeY() == 0) ? 0 : 1;
-      for(int i=0;i<numTiles+extraTile; i++) {
-	int cyP = pos.y + i * getTilesizeY();
-	if(cyP > phy)
-	  cyP = phy;
-	if(getNode(int((phx)/getTilesizeX()), int(cyP/getTilesizeY())).getSolid(Right)) {
-	  tempSpeed = int(phx / getTilesizeX()) * getTilesizeX() - phx;
-	  moveDistance = moveDistance > tempSpeed ? tempSpeed : moveDistance;
-	}
-      }
-      fullMove = false;
-    }
-    break;
-  case Down:
-    if(phy + speed >= getHeight() * getTilesizeY()) {
-      fullMove = false;
-      moveDistance = getHeight() * getTilesizeY() - phy;
+      moveDistance.y = getHeight() * getTilesizeY() - phy;
     }
     if(playY != getHeight()) {
       int numTiles = int(size.x / getTilesizeX());
@@ -401,16 +383,16 @@ int Level::validMove(sf::Vector2i pos, sf::Vector2i size, int speed,  Direction 
 	  cxP = phx;
 	if(getNode(int(cxP/getTilesizeX()), int((phy)/getTilesizeY())).getSolid(Down)) {
 	  tempSpeed = int(phy / getTilesizeY()) * getTilesizeY() - phy;
-	  moveDistance = moveDistance > tempSpeed ? tempSpeed : moveDistance;
+	  moveDistance.y = moveDistance.y > tempSpeed ? tempSpeed : moveDistance.y;
 	}
       }
       fullMove = false;
     }
-    break;
-  case Left:
-    if(pos.x - speed < 0) {
+  }
+  if(speed.x < 0) {
+    if(pos.x < speed.x) {
       fullMove = false;
-      moveDistance = pos.x;
+      moveDistance.x = pos.x;
     }
     if(playX != 0) {
       int numTiles = int(size.y / getTilesizeY());
@@ -421,21 +403,109 @@ int Level::validMove(sf::Vector2i pos, sf::Vector2i size, int speed,  Direction 
 	  cyP = phy;
 	if(getNode(int(pos.x/getTilesizeX())-1, int(cyP/getTilesizeY())).getSolid(Left)) {
 	  tempSpeed = pos.x - playX * getTilesizeX();
-	  moveDistance = moveDistance > tempSpeed ? tempSpeed : moveDistance;
+	  moveDistance.x = abs(moveDistance.x) > abs(tempSpeed) ? tempSpeed : moveDistance.x;
 	}
       }
       fullMove = false;
     }
-    break;
+  }
+  else if(speed.x > 0) {
+    if(phx + speed.x >= getWidth() * getTilesizeX()) {
+      fullMove = false;
+      moveDistance.x = getWidth() * getTilesizeX() - phx;
+    }
+    if(playX != getWidth()) {
+      int numTiles = int(size.y / getTilesizeY());
+      int extraTile = (phy % getTilesizeY() == 0) ? 0 : 1;
+      for(int i=0;i<numTiles+extraTile; i++) {
+	int cyP = pos.y + i * getTilesizeY();
+	if(cyP > phy)
+	  cyP = phy;
+	if(getNode(int((phx)/getTilesizeX()), int(cyP/getTilesizeY())).getSolid(Right)) {
+	  tempSpeed = int(phx / getTilesizeX()) * getTilesizeX() - phx;
+	  moveDistance.x = moveDistance.x > tempSpeed ? tempSpeed : moveDistance.x;
+	}
+      }
+      fullMove = false;
+    }
   }
 
+  
+
+  sf::Vector2i p = pos + moveDistance;
+
+  int playXn = int(p.x / getTilesizeX());
+  int playYn = int(p.y / getTilesizeY());
+  int playXgn = int((p.x+size.x-1) / getTilesizeX());
+  int playYgn = int((p.y+size.y-1) / getTilesizeY());
+  bool colly = false;
+  bool collx = false;
+  //std::cout << playXn << ' ' << playXgn << '\n';
+
+  if(moveDistance.x < 0 && moveDistance.y < 0) {
+    if(playX != playXn) {
+      if(getNode(playXn, playYn).getSolid(Left)) {
+	collx = true;
+      }
+    }
+    if(playY != playYn) {
+      if(getNode(playXn, playYn).getSolid(Up)) {
+	colly = true;
+      }
+    }
+  }
+  else if(moveDistance.x < 0 && moveDistance.y > 0) {
+    if(playX != playXn) {
+      if(getNode(playXn, playYgn).getSolid(Left)) {
+	collx = true;
+      }
+    }
+    if(playYg != playYgn) {
+      if(getNode(playXn, playYgn).getSolid(Down)) {
+	colly = true;
+      }
+    }
+  }
+  else if(moveDistance.x > 0 && moveDistance.y < 0) {
+    if(playXg != playXgn) {
+      if(getNode(playXgn, playYn).getSolid(Right)) {
+	collx = true;
+      }
+    }
+    if(playY != playYn) {
+      if(getNode(playXgn, playYn).getSolid(Up)) {
+	colly = true;
+      }
+    }
+  }
+  else if(moveDistance.x > 0 && moveDistance.y > 0) {
+    if(playXg != playXgn) {
+      if(getNode(playXgn, playYgn).getSolid(Right)) {
+	collx = true;
+      }
+    }
+    if(playYg != playYgn) {
+      if(getNode(playXgn, playYgn).getSolid(Down)) {
+	colly = true;
+      }
+    }
+  }
+
+  if(collx)
+    moveDistance.x = 0;
+  if(colly)
+    moveDistance.y = 0;
+  //std::cout << moveDistance.x << ' ' << moveDistance.y << ' ' << md2.x << ' ' << md2.y << '\n';
+
+
+  //check if the resulting move
   //now, iterate through all objects, check if they are solid, and if so,
   //check if they block player's path. If so, shorten move distance.
 
   //make sure to prevent player becoming trapped inside a solid object
 
   //just repeat this with entities, if necessary
-  tempSpeed = moveDistance;
+  sf::Vector2i ts = moveDistance;
   for(int i=0;i<static_cast<int>(objectList.size());i++) {
     auto x = objectList[i];
     if(i == ignore) {
@@ -444,37 +514,36 @@ int Level::validMove(sf::Vector2i pos, sf::Vector2i size, int speed,  Direction 
     if(!x.getSolid()) {
       continue;
     }
-    switch (facing) {
-    case Up:
+    if(speed.y < 0) {
       if(!(pos.x >= x.getXPos()+x.getWidth() || phx <= x.getXPos())
 	 && pos.y >= x.getYPos()+x.getHeight()
-	 && pos.y-tempSpeed < x.getYPos()+x.getHeight()) {
-	tempSpeed = -(x.getYPos()+x.getHeight() - pos.y);
+	 && pos.y-ts.y < x.getYPos()+x.getHeight()) {
+	ts.y = -(x.getYPos()+x.getHeight() - pos.y);
 	fullMove = false;
-	moveDistance = moveDistance > tempSpeed ? tempSpeed : moveDistance;
+	moveDistance.y = moveDistance.y > ts.y ? ts.y : moveDistance.y;
       }
-      break;
-    case Right:
-      if(!(pos.y >= x.getYPos()+x.getHeight() || phy <= x.getYPos()) && (phx <= x.getXPos() && phx+tempSpeed > x.getXPos())) {
-	tempSpeed = x.getXPos() - phx;  //the math checks out
+    }
+    if(speed.x > 0) {
+      if(!(pos.y >= x.getYPos()+x.getHeight() || phy <= x.getYPos()) && (phx <= x.getXPos() && phx+ts.x > x.getXPos())) {
+	ts.x = x.getXPos() - phx;  //the math checks out
 	fullMove = false;
-	moveDistance = moveDistance > tempSpeed ? tempSpeed : moveDistance;
+	moveDistance.x = moveDistance.x > ts.x ? ts.x : moveDistance.x;
       }
-      break;
-    case Down:
+    }
+    if(speed.y > 0) {
       if(!(pos.x >= x.getXPos()+x.getWidth() || phx <= x.getXPos()) && (phy <= x.getYPos() && phy+tempSpeed > x.getYPos())) {
-	tempSpeed = x.getYPos() - phy;  //the math checks out
+	ts.y = x.getYPos() - phy;  //the math checks out
 	fullMove = false;
-	moveDistance = moveDistance > tempSpeed ? tempSpeed : moveDistance;
+	moveDistance.y = moveDistance.y > ts.x ? ts.x : moveDistance.y;
       }
-      break;
-    case Left:
+    }
+    if(speed.x < 0) {
       if(!(pos.y >= x.getYPos()+x.getHeight() || phy <= x.getYPos())
 	 && pos.x >= x.getXPos()+x.getWidth()
-	 && pos.x-tempSpeed < x.getXPos()+x.getWidth()) {
-	tempSpeed = -(x.getXPos()+x.getWidth() - pos.x);
+	 && pos.x-ts.x < x.getXPos()+x.getWidth()) {
+	ts.x = -(x.getXPos()+x.getWidth() - pos.x);
 	fullMove = false;
-	moveDistance = moveDistance > tempSpeed ? tempSpeed : moveDistance;
+	moveDistance.x = moveDistance.x > ts.x ? ts.x : moveDistance.x;
       }
       break;
     }

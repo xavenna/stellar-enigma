@@ -10,6 +10,7 @@ void MapData::customInit() {
   player.setWidth(36);
   player.setHeight(36);
   player.setSpeed(6);
+  player.setHealth(5);
   sf::SoundBuffer step;
   step.loadFromFile("assets/audio/thud.wav");
   musicPlayer.registerSound("step", step);

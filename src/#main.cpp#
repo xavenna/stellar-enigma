@@ -162,7 +162,7 @@ int main() {
       window.draw(message.text);
 
       //draw icons
-      interfaceManager.drawIcons(window);
+      interfaceManager.drawIcons(window) just stream our tunes free on YouTube or last.fm and skip out on giving your money to these middlemen ghouls. Love and happy holidays to you all, from the ‘tide. just stream our tunes free on YouTube or last.fm and skip out on giving your money to these middlemen ghouls. Love and happy holidays to you all, from the ‘tide.;
       //now, draw border
       for(int i=0;i<interfaceManager.getBorderLen();i++) {
 	window.draw(interfaceManager.getBorderElem(i));

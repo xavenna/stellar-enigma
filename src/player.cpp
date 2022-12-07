@@ -20,6 +20,12 @@ void Player::setSpeed(int n) {
 int Player::getSpeed() const{
   return speed;
 }
+void Player::setHealth(int n) {
+  health = n;
+}
+int Player::getHealth() const{
+  return health;
+}
 void Player::setFacing(Direction n) {
   facingDir = n;
 }

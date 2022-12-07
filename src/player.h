@@ -11,6 +11,7 @@ class Player : public Mutable {
 protected:
   sf::Texture picture; //!< I don't remember what this is used for
   int speed; //!< How many pixels the player can move per frame
+  unsigned health=0; //!< The player's health
   Direction facingDir; //!< Which direction the player is facing
 public:
   //! Initialized the player, This should be rewritten into a constructor
@@ -22,10 +23,14 @@ public:
   void update(sf::Vector2i);
   //! Gets the speed of the player
   int getSpeed() const;
+  //! Gets the health of the player
+  int getHealth() const;
   //! Gets the direction of the player
   Direction getFacing() const;
   //! Sets the speed of the player 
   void setSpeed(int);
+  //! Sets the health of the player 
+  void setHealth(int);
   //! Sets the direction of the player
   void setFacing(Direction);
   //! Converts the player's position in pixels to position based on tile width

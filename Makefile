@@ -2,7 +2,7 @@
 # https://stackoverflow.com/a/23418196
 EXE = stellar
 CC = g++
-CPPFLAGS = -Wall -Wextra -fexceptions -std=c++11
+CPPFLAGS = -Wall -Wextra -fexceptions -std=c++17
 
 
 ifeq ($(OS),Windows_NT)

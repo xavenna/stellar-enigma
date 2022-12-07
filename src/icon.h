@@ -14,7 +14,7 @@ public:
   unsigned getId() const;
   virtual void update();
   Icon(std::string);
-
+  sf::Texture tex;
 protected:
   sf::Vector2u size;
   sf::Vector2i pos;
@@ -32,5 +32,5 @@ public:
 
 
 void nullAct();
-unsigned showHealthAsNumber(const Player*);
+void showHealthAsNumber(const Player*, sf::Texture&);
 #endif

@@ -28,9 +28,7 @@ int main() {
   int panOfX;
   int msgOfY;
   sf::Vector2i windowSize;
-  TextureMap IconTM;
-  IconTM.initialize("assets/texturemap/icon.tm");
-  InterfaceManager interfaceManager(IconTM);
+  InterfaceManager interfaceManager;
   windowSize = interfaceManager.initializeInterface(sf::Vector2i(288, 288), msgOfY, panOfX, &player);
 
   std::string windowName;  //this is the name of the window

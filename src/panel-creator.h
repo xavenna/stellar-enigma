@@ -19,8 +19,7 @@ public:
   bool isValidCallback(std::string);
   void updateIcons(const Player*);
   void drawIcons(sf::RenderWindow&);
-  TextureMap& tm;
-  PanelCreator(TextureMap&);
+  PanelCreator();
 private:
   std::vector<Icon> icons;
   std::vector<PIcon> picons; //there may be a better way to do this

@@ -38,12 +38,10 @@ void PanelCreator::createPanel() {
 void PanelCreator::updateIcons(const Player* p) {
   for(auto& x : icons) {
     x.update();
-    x.setTexture(tm.getTexture(x.getId()));
     x.setSize(x.getTexture()->getSize());
   }
   for(auto& x : picons) {
     x.update(p);
-    x.setTexture(tm.getTexture(x.getId()));
     x.setSize(x.getTexture()->getSize());
   }
 }
@@ -107,16 +105,16 @@ bool PanelCreator::loadIcons(std::string file) {
     if(type == "n") {
       //normal icon
       icons.push_back(Icon(callback));
-      // icons.back().tex.loadFromFile(tex.string());
-      // icons.back().setTexture(icons.back().tex);
-      // icons.back().setSize(icons.back().tex.getSize());
+      icons.back().tex.loadFromFile(tex.string());
+      icons.back().setTexture(icons.back().tex);
+      icons.back().setSize(icons.back().tex.getSize());
     }
     else if(type == "p") {
       //player-linked icon
       picons.push_back(PIcon(callback));
-      // picons.back().tex.loadFromFile(tex.string());
-      // picons.back().setTexture(picons.back().tex);
-      // picons.back().setSize(picons.back().tex.getSize());
+      picons.back().tex.loadFromFile(tex.string());
+      picons.back().setTexture(picons.back().tex);
+      picons.back().setSize(picons.back().tex.getSize());
     }
     else {
       std::cout << "Error: invalid icon type\n";
@@ -128,5 +126,5 @@ bool PanelCreator::loadIcons(std::string file) {
   return true;
 }
 
-PanelCreator::PanelCreator(TextureMap& t) : tm{t} {
+PanelCreator::PanelCreator() {
 }

@@ -17,7 +17,7 @@
 
 class InterfaceManager {
 public:
-  InterfaceManager(TextureMap&);
+  InterfaceManager();
   int getBorderLen();
   size_t getNumIcons();
   sf::Sprite& getBorderElem(int);

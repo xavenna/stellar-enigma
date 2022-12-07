@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <filesystem>
 
-InterfaceManager::InterfaceManager(TextureMap& tm) : bd(sf::Vector2i(36,36)), pc{tm} {
+InterfaceManager::InterfaceManager() : bd(sf::Vector2i(36,36)) {
 }
 
 //this function needs to return:

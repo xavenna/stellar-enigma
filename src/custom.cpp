@@ -27,11 +27,18 @@ void initialSetup(std::string& name, int& framerate) {
   framerate = 30;   //the framerate
 }
 
-void MapData::event0Handle() {  //this mode is used for the main menu
+int MapData::event0Handle() {  //this mode is used for the main menu
   sf::Keyboard::Key lk;
   while(modeSwitcher.getLastKey(lk)) {
     if(lk == sf::Keyboard::Enter) {
-      modeSwitcher.setMode(1);
+      switch(mainMenu.onPress) {
+      case 1:
+	modeSwitcher.setMode(1);
+	return 0;
+      case -1:
+	return -1;
+	//signal window to close, somehow
+      }
     }
   }
 }
@@ -76,70 +83,7 @@ void MapData::event1Handle() {
   //now that all input has been gathered, handle movement
   int tempSpeed;
   sf::Vector2i sp(moveDir.x * player.getSpeed(), moveDir.y * player.getSpeed());
-  /*
-  if(moveDir.x == 0) {
-    if(moveDir.y == 0) {
-      //no motion
 
-    }
-    else if(moveDir.y == 1) {
-      //move down
-      player.setFacing(Down);
-      tempSpeed = levelSlot.validMove(player.getPos(), player.getSize(), player.getSpeed(), player.getFacing());
-      player.setYPos(player.getYPos() + tempSpeed);
-      if(tempSpeed > 0) {
-	//move succeeded
-	musicPlayer.queueSound("step");
-      }
-    }
-    else if(moveDir.y == -1) {
-      //move up
-      player.setFacing(Up);
-      tempSpeed = levelSlot.validMove(player.getPos(), player.getSize(), player.getSpeed(), player.getFacing());
-      player.setYPos(player.getYPos() - tempSpeed);
-      if(tempSpeed > 0) {
-	//move succeeded
-	musicPlayer.queueSound("step");
-      }
-    }
-  }
-  else if(moveDir.x == 1) {
-    if(moveDir.y == 0) {
-      //move right
-      player.setFacing(Right);
-      tempSpeed = levelSlot.validMove(player.getPos(), player.getSize(), player.getSpeed(), player.getFacing());
-      player.setXPos(player.getXPos() + tempSpeed);
-      if(tempSpeed > 0) {
-	//move succeeded
-	musicPlayer.queueSound("step");
-      }
-    }
-    else if(moveDir.y == 1) {
-      //down right
-    }
-    else if(moveDir.y == -1) {
-      //up right
-    }
-  }
-  else if(moveDir.x == -1) {
-    if(moveDir.y == 0) {
-      //move left
-      player.setFacing(Left);
-      tempSpeed = levelSlot.validMove(player.getPos(), player.getSize(), player.getSpeed(), player.getFacing());
-      player.setXPos(player.getXPos() - tempSpeed);
-      if(tempSpeed > 0) {
-	//move succeeded
-	musicPlayer.queueSound("step");
-      }
-    }
-    else if(moveDir.y == 1) {
-      //down left
-    }
-    else if(moveDir.y == -1) {
-      //up left
-    }
-  }
-  */
 
   sp = levelSlot.validMove(player.getPos(), player.getSize(), sp);
   player.setPos(player.getPos() + sp);
@@ -207,6 +151,10 @@ void MapData::event1Handle() {
 	  modeSwitcher.setMode(2);
 	}
 	break;
+      case 5:
+	//spikes
+	hurtBehave(ob, this);
+	break;
       default:
 	//No interaction
 	break;
@@ -241,6 +189,13 @@ void MapData::event1Handle() {
     }
   }
 
+  if(player.damaged) {
+    player.damaged = false;
+    player.resetCooldown();
+  }
+  else if(player.getCooldown() != 0) {
+    player.decrementCooldown();
+  }
   sf::Vector2i oldps(player.getXScreen(), player.getYScreen());
   player.update(levelSlot.getTilesize());
   sf::Vector2i newps(player.getXScreen(), player.getYScreen());
@@ -255,6 +210,13 @@ void MapData::event1Handle() {
   if(cn != "") {
     cutscenePlayer.loadCutscene(cutsceneManager.getCutscene(cn));
     modeSwitcher.setMode(2);
+  }
+
+  if(player.getHealth() == 0) {
+    modeSwitcher.setMode(0);
+    mainMenu.spT.loadFromFile("assets/splash/deathscreen.png");
+    mainMenu.splash.setTexture(mainMenu.spT);
+    mainMenu.onPress = -1;
   }
 }
 

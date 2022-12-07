@@ -9,4 +9,6 @@ void solidBehave(Object& ob, MapData* md);
 
 void pushBehave(Object& ob, MapData* md);
 
+void hurtBehave(Object& ob, MapData* md);
+
 #endif

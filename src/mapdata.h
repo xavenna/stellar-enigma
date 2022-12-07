@@ -25,7 +25,7 @@ public:
   //! Any custom initialization behavior goes here
   void customInit();  
   //! Handles events if the engine is in mode 0
-  void event0Handle();
+  int event0Handle();
   //! Handles events if the engine is in mode 1
   void event1Handle();
   //! Handles events if the engine is in mode 2

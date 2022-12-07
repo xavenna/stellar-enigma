@@ -1,11 +1,12 @@
 #include "player.h"
 #include "level.h"
 
-void Player::initialize() {
+void Player::initialize(unsigned c) {
   setPos(0,0);
   facingDir = Up;
   picture.loadFromFile("assets/texture/player.png");
   area.setTexture(picture);
+  maxCooldown = c;
 }
 void Player::update(sf::Vector2i tilesize) {
   lastPos = pos;
@@ -14,6 +15,23 @@ void Player::update(sf::Vector2i tilesize) {
   screen.y = (mid.y-tilesize.y) / (tilesize.y*(WINDOW_HEIGHT-2));
   area.setPosition((mid.x-tilesize.x)%(tilesize.x*(WINDOW_WIDTH-2))+tilesize.x*2-(size.x/2), (mid.y-tilesize.y)%(tilesize.y*(WINDOW_HEIGHT-2))+tilesize.y*2-(size.y/2));
 } // I know this is kind of spaghetti, but it works
+
+unsigned Player::decrementCooldown() {
+  return cooldown==0?0:(--cooldown);
+}
+unsigned Player::getCooldown() {
+  return cooldown;
+}
+void Player::resetCooldown() {
+  cooldown = maxCooldown;
+}
+unsigned Player::modifyHealth(int h) {
+  return int(health)+h<0?0:(health+=h);
+}
+unsigned Player::getHealth() {
+  return health;
+}
+
 void Player::setSpeed(int n) {
   speed = n;
 }

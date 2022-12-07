@@ -11,11 +11,14 @@ class Player : public Mutable {
 protected:
   sf::Texture picture; //!< I don't remember what this is used for
   int speed; //!< How many pixels the player can move per frame
+  unsigned maxCooldown=0; //!< Number of invincibility frames
+  unsigned cooldown=0; //!< Remaining invincibility frames
   unsigned health=0; //!< The player's health
   Direction facingDir; //!< Which direction the player is facing
 public:
+  bool damaged=false; //!< Has the player been damaged this frame?
   //! Initialized the player, This should be rewritten into a constructor
-  void initialize();  //this should be made into a constructor
+  void initialize(unsigned);  //this should be made into a constructor
   //! Updates the player's sprite based on position
   /*!
    *  Sets the sprite's position based on where the player is located
@@ -33,6 +36,16 @@ public:
   void setHealth(int);
   //! Sets the direction of the player
   void setFacing(Direction);
+  //! Decrements cooldown and returns the new cooldown
+  unsigned decrementCooldown();
+  //! Get current cooldown
+  unsigned getCooldown();
+  //! Reset cooldown to maximum
+  void resetCooldown();
+  //! Decrements health and returns the new health
+  unsigned modifyHealth(int);
+  //! Get current health
+  unsigned getHealth();
   //! Converts the player's position in pixels to position based on tile width
   /*!
    *  Specifically, returns the x position of the tile that the center of the

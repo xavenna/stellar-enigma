@@ -13,7 +13,7 @@ int main() {
   //initialization
 
   Player player;
-  player.initialize();
+  player.initialize(15); //maximum cooldown
   ModeSwitcher modeSwitcher;
   Level levelSlot;
   Menu mainMenu;
@@ -107,7 +107,15 @@ int main() {
     
     if(currentMode == 0) {
       //main menu logic
-      mapData.event0Handle();
+      switch(mapData.event0Handle()) {
+      case -1:
+	//kill window
+	window.close();
+	break;
+      default:
+	break;
+	//nothing needs to be done
+      }
     }
     else if(currentMode == 1) {
       //level player logic
@@ -120,7 +128,6 @@ int main() {
       //cutscene player logic
       mapData.event2Handle();
     }
-
 
     interfaceManager.updateInterface(&player);
     //final drawing

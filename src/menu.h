@@ -13,6 +13,8 @@ public:
   //! The texture that splash is set to
   sf::Texture spT;
 
+  int onPress=1;
+
 };
 
 #endif

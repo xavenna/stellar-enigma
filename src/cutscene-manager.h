@@ -20,6 +20,7 @@ public:
    *  If specified cutscene is not found, throws std::out_of_range.
    */
   Cutscene getCutscene(const std::string& name);
+  //! Returns whether or not specified cutscene exists
   bool cutsceneExists(const std::string& name) const;
 };
 

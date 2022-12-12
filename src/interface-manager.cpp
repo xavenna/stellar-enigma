@@ -60,7 +60,7 @@ void InterfaceManager::updateInterface(const Player* p) {
 void InterfaceManager::drawIcons(sf::RenderWindow& w) {
   pc.drawIcons(w);
 }
-int InterfaceManager::getBorderLen() {
+int InterfaceManager::getBorderLen() const {
   return bd.border.size();
 }
 sf::Sprite& InterfaceManager::getBorderElem(int n) {

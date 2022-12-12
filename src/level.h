@@ -15,7 +15,7 @@
 
 //! The class that holds a complete level
 /*!
- *  Mutable loading isn't complete yet
+ *  Contains all tiles, as well as objects and entities.
  */
 class Level {
 private:

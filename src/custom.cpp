@@ -34,13 +34,14 @@ int MapData::event0Handle() {  //this mode is used for the main menu
       switch(mainMenu.onPress) {
       case 1:
 	modeSwitcher.setMode(1);
-	return 0;
+	return 0; 
       case -1:
 	return -1;
 	//signal window to close, somehow
       }
     }
   }
+  return 0;
 }
 
 // TODO: modify this function to fix diagonal movement bug MkII 
@@ -81,7 +82,7 @@ void MapData::event1Handle() {
   }
   //std::cout << moveDir.x << ',' << moveDir.y << '\n';
   //now that all input has been gathered, handle movement
-  int tempSpeed;
+  //int tempSpeed;
   sf::Vector2i sp(moveDir.x * player.getSpeed(), moveDir.y * player.getSpeed());
 
 

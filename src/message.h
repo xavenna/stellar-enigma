@@ -35,11 +35,6 @@ public:
    *  formMessage.
    */
   void handleMessages();
-  //! Wraps and formats the message so it fits on the screen
-  /*!
-   *  This takes the text stored in 
-   */
-  void formatMessage();
   //! Wrap the message stored in formMessage, and write it to text.getString()
   void wrapMessage();
 
@@ -51,8 +46,7 @@ public:
   
   //! Text member that can be drawn
   sf::Text text;
-  //! constructor: sets width to arg1, maximum cooldown to arg2, and maxElem
-  //to arg3
+  //! constructor: sets width to arg1, maximum cooldown to arg2, and maxElem to arg3
   Message(unsigned, unsigned, unsigned);
 };
 

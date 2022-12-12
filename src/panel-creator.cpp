@@ -19,19 +19,23 @@ void PanelCreator::createPanel() {
   //let's do a simplified version for now:
   //this is in no way optimal
   sf::Vector2u currentPos{0,0};
+  unsigned maxWid=0;
   for(auto& x : icons) {
     //place this icon on the panel, setPos
     x.setPosition(currentPos.x, currentPos.y);
     x.setPos(sf::Vector2i(currentPos.x, currentPos.y));
-    currentPos += x.getSize();
+    currentPos.y += x.getSize().y;
+    maxWid = x.getSize().x > maxWid ? x.getSize().x : maxWid;
   }
   for(auto& x : picons) {
     //place this icon on the panel, setPos
     x.setPosition(currentPos.x, currentPos.y);
     x.setPos(sf::Vector2i(currentPos.x, currentPos.y));
-    currentPos += x.getSize();
+    currentPos.y += x.getSize().y;
+    maxWid = x.getSize().x > maxWid ? x.getSize().x : maxWid;
   }
   size = currentPos;
+  size.x = maxWid;
 }
 
 
@@ -39,14 +43,16 @@ void PanelCreator::updateIcons(const Player* p) {
   for(auto& x : icons) {
     x.update();
     x.setSize(x.getTexture()->getSize());
+    x.setTexture(x.tex);
   }
   for(auto& x : picons) {
     x.update(p);
     x.setSize(x.getTexture()->getSize());
+    x.setTexture(x.tex);
   }
 }
 
-bool PanelCreator::isValidCallback(std::string call) {
+bool PanelCreator::isValidCallback(const std::string& call) {
   std::vector<std::string> calls = {"null", "playerNull", "playerHealth"};
   return std::find(calls.begin(), calls.end(), call) != calls.end();
   //yes, this is almost surely not the best way to do this, but it is simple
@@ -67,7 +73,7 @@ void PanelCreator::drawIcons(sf::RenderWindow& w) {
  
  *  syntax: type`name`callback`texture
  */
-bool PanelCreator::loadIcons(std::string file) {
+bool PanelCreator::loadIcons(const std::string& file) {
   //load icons from: /assets/interface/icons.txt
   std::ifstream load(file);
   std::string line;

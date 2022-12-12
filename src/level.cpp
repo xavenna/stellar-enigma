@@ -206,7 +206,7 @@ int Level::getEntNum() const {
 
 void Level::assignTextureToNode(const int& x, const int& y, TextureMap& tema) {
   try {
-    mapBase.at(x).at(y).area.setTexture(tema.mapping.at(mapBase.at(x).at(y).getId()));
+    mapBase.at(x).at(y).area.setTexture(tema.getTexture(mapBase.at(x).at(y).getId()));
   }
   catch (...) {
     std::cout << "ERROR invalid set texture error.\n";
@@ -215,7 +215,7 @@ void Level::assignTextureToNode(const int& x, const int& y, TextureMap& tema) {
 
 void Level::assignTextureToWinNode(const int& x, const int& y, TextureMap& tema) {
   try {
-    window.at(x).at(y).area.setTexture(tema.mapping.at(window.at(x).at(y).getId()));
+    window.at(x).at(y).area.setTexture(tema.getTexture(window.at(x).at(y).getId()));
   }
   catch (...) {
     std::cout << "ERROR invalid set texture error.\n";
@@ -224,7 +224,7 @@ void Level::assignTextureToWinNode(const int& x, const int& y, TextureMap& tema)
 
 void Level::assignTextureToObject(int index, TextureMap& tema) {
   try {
-    objectList.at(index).area.setTexture(tema.mapping.at(tema.getObjOff()+objectList.at(index).getId()));
+    objectList.at(index).area.setTexture(tema.getTexture(tema.getObjOff()+objectList.at(index).getId()));
   }
   catch (...) {
     std::cout << "ERROR invalid set texture error.\n";
@@ -233,7 +233,7 @@ void Level::assignTextureToObject(int index, TextureMap& tema) {
 
 void Level::assignTextureToEntity(int index, TextureMap& tema) {
   try {
-    entityList.at(index).area.setTexture(tema.mapping.at(tema.getEntOff()+objectList.at(index).getId()));
+    entityList.at(index).area.setTexture(tema.getTexture(tema.getEntOff()+objectList.at(index).getId()));
   }
   catch (...) {
     std::cout << "ERROR invalid set texture error.\n";
@@ -260,7 +260,7 @@ void Level::removeObject(unsigned index) {
 }
 void Level::handleEntities() {
   for(unsigned i=0;i<entityList.size();i++) {
-    auto& x = entityList[i];
+    //auto& x = entityList[i];
     //do things for x.
     // If you remove an entity, make sure to do i--;
   }

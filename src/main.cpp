@@ -12,8 +12,7 @@
 int main() {
   //initialization
 
-  Player player;
-  player.initialize(15); //maximum cooldown
+  Player player(15);
   ModeSwitcher modeSwitcher;
   Level levelSlot;
   Menu mainMenu;

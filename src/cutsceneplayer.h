@@ -23,7 +23,7 @@
  */
 class CutscenePlayer {
 private:
-  Cutscene cutscene;
+  Cutscene cutscene; //!< Currently playing cutscene
   int timer;
   unsigned pos;  //!< position in the cutscene
 public:

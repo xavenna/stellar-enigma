@@ -4,7 +4,7 @@
 
 //! A class that is used to display menus
 /*!
- *  Maybe I should add more stuff to this eventually
+ *  Currently, its functionality is fairly limited
  */
 class Menu {
 public:
@@ -13,6 +13,10 @@ public:
   //! The texture that splash is set to
   sf::Texture spT;
 
+  //! Determines what happens when enter is pressed.
+  /*!
+   *  -1 specifies a program close, 1 specifies switching to mode 1
+   */
   int onPress=1;
 
 };

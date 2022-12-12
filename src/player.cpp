@@ -1,7 +1,7 @@
 #include "player.h"
 #include "level.h"
 
-void Player::initialize(unsigned c) {
+Player::Player(unsigned c) {
   setPos(0,0);
   facingDir = Up;
   picture.loadFromFile("assets/texture/player.png");
@@ -58,8 +58,4 @@ int Player::getLevelXPos(int tileWidth) {
 int Player::getLevelYPos(int tileHeight) {
   int temp = int((pos.y+(tileHeight / 2)) / tileHeight);
   return temp;
-}
-
-Player::Player() {
-
 }

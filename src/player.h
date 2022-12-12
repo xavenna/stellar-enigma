@@ -17,8 +17,6 @@ protected:
   Direction facingDir; //!< Which direction the player is facing
 public:
   bool damaged=false; //!< Has the player been damaged this frame?
-  //! Initialized the player, This should be rewritten into a constructor
-  void initialize(unsigned);  //this should be made into a constructor
   //! Updates the player's sprite based on position
   /*!
    *  Sets the sprite's position based on where the player is located
@@ -62,7 +60,7 @@ public:
   /*!
    *  
    */
-  Player();
+  Player(unsigned);
 };
 
 #endif

@@ -17,10 +17,8 @@
 class TextureMap {
   int objectOffset=0; //!< The point where object textures begin
   int entityOffset=0; //!< The point where entity textures begin
-public:
   std::vector<sf::Texture> mapping; //!< the vector that stores Textures
-  //This should probably be encapsulated...
-
+public:
   //! returns a reference to the texture with number specified by argument
   sf::Texture& getTexture(const int&);
 

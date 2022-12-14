@@ -67,7 +67,7 @@ Level::Level() : mapBase{1, std::vector<MapNode>(1)} {
 void Level::updateWindowPos() {
   for(size_t i=0;i<WINDOW_WIDTH;i++) {
     for(size_t j=0;j<WINDOW_HEIGHT;j++) {
-      window[i][j].area.setPosition(tilesizeX*(i+1),(tilesizeY)*(j+1));
+      window[i][j].setPosition(tilesizeX*(i+1),(tilesizeY)*(j+1));
     }
   }
 }
@@ -84,7 +84,7 @@ int Level::loadLevel(const std::string& levelname) {
   std::string complevel = "assets/level/" + levelname + ".sel";
   std::ifstream load(complevel);
   if(!load.is_open())
-    return -8;
+    throw 0;
   std::string line;
   int section = 0;
   int column = 0;
@@ -173,7 +173,7 @@ void Level::loadMutables(const std::string& levelname) {
     if(line[0] == 'o') {
       //object
       str2obj(line.substr(1), o);
-      o.area.setPosition(o.getXPos()+tilesizeX, o.getYPos()+tilesizeY);
+      o.setPosition(o.getXPos()+tilesizeX, o.getYPos()+tilesizeY);
       objectList.push_back(o);
       //add o to object list
     }
@@ -204,18 +204,22 @@ int Level::getEntNum() const {
   return entityList.size();
 }
 
+/*
 void Level::assignTextureToNode(const int& x, const int& y, TextureMap& tema) {
   try {
-    mapBase.at(x).at(y).area.setTexture(tema.getTexture(mapBase.at(x).at(y).getId()));
+    mapBase.at(x).at(y).setTexture(tema.getTexture(mapBase.at(x).at(y).getId()));
   }
   catch (...) {
     std::cout << "ERROR invalid set texture error.\n";
   }
 }
+*/
 
 void Level::assignTextureToWinNode(const int& x, const int& y, TextureMap& tema) {
   try {
-    window.at(x).at(y).area.setTexture(tema.getTexture(window.at(x).at(y).getId()));
+    if(window.at(x).at(y).getTexture()!=&tema.getTexture(window.at(x).at(y).getId())) {
+      window.at(x).at(y).setTexture(tema.getTexture(window.at(x).at(y).getId()));
+    }
   }
   catch (...) {
     std::cout << "ERROR invalid set texture error.\n";
@@ -224,7 +228,9 @@ void Level::assignTextureToWinNode(const int& x, const int& y, TextureMap& tema)
 
 void Level::assignTextureToObject(int index, TextureMap& tema) {
   try {
-    objectList.at(index).area.setTexture(tema.getTexture(tema.getObjOff()+objectList.at(index).getId()));
+    if(objectList.at(index).getTexture() != &tema.getTexture(tema.getObjOff()+objectList.at(index).getId())) {
+      objectList.at(index).setTexture(tema.getTexture(tema.getObjOff()+objectList.at(index).getId()));
+    }
   }
   catch (...) {
     std::cout << "ERROR invalid set texture error.\n";
@@ -233,7 +239,9 @@ void Level::assignTextureToObject(int index, TextureMap& tema) {
 
 void Level::assignTextureToEntity(int index, TextureMap& tema) {
   try {
-    entityList.at(index).area.setTexture(tema.getTexture(tema.getEntOff()+objectList.at(index).getId()));
+    if(entityList.at(index).getTexture() != &tema.getTexture(tema.getEntOff()+objectList.at(index).getId())) {
+      entityList.at(index).setTexture(tema.getTexture(tema.getEntOff()+objectList.at(index).getId()));
+    }
   }
   catch (...) {
     std::cout << "ERROR invalid set texture error.\n";
@@ -286,8 +294,8 @@ void Level::handleObjects(sf::Vector2i pos, sf::Vector2i size) {
 
     sf::Vector2i relPos(x.getXPos()-(WINDOW_WIDTH-2)*tilesizeX*pscrx+tilesizeX,
 			x.getYPos()-(WINDOW_HEIGHT-2)*tilesizeY*pscry+tilesizeY);
-    x.area.setPosition(relPos.x,relPos.y);
-    //area.setPosition((mid.x-tilesize.x)%(tilesize.x*(WINDOW_WIDTH-2))+tilesize.x*2-(width/2), (mid.y-tilesize.y)%(tilesize.y*(WINDOW_HEIGHT-2))+tilesize.y*2-(height/2));
+    x.setPosition(relPos.x,relPos.y);
+    //setPosition((mid.x-tilesize.x)%(tilesize.x*(WINDOW_WIDTH-2))+tilesize.x*2-(width/2), (mid.y-tilesize.y)%(tilesize.y*(WINDOW_HEIGHT-2))+tilesize.y*2-(height/2));
 
     x.setLastPos(x.getPos());
     // If you remove an object, make sure to do i--;
@@ -302,7 +310,7 @@ bool Level::displayObject(unsigned index, sf::Vector2i ppos, sf::Vector2i size) 
   Object ob{objectList[index]};
   //don't display invisible objects
   switch(ob.getId()) {
-  case 4:
+  case 4: //add any other invisible objects here
     return false;
   default:
     break;

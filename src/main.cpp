@@ -12,23 +12,17 @@
 int main() {
   //initialization
 
-  Player player(15);
-  ModeSwitcher modeSwitcher;
-  Level levelSlot;
-  Menu mainMenu;
-  MusicPlayer musicPlayer;
-  Message message(int(0.082126 * 288), 55, 20); //magic numbers, whooooooo
-  CutscenePlayer cutscenePlayer;
-  CutsceneManager cutsceneManager;
-  MapData mapData(&player, &modeSwitcher, &levelSlot, &mainMenu, &musicPlayer, &message, &cutscenePlayer, &cutsceneManager);
+  //construct MapData object
+  MapData mapData(15, unsigned(0.082126 * 288), 55, 20, 20);
 
 
-  //this needs to be reordered to suit the new interface manager system
+  //generate the interface
   int panOfX;
   int msgOfY;
   sf::Vector2i windowSize;
   InterfaceManager interfaceManager;
-  windowSize = interfaceManager.initializeInterface(sf::Vector2i(288, 288), msgOfY, panOfX, &player);
+  windowSize = interfaceManager.initializeInterface(sf::Vector2i(288, 288), msgOfY, panOfX, &mapData.player);
+
 
   std::string windowName;  //this is the name of the window
   int frameRate;   //the framerate
@@ -39,9 +33,8 @@ int main() {
   window.setVerticalSyncEnabled(true);
   window.setFramerateLimit(frameRate);
 
-  //modes: 0=main menu, 1=level player, 2=cutscene
 
-
+  //setup other useful things
   sf::Font courier;  //font maybe should go somewhere?
   courier.loadFromFile("assets/cour.ttf");
 
@@ -49,14 +42,14 @@ int main() {
   if(!textureMap.initialize("assets/texturemap/default.tm"))  //default texture map, stored in a file
     std::cout << "Error: texture map not found\n";
   try {
-    levelSlot.loadLevel("default");
+    mapData.levelSlot.loadLevel("default");
   }
   catch (int e) {  //make these error codes better
     if(e == 0) {
       std::cout << "Error 0: Level not found\n";
     }
     else if(e == -1) {
-      std::cout << "Error: -1\n";
+      std::cout << "Error -1: Non-integer found in integer parameter\n";
     }
     else if(e == -2) {
       std::cout << "Error: -2\n";
@@ -66,19 +59,20 @@ int main() {
     }
     return e;
   }
-  message.text.setPosition(40, msgOfY);
 
 
   //also, encapsulate this within Message, maybe in the constructor
-  message.text.setCharacterSize(20);
-  message.text.setFont(courier);
-  message.text.setFillColor(sf::Color::White);
-  message.text.setString("");
+  mapData.message.setFont(courier);
+  mapData.message.setPosition(40, msgOfY);
 
+
+  //call custom initialization behavior
   mapData.customInit();
 
-  player.update(levelSlot.getTilesize());
+  //more player initialization
+  mapData.player.update(mapData.levelSlot.getTilesize());
 
+  //main loop
   while(window.isOpen()) {
     sf::Event event;
     while(window.pollEvent(event)) {
@@ -98,11 +92,11 @@ int main() {
 
     //check if every key is pressed. If key is pressed, call ModeSwitcher::addKey()
 
-    modeSwitcher.updateKeysPressed();
-    int currentMode = modeSwitcher.getMode();
+    mapData.modeSwitcher.updateKeysPressed();
+    int currentMode = mapData.modeSwitcher.getMode();
     //mode-non-specific
-    musicPlayer.assignSounds();
-    musicPlayer.manageSounds();
+    mapData.musicPlayer.assignSounds();
+    mapData.musicPlayer.manageSounds();
     
     if(currentMode == 0) {
       //main menu logic
@@ -112,8 +106,8 @@ int main() {
 	window.close();
 	break;
       default:
+	//no special behavior
 	break;
-	//nothing needs to be done
       }
     }
     else if(currentMode == 1) {
@@ -128,42 +122,46 @@ int main() {
       mapData.event2Handle();
     }
 
-    interfaceManager.updateInterface(&player);
+    interfaceManager.updateInterface(&mapData.player);
     //final drawing
     window.clear();
     //draw based on which mode the engine is currently in
-    switch(modeSwitcher.getMode()) {
+    switch(mapData.modeSwitcher.getMode()) {
     case 0:
       //main menu
-      window.draw(mainMenu.splash);
+      window.draw(mapData.mainMenu.splash);
       break;
     case 1:
     case 2:  //cutscenes work the same as normal
+      // eventually find a way to implement animated textures
       //assign sprites
-      if(levelSlot.displayUpdate) {
-	levelSlot.newReadyWindow(player.getXScreen(), player.getYScreen());
+      if(mapData.levelSlot.displayUpdate) {
+	mapData.levelSlot.newReadyWindow(mapData.player.getXScreen(), mapData.player.getYScreen());
       }
       for(int i=0;i<WINDOW_WIDTH;i++) {
 	for(int j=0;j<WINDOW_HEIGHT;j++) {
-	  levelSlot.assignTextureToWinNode(i, j, textureMap);
-	  window.draw(levelSlot.window[i][j].area);
+	  mapData.levelSlot.assignTextureToWinNode(i, j, textureMap);
+	  window.draw(mapData.levelSlot.window[i][j]);
 	}
       }
 
-      for(int i=0;i<levelSlot.getObjNum();i++) {
+      for(int i=0;i<mapData.levelSlot.getObjNum();i++) {
 	//write this
-	levelSlot.assignTextureToObject(i, textureMap);
-	if(levelSlot.displayObject(i, player.getPos(), player.getSize())) {
-	  window.draw(levelSlot.getObj(i).area);
+	mapData.levelSlot.assignTextureToObject(i, textureMap);
+	if(mapData.levelSlot.displayObject(i, mapData.player.getPos(), mapData.player.getSize())) {
+	  window.draw(mapData.levelSlot.getObj(i));
 	}
       }
+
+
+
       //update things
-      player.update(levelSlot.getTilesize());
+      mapData.player.update(mapData.levelSlot.getTilesize());
       //this needs to eventually use player tile size
-      window.draw(player.area);
-      message.handleMessages();
-      message.wrapMessage();
-      window.draw(message.text);
+      window.draw(mapData.player);
+      mapData.message.handleMessages();
+      mapData.message.wrapMessage();
+      window.draw(mapData.message);
 
       //draw icons
       interfaceManager.drawIcons(window);
@@ -177,7 +175,5 @@ int main() {
       break;
     }
     window.display();
-    //cleanup for next iteration
   }
-  //cleanup or smthng
 }

@@ -7,9 +7,9 @@
 
 //! A class that represents a single node of the map
 /*!
- *
+ *  Extends sf::Sprite
  */
-class MapNode {
+class MapNode : public sf::Sprite {
 private:
   int id;  //!< The identifier of which tile exists here
   std::string cutname;  //!< The name of a cutscene to trigger. \0 if no cutscene
@@ -28,12 +28,6 @@ public:
   void setSolid(Direction, bool);
   //! Set the cutname
   void setCutname(const std::string&);
-  //! The sprite that can be drawn to the map
-  /*! 
-   *  This isn't initialized with a texture, as textures are assigned during
-   *  Program execution, right before display drawing.
-   */
-  sf::Sprite area;
   //! The basic constructor. Sets id to 0 and area position to (0,0)
   MapNode();
   //! Constructs the MapNode with passed attributes

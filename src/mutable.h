@@ -5,15 +5,16 @@
 
 //! Base class for things separate from the map, such as enemies and objects
 /*!
- *  Contains a sf::Sprite for drawing, as well as base attributes with getters 
+ *  Extends sf::Sprite in order to be drawable.
+ *  Contains other attributes common to all mutable extensions with getters 
  *  and setters
  */
-class Mutable {
+class Mutable : public sf::Sprite {
 protected:
-  sf::Vector2i pos;
+  sf::Vector2i pos; //!< Current pos of the mutable
   sf::Vector2i lastPos; //!< Where the mutable was before its most recent move
-  sf::Vector2i screen;
-  sf::Vector2i size;
+  sf::Vector2i screen; //!< Which screen the mutable is on
+  sf::Vector2i size; //!< Size of the mutable in pixels
   bool solid; //!< whether the mutable can be passed through (I think)
 public:
   //! Get the x position of the mutable
@@ -65,8 +66,6 @@ public:
   void setYScreen(const int&);
   //! set the solidity of the mutable
   void setSolid(const bool&);
-  //! update the position of the sprite
-  sf::Sprite area; //!< the sprite that is drawn to the map
 };
 
 #endif

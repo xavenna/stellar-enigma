@@ -22,12 +22,6 @@ public:
   //! returns a reference to the texture with number specified by argument
   sf::Texture& getTexture(const int&);
 
-  //! sets a texture in mapping to supplied texture
-  /*!
-   *  I don't believe this is used anywhere, as textures need to be references.
-   *  So don't use this for now
-   */
-  void assign(int, sf::Texture);
   //! Sets up the texturemap using the supplied filename
   /*!
    *  The file is assumed to be located in ./assets/texturemap/

@@ -3,14 +3,6 @@
 sf::Texture& TextureMap::getTexture(const int& n) {
   return mapping.at(n);
 }
-void TextureMap::assign(int n, sf::Texture tex) {
-  try {
-    mapping.at(n) = tex;
-  }
-  catch(...) {
-    std::cout << "Error: Invalid\n";
-  }
-}
 bool TextureMap::initialize(const std::string& name) {
   mapping.resize(0);
   std::ifstream get(name);

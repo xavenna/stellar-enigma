@@ -14,14 +14,14 @@
  */
 class MapData {
 public:
-  Player& player; //!< A reference to the player
-  ModeSwitcher& modeSwitcher; //!< A reference to the mode switcher
-  Level& levelSlot; //!< A reference to the level container
-  Menu& mainMenu; //!< A reference to the main menu
-  MusicPlayer& musicPlayer; //!< A reference to the music player
-  Message& message; //!< A reference to the message displayer
-  CutscenePlayer& cutscenePlayer; //!< A reference to the cutscene player
-  CutsceneManager& cutsceneManager; //!< A reference to the cutscene manager
+  Player player; //!< A reference to the player
+  ModeSwitcher modeSwitcher; //!< A reference to the mode switcher
+  Level levelSlot; //!< A reference to the level container
+  Menu mainMenu; //!< A reference to the main menu
+  MusicPlayer musicPlayer; //!< A reference to the music player
+  Message message; //!< A reference to the message displayer
+  CutscenePlayer cutscenePlayer; //!< A reference to the cutscene player
+  CutsceneManager cutsceneManager; //!< A reference to the cutscene manager
   //! Any custom initialization behavior goes here
   void customInit();  
   //! Handles events if the engine is in mode 0
@@ -34,7 +34,7 @@ public:
   void event3Handle();
   //! Handles events if the engine is in mode 4
   void event4Handle();
-  //! The constructor, takes pointers to the members and initializes the references with them
-  MapData(Player*, ModeSwitcher*, Level*, Menu*, MusicPlayer*, Message*, CutscenePlayer*, CutsceneManager*);
+  //! The contructor takes several parameters for the members
+  MapData(unsigned pCool, unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSize);
 };
 #endif

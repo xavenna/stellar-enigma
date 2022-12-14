@@ -46,7 +46,7 @@ public:
   //! sets the positions of the sprites of the window
   void updateWindowPos();
   //! Uses a texturemap to assign a texture to specified node
-  void assignTextureToNode(const int&, const int&, TextureMap&);
+  //void assignTextureToNode(const int&, const int&, TextureMap&);
   //! Uses a texturemap to assign a texture to specified node in window
   void assignTextureToWinNode(const int&, const int&, TextureMap&);
   //! Uses a texturemap to assign a texture to the specified object

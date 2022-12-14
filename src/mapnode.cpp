@@ -20,7 +20,7 @@ void MapNode::setCutname(const std::string& n) {
 }
 MapNode::MapNode() {
   id = 0;
-  area.setPosition(0,0);
+  setPosition(0,0);
 }
 
 MapNode::MapNode(int n, DirectionalBool b, std::string cutn) : id{n}, cutname{cutn}, solid{b} {

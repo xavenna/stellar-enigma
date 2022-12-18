@@ -8,7 +8,6 @@
 #include <filesystem>
 #include "player.h"
 #include "icon.h"
-#include "texturemap.h"
 
 //! A class that handles the Panel component of the interface
 /*!

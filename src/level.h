@@ -7,7 +7,6 @@
 #include "mapnode.h"
 #include "object.h"
 #include "entity.h"
-#include "texturemap.h"
 #include "texture-cache.h"
 #include "player.h"
 #include <iostream>

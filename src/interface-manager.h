@@ -8,7 +8,6 @@
 #include "icon.h"
 #include "border-drawer.h"
 #include "panel-creator.h"
-#include "texturemap.h"
 
 
 

@@ -17,7 +17,7 @@
 #include "player.h"
 #include "message.h"
 #include "mapnode.h"
-#include "texturemap.h"
+#include "texture-cache.h"
 #include "level.h"
 #include "cutsceneplayer.h"
 #include "menu.h"

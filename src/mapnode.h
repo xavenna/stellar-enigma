@@ -5,16 +5,12 @@
 #include <string>
 #include "direction.h"
 
-//! A class that represents a single node of the map
-/*!
- *
- */
-class MapNode {
+//! The base class for map nodes
+class NodeBase {
 private:
   int id;  //!< The identifier of which tile exists here
   std::string cutname;  //!< The name of a cutscene to trigger. \0 if no cutscene
   DirectionalBool solid; //!< whether the node is solid from each direction
-  
 public:
   //! Gets the id of the node
   int getId() const;
@@ -28,16 +24,23 @@ public:
   void setSolid(Direction, bool);
   //! Set the cutname
   void setCutname(const std::string&);
-  //! The sprite that can be drawn to the map
-  /*! 
-   *  This isn't initialized with a texture, as textures are assigned during
-   *  Program execution, right before display drawing.
-   */
-  sf::Sprite area;
   //! The basic constructor. Sets id to 0 and area position to (0,0)
-  MapNode();
+  NodeBase();
   //! Constructs the MapNode with passed attributes
-  MapNode(int n, DirectionalBool b, std::string cutn);
+  NodeBase(int n, DirectionalBool b, const std::string& cutn);
+
+};
+//! A drawable MapNode
+/*!
+ *  Extends sf::Sprite
+ */
+class MapNode : public NodeBase, public sf::Sprite {
+private:
+  
+public:
+  //! Constructs the MapNode with passed attributes
+  MapNode(int n, DirectionalBool b, const std::string& cutn);
+  MapNode();
 };
 
 #endif

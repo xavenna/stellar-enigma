@@ -64,12 +64,14 @@ void Message::wrapMessage() {
   for(int i=0;i<int(n.size()/width)+1;i++) {
     out += n.substr(i*width,width) + '\n';
   }
-  text.setString(out);
+  setString(out);
 }
-Message::Message(unsigned n, unsigned o, unsigned p) : width{n}, maxCool{o}, maxElem{p} {
-  text.setString("");
+Message::Message(unsigned wid, unsigned cool, unsigned elem, unsigned charSize) : width{wid}, maxCool{cool}, maxElem{elem} {
   printed = false;
   pointer = 0;
+  setString("");
+  setFillColor(sf::Color::White);
+  setCharacterSize(charSize);
 }
 
 //this is just for debugging, and is not needed in the final thing

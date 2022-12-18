@@ -5,7 +5,7 @@ Player::Player(unsigned c) {
   setPos(0,0);
   facingDir = Up;
   picture.loadFromFile("assets/texture/player.png");
-  area.setTexture(picture);
+  setTexture(picture);
   maxCooldown = c;
 }
 void Player::update(sf::Vector2i tilesize) {
@@ -13,7 +13,7 @@ void Player::update(sf::Vector2i tilesize) {
   sf::Vector2i mid(pos.x+size.x/2, pos.y+size.y/2);
   screen.x = (mid.x-tilesize.x) / (tilesize.x*(WINDOW_WIDTH-2));
   screen.y = (mid.y-tilesize.y) / (tilesize.y*(WINDOW_HEIGHT-2));
-  area.setPosition((mid.x-tilesize.x)%(tilesize.x*(WINDOW_WIDTH-2))+tilesize.x*2-(size.x/2), (mid.y-tilesize.y)%(tilesize.y*(WINDOW_HEIGHT-2))+tilesize.y*2-(size.y/2));
+  setPosition((mid.x-tilesize.x)%(tilesize.x*(WINDOW_WIDTH-2))+tilesize.x*2-(size.x/2), (mid.y-tilesize.y)%(tilesize.y*(WINDOW_HEIGHT-2))+tilesize.y*2-(size.y/2));
 } // I know this is kind of spaghetti, but it works
 
 unsigned Player::decrementCooldown() {

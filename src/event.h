@@ -28,7 +28,8 @@ public:
     NodeUpdate = 7,    //!< Updates a node on the map
     SoundPlay = 8,     //!< Plays a sound
     MusicPlay = 9,     //!< Plays specified music
-    MapLoad = 10
+    MapLoad = 10,      //!< Load a new Map
+    Invalid = -1       //!< Invalid Type
   };
   //! Returns event type
   Event::Type getType();

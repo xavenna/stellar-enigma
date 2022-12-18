@@ -1,7 +1,7 @@
 #include "level.h"
 #include <iostream>
 
-MapNode Level::getNode(const int& x, const int& y) const {
+NodeBase Level::getNode(const int& x, const int& y) const {
   return mapBase[x][y];
 }
 
@@ -54,12 +54,12 @@ void Level::readyWindow(int xScreen, int yScreen) {
 void Level::updateNode(const int& x, const int& y, const MapNode& node) {
   mapBase[x][y] = node;
 }
-Level::Level(const size_t& x, const size_t& y) : mapBase{x, std::vector<MapNode>(y)} {
+Level::Level(const size_t& x, const size_t& y) : mapBase{x, std::vector<NodeBase>(y)} {
   tilesizeX = 36;  //for now, this is constant, but it may change in the future
   tilesizeY = 36;
   updateWindowPos();
 }
-Level::Level() : mapBase{1, std::vector<MapNode>(1)} {
+Level::Level() : mapBase{1, std::vector<NodeBase>(1)} {
   tilesizeX = 36;
   tilesizeY = 36;
   updateWindowPos();
@@ -67,7 +67,7 @@ Level::Level() : mapBase{1, std::vector<MapNode>(1)} {
 void Level::updateWindowPos() {
   for(size_t i=0;i<WINDOW_WIDTH;i++) {
     for(size_t j=0;j<WINDOW_HEIGHT;j++) {
-      window[i][j].area.setPosition(tilesizeX*(i+1),(tilesizeY)*(j+1));
+      window[i][j].setPosition(tilesizeX*(i+1),(tilesizeY)*(j+1));
     }
   }
 }
@@ -84,7 +84,7 @@ int Level::loadLevel(const std::string& levelname) {
   std::string complevel = "assets/level/" + levelname + ".sel";
   std::ifstream load(complevel);
   if(!load.is_open())
-    return -8;
+    throw 0;
   std::string line;
   int section = 0;
   int column = 0;
@@ -173,7 +173,7 @@ void Level::loadMutables(const std::string& levelname) {
     if(line[0] == 'o') {
       //object
       str2obj(line.substr(1), o);
-      o.area.setPosition(o.getXPos()+tilesizeX, o.getYPos()+tilesizeY);
+      o.setPosition(o.getXPos()+tilesizeX, o.getYPos()+tilesizeY);
       objectList.push_back(o);
       //add o to object list
     }
@@ -204,40 +204,118 @@ int Level::getEntNum() const {
   return entityList.size();
 }
 
-void Level::assignTextureToNode(const int& x, const int& y, TextureMap& tema) {
+void Level::assignTextureToWinNode(sf::Vector2i pos, TextureCache& cache) {
+  //determine what texture to use and which transformations to apply
+  if(pos.x > WINDOW_WIDTH || pos.y > WINDOW_HEIGHT) {
+    throw std::invalid_argument("Level::assignTextureToWinNode() : Requested position out of bounds");
+  }
+
+  CacheNodeAttributes cna;
+  int s = cache.tileFilenameHash(window[pos.x][pos.y].getId());
+  if(s < 0) {
+    //error: requested object doesn't exist
+    std::cout << "Texture not assigned to tile ("<<pos.x<<','<<pos.y << ")\n";
+    return;
+  }
+  cna.srcImg = s;
+
+  
+  //generate cna.tList
+  switch(window[pos.x][pos.y].getId()) {
+  case 5: {
+    Transform t;
+    t.type = Transform::Set_Width;
+    t.args[0] = tilesizeX;
+    cna.tList.push_back(t);  //set width to one tile
+
+    Transform t2;
+    t2.type = Transform::Slide_X;
+    t2.args[0] = int(frameCount/10)%36;
+    cna.tList.push_back(t2);
+  }
+    //water: add a xShift transformation
+  default:
+    //no transformations
+    break;
+  }
   try {
-    mapBase.at(x).at(y).area.setTexture(tema.getTexture(mapBase.at(x).at(y).getId()));
+    window[pos.x][pos.y].setTexture(cache.getTexture(cna));
   }
   catch (...) {
-    std::cout << "ERROR invalid set texture error.\n";
+    std::cout << "Error: target image not found\n";
   }
 }
 
-void Level::assignTextureToWinNode(const int& x, const int& y, TextureMap& tema) {
+void Level::assignTextureToObject(unsigned index, TextureCache& cache) {
+  //determine what texture to use and which transformations to apply
+  if(index > objectList.size()) {
+    throw std::invalid_argument("Level::assignTextureToObject() : Requested object does not exist");
+  }
+
+  CacheNodeAttributes cna;
+  //to find srcImg, look for objectList[index].getId()
+  int s = cache.objectFilenameHash(objectList[index].getId());
+  if(s < 0) {
+    //error: requested object doesn't exist
+    std::cout << "Texture not assigned to object no. "<<index << "\n";
+    return;
+  }
+  cna.srcImg = s;
+
+  
+  //generate cna.tList
+  switch(objectList[index].getId()) {
+  default:
+    //no transformations
+    break;
+  }
   try {
-    window.at(x).at(y).area.setTexture(tema.getTexture(window.at(x).at(y).getId()));
+    objectList[index].setTexture(cache.getTexture(cna));
   }
   catch (...) {
-    std::cout << "ERROR invalid set texture error.\n";
+    std::cout << "Error: target image not found\n";
   }
 }
 
-void Level::assignTextureToObject(int index, TextureMap& tema) {
+void Level::assignTextureToEntity(unsigned index, TextureCache& cache) {
+  //determine what texture to use and which transformations to apply
+  if(index > entityList.size()) {
+    throw std::invalid_argument("Level::assignTextureToEntity() : Requested entity does not exist");
+  }
+
+  CacheNodeAttributes cna;
+  //to find srcImg, look for entityList[index].getId()
+  int s = cache.entityFilenameHash(entityList[index].getType());
+  if(s < 0) {
+    //error: requested entity doesn't exist
+    std::cout << "Texture not assigned to entity no. "<<index << "\n";
+    return;
+  }
+  cna.srcImg = s;
+
+  
+  //generate cna.tList
+  switch(entityList[index].getType()) {
+  default:
+    //no transformations
+    break;
+  }
   try {
-    objectList.at(index).area.setTexture(tema.getTexture(tema.getObjOff()+objectList.at(index).getId()));
+    entityList[index].setTexture(cache.getTexture(cna));
   }
   catch (...) {
-    std::cout << "ERROR invalid set texture error.\n";
+    std::cout << "Error: target image not found\n";
   }
 }
 
-void Level::assignTextureToEntity(int index, TextureMap& tema) {
-  try {
-    entityList.at(index).area.setTexture(tema.getTexture(tema.getEntOff()+objectList.at(index).getId()));
+
+int Level::advanceFrameCount() {
+  if(frameCount == 1799) {
+    frameCount = 0;
+    return 0;
   }
-  catch (...) {
-    std::cout << "ERROR invalid set texture error.\n";
-  }
+  return(++frameCount);
+  
 }
 
 void Level::addEntity(const Entity& en) {
@@ -286,8 +364,8 @@ void Level::handleObjects(sf::Vector2i pos, sf::Vector2i size) {
 
     sf::Vector2i relPos(x.getXPos()-(WINDOW_WIDTH-2)*tilesizeX*pscrx+tilesizeX,
 			x.getYPos()-(WINDOW_HEIGHT-2)*tilesizeY*pscry+tilesizeY);
-    x.area.setPosition(relPos.x,relPos.y);
-    //area.setPosition((mid.x-tilesize.x)%(tilesize.x*(WINDOW_WIDTH-2))+tilesize.x*2-(width/2), (mid.y-tilesize.y)%(tilesize.y*(WINDOW_HEIGHT-2))+tilesize.y*2-(height/2));
+    x.setPosition(relPos.x,relPos.y);
+    //setPosition((mid.x-tilesize.x)%(tilesize.x*(WINDOW_WIDTH-2))+tilesize.x*2-(width/2), (mid.y-tilesize.y)%(tilesize.y*(WINDOW_HEIGHT-2))+tilesize.y*2-(height/2));
 
     x.setLastPos(x.getPos());
     // If you remove an object, make sure to do i--;
@@ -302,7 +380,7 @@ bool Level::displayObject(unsigned index, sf::Vector2i ppos, sf::Vector2i size) 
   Object ob{objectList[index]};
   //don't display invisible objects
   switch(ob.getId()) {
-  case 4:
+  case 4: //add any other invisible objects here
     return false;
   default:
     break;

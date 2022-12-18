@@ -8,6 +8,7 @@
 #include "object.h"
 #include "entity.h"
 #include "texturemap.h"
+#include "texture-cache.h"
 #include "player.h"
 #include <iostream>
 #include <fstream>
@@ -19,16 +20,17 @@
  */
 class Level {
 private:
-  std::vector<std::vector<MapNode>> mapBase; //!< The level data of the map
+  std::vector<std::vector<NodeBase>> mapBase; //!< The level data of the map
   std::vector<Object> objectList; //!< A list of objects found in the map
   std::vector<Entity> entityList; //!< A list of entities found in the map
   int tilesizeX;  //!< The width of a tile, in pixels? currently unused?
   int tilesizeY;  //!< The height of a tile, in pixels? currently unused?
   int winOffX = 0;
   int winOffY = 0;
+  int frameCount = 0; //!< The current frame, modulo 1800 (used for animations)
 public:
   //! returns a copy of specified node
-  MapNode getNode(const int&, const int&) const;
+  NodeBase getNode(const int&, const int&) const;
   //! returns a copy of specified object
   Object getObj(int index) const;
   //! returns a copy of specified entity
@@ -45,14 +47,12 @@ public:
   void newReadyWindow(int xscr, int yscr);
   //! sets the positions of the sprites of the window
   void updateWindowPos();
-  //! Uses a texturemap to assign a texture to specified node
-  void assignTextureToNode(const int&, const int&, TextureMap&);
   //! Uses a texturemap to assign a texture to specified node in window
-  void assignTextureToWinNode(const int&, const int&, TextureMap&);
+  void assignTextureToWinNode(sf::Vector2i, TextureCache&);
   //! Uses a texturemap to assign a texture to the specified object
-  void assignTextureToObject(int, TextureMap&);
+  void assignTextureToObject(unsigned, TextureCache&);
   //! Uses a texturemap to assign a texture to the specified entity
-  void assignTextureToEntity(int, TextureMap&);
+  void assignTextureToEntity(unsigned, TextureCache&);
   //! Loads mapBase from file, specified by argument.
   /*! 
    *  Searches for file in /levels/
@@ -111,6 +111,8 @@ public:
   Level();
   //! This can be set to true to request a display update
   bool displayUpdate = true;
+  //! Advance internal frame count
+  int advanceFrameCount();
 };
 
 //! parses a string containing a node, uses nodify

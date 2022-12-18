@@ -110,7 +110,7 @@ bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le, MusicPlayer& 
     break;
   case Event::NodeUpdate:
     //update a node on the map
-    std::cout << "updating node\n";
+    //std::cout << "updating node\n";
     le.updateNode(e[0], e[1], MapNode(e[2], DirectionalBool(e[3]), e.getText()));
     le.displayUpdate = true;
     break;
@@ -128,6 +128,11 @@ bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le, MusicPlayer& 
     cm.loadCutscenes(e.getText());
     pl.setXPos(e[0]);
     pl.setYPos(e[1]);
+    break;
+  case Event::Invalid:
+    //error: invalid event
+    std::cout << "Error: Invalid Event\n";
+    return false;
     break;
   }
   return true;

@@ -38,9 +38,7 @@ int main() {
   sf::Font courier;  //font maybe should go somewhere?
   courier.loadFromFile("assets/cour.ttf");
 
-  TextureMap textureMap;
-  if(!textureMap.initialize("assets/texturemap/default.tm"))  //default texture map, stored in a file
-    std::cout << "Error: texture map not found\n";
+  TextureCache textureCache("assets/texturemap/default.tm");
   try {
     mapData.levelSlot.loadLevel("default");
   }
@@ -140,14 +138,14 @@ int main() {
       }
       for(int i=0;i<WINDOW_WIDTH;i++) {
 	for(int j=0;j<WINDOW_HEIGHT;j++) {
-	  mapData.levelSlot.assignTextureToWinNode(i, j, textureMap);
+	  mapData.levelSlot.assignTextureToWinNode(sf::Vector2i(i,j), textureCache);
 	  window.draw(mapData.levelSlot.window[i][j]);
 	}
       }
 
       for(int i=0;i<mapData.levelSlot.getObjNum();i++) {
 	//write this
-	mapData.levelSlot.assignTextureToObject(i, textureMap);
+	mapData.levelSlot.assignTextureToObject(i, textureCache);
 	if(mapData.levelSlot.displayObject(i, mapData.player.getPos(), mapData.player.getSize())) {
 	  window.draw(mapData.levelSlot.getObj(i));
 	}
@@ -175,5 +173,6 @@ int main() {
       break;
     }
     window.display();
+    mapData.levelSlot.advanceFrameCount();
   }
 }

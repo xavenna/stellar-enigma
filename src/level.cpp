@@ -1,7 +1,7 @@
 #include "level.h"
 #include <iostream>
 
-MapNode Level::getNode(const int& x, const int& y) const {
+NodeBase Level::getNode(const int& x, const int& y) const {
   return mapBase[x][y];
 }
 
@@ -54,12 +54,12 @@ void Level::readyWindow(int xScreen, int yScreen) {
 void Level::updateNode(const int& x, const int& y, const MapNode& node) {
   mapBase[x][y] = node;
 }
-Level::Level(const size_t& x, const size_t& y) : mapBase{x, std::vector<MapNode>(y)} {
+Level::Level(const size_t& x, const size_t& y) : mapBase{x, std::vector<NodeBase>(y)} {
   tilesizeX = 36;  //for now, this is constant, but it may change in the future
   tilesizeY = 36;
   updateWindowPos();
 }
-Level::Level() : mapBase{1, std::vector<MapNode>(1)} {
+Level::Level() : mapBase{1, std::vector<NodeBase>(1)} {
   tilesizeX = 36;
   tilesizeY = 36;
   updateWindowPos();
@@ -204,48 +204,118 @@ int Level::getEntNum() const {
   return entityList.size();
 }
 
-/*
-void Level::assignTextureToNode(const int& x, const int& y, TextureMap& tema) {
+void Level::assignTextureToWinNode(sf::Vector2i pos, TextureCache& cache) {
+  //determine what texture to use and which transformations to apply
+  if(pos.x > WINDOW_WIDTH || pos.y > WINDOW_HEIGHT) {
+    throw std::invalid_argument("Level::assignTextureToWinNode() : Requested position out of bounds");
+  }
+
+  CacheNodeAttributes cna;
+  int s = cache.tileFilenameHash(window[pos.x][pos.y].getId());
+  if(s < 0) {
+    //error: requested object doesn't exist
+    std::cout << "Texture not assigned to tile ("<<pos.x<<','<<pos.y << ")\n";
+    return;
+  }
+  cna.srcImg = s;
+
+  
+  //generate cna.tList
+  switch(window[pos.x][pos.y].getId()) {
+  case 5: {
+    Transform t;
+    t.type = Transform::Set_Width;
+    t.args[0] = tilesizeX;
+    cna.tList.push_back(t);  //set width to one tile
+
+    Transform t2;
+    t2.type = Transform::Slide_X;
+    t2.args[0] = int(frameCount/10)%36;
+    cna.tList.push_back(t2);
+  }
+    //water: add a xShift transformation
+  default:
+    //no transformations
+    break;
+  }
   try {
-    mapBase.at(x).at(y).setTexture(tema.getTexture(mapBase.at(x).at(y).getId()));
+    window[pos.x][pos.y].setTexture(cache.getTexture(cna));
   }
   catch (...) {
-    std::cout << "ERROR invalid set texture error.\n";
+    std::cout << "Error: target image not found\n";
   }
 }
-*/
 
-void Level::assignTextureToWinNode(const int& x, const int& y, TextureMap& tema) {
+void Level::assignTextureToObject(unsigned index, TextureCache& cache) {
+  //determine what texture to use and which transformations to apply
+  if(index > objectList.size()) {
+    throw std::invalid_argument("Level::assignTextureToObject() : Requested object does not exist");
+  }
+
+  CacheNodeAttributes cna;
+  //to find srcImg, look for objectList[index].getId()
+  int s = cache.objectFilenameHash(objectList[index].getId());
+  if(s < 0) {
+    //error: requested object doesn't exist
+    std::cout << "Texture not assigned to object no. "<<index << "\n";
+    return;
+  }
+  cna.srcImg = s;
+
+  
+  //generate cna.tList
+  switch(objectList[index].getId()) {
+  default:
+    //no transformations
+    break;
+  }
   try {
-    if(window.at(x).at(y).getTexture()!=&tema.getTexture(window.at(x).at(y).getId())) {
-      window.at(x).at(y).setTexture(tema.getTexture(window.at(x).at(y).getId()));
-    }
+    objectList[index].setTexture(cache.getTexture(cna));
   }
   catch (...) {
-    std::cout << "ERROR invalid set texture error.\n";
+    std::cout << "Error: target image not found\n";
   }
 }
 
-void Level::assignTextureToObject(int index, TextureMap& tema) {
+void Level::assignTextureToEntity(unsigned index, TextureCache& cache) {
+  //determine what texture to use and which transformations to apply
+  if(index > entityList.size()) {
+    throw std::invalid_argument("Level::assignTextureToEntity() : Requested entity does not exist");
+  }
+
+  CacheNodeAttributes cna;
+  //to find srcImg, look for entityList[index].getId()
+  int s = cache.entityFilenameHash(entityList[index].getType());
+  if(s < 0) {
+    //error: requested entity doesn't exist
+    std::cout << "Texture not assigned to entity no. "<<index << "\n";
+    return;
+  }
+  cna.srcImg = s;
+
+  
+  //generate cna.tList
+  switch(entityList[index].getType()) {
+  default:
+    //no transformations
+    break;
+  }
   try {
-    if(objectList.at(index).getTexture() != &tema.getTexture(tema.getObjOff()+objectList.at(index).getId())) {
-      objectList.at(index).setTexture(tema.getTexture(tema.getObjOff()+objectList.at(index).getId()));
-    }
+    entityList[index].setTexture(cache.getTexture(cna));
   }
   catch (...) {
-    std::cout << "ERROR invalid set texture error.\n";
+    std::cout << "Error: target image not found\n";
   }
 }
 
-void Level::assignTextureToEntity(int index, TextureMap& tema) {
-  try {
-    if(entityList.at(index).getTexture() != &tema.getTexture(tema.getEntOff()+objectList.at(index).getId())) {
-      entityList.at(index).setTexture(tema.getTexture(tema.getEntOff()+objectList.at(index).getId()));
-    }
+
+int Level::advanceFrameCount() {
+  if(frameCount == 1799) {
+    frameCount = 0;
+    return 0;
   }
-  catch (...) {
-    std::cout << "ERROR invalid set texture error.\n";
-  }
+  return(++frameCount);
+  
 }
 
 void Level::addEntity(const Entity& en) {

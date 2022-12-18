@@ -34,8 +34,8 @@ bool line2event(const std::string& line, Event& ev) {
   std::string key = "`";
   parse(line, fieldList, key);
   std::string t;
-  int du;
-  Event::Type et;
+  int du{0};
+  Event::Type et{Event::Invalid};
   std::array<int, 8> ar;
   //now, iterate through the fields and parse them
   for(size_t i=0;i<fieldList.size();i++) {

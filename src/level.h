@@ -13,6 +13,14 @@
 #include <fstream>
 #include "util.h"
 
+struct Interaction {
+  bool interaction=false;
+  int object;
+  sf::Vector2i delta{0,0};
+  Interaction(bool b, int i, sf::Vector2i d);
+  Interaction();
+};
+
 //! The class that holds a complete level
 /*!
  *  Contains all tiles, as well as objects and entities.
@@ -85,6 +93,11 @@ public:
   void removeEntity(unsigned index);
   //! Removes specified object from object list
   void removeObject(unsigned index);
+
+  //! Returns the status of the interaction between the passed mutable and specified object 
+  Interaction queryInteractions(const Mutable& mut, int id, int targetId, bool object);
+
+  void handleInteractions();
 
   //! Doesn't do anything yet
   void handleEntities();

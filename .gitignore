@@ -38,5 +38,7 @@ doc/
 assets/
 # Unused files
 unused/
-# Emacs tilde files
+
+# Backup files
 *~
+*.swp

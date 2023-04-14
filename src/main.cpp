@@ -69,6 +69,7 @@ int main() {
 
   //more player initialization
   mapData.player.update(mapData.levelSlot.getTilesize());
+  mapData.player.assignTexture(textureCache);
 
   //main loop
   while(window.isOpen()) {
@@ -76,41 +77,32 @@ int main() {
     while(window.pollEvent(event)) {
       switch(event.type) {
       case sf::Event::Closed:
-	window.close();
-	break;
-      case sf::Event::KeyPressed:
-	// I changed how this works, so this is empty now
-	break;
+	      window.close();
+	      break;
       default:
-	break;
+	      break;
       }
     }
     if(!window.isOpen())
       return 0;
 
-    //check if every key is pressed. If key is pressed, call ModeSwitcher::addKey()
-
     mapData.modeSwitcher.updateKeysPressed();
     int currentMode = mapData.modeSwitcher.getMode();
-    //mode-non-specific
-    mapData.musicPlayer.assignSounds();
-    mapData.musicPlayer.manageSounds();
     
     if(currentMode == 0) {
       //main menu logic
       switch(mapData.event0Handle()) {
       case -1:
-	//kill window
-	window.close();
-	break;
+	      //kill window
+	      window.close();
+	      break;
       default:
-	//no special behavior
-	break;
+	      //no special behavior
+	      break;
       }
     }
     else if(currentMode == 1) {
       //level player logic
-      //handle key inputs:
       mapData.event1Handle();
       //other things
       
@@ -120,7 +112,13 @@ int main() {
       mapData.event2Handle();
     }
 
+    //tasks that are common to all modes
+    mapData.musicPlayer.assignSounds();
+    mapData.musicPlayer.manageSounds();
+
     interfaceManager.updateInterface(&mapData.player);
+
+
     //final drawing
     window.clear();
     //draw based on which mode the engine is currently in
@@ -134,7 +132,7 @@ int main() {
       // eventually find a way to implement animated textures
       //assign sprites
       if(mapData.levelSlot.displayUpdate) {
-	mapData.levelSlot.newReadyWindow(mapData.player.getXScreen(), mapData.player.getYScreen());
+	mapData.levelSlot.newReadyWindow(mapData.player.getScreen().x, mapData.player.getScreen().y);
       }
       for(int i=0;i<WINDOW_WIDTH;i++) {
 	for(int j=0;j<WINDOW_HEIGHT;j++) {
@@ -155,6 +153,7 @@ int main() {
 
       //update things
       mapData.player.update(mapData.levelSlot.getTilesize());
+      mapData.player.assignTexture(textureCache);
       //this needs to eventually use player tile size
       window.draw(mapData.player);
       mapData.message.handleMessages();

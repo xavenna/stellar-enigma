@@ -1,25 +1,31 @@
 #include "stellar-enigma.hpp"
 #include "mapdata.h"
 #include "callback.h"
+#include "color.h"
+#include <tuple>
 
 void MapData::customInit() {
-  //this function is where any custom code to be run before the main loop should go
-  modeSwitcher.setMode(0);
+  //initialize player
   player.setXPos(36);
   player.setYPos(36);
   player.setWidth(36);
   player.setHeight(36);
   player.setSpeed(6);
   player.setHealth(5);
+  //initialize some sound things
   sf::SoundBuffer step;
   step.loadFromFile("assets/audio/thud.wav");
   musicPlayer.registerSound("step", step);
   musicPlayer.playMusic("axolotl.ogg");
-  //cutscene
+  //initialize cutscene file
   cutsceneManager.loadCutscenes("default");
 
+  //setup main menu
   mainMenu.spT.loadFromFile("assets/splash/mainmenu.png");
-  mainMenu.splash.setTexture(mainMenu.spT);  //this should likely go somewhere
+  mainMenu.splash.setTexture(mainMenu.spT);
+  modeSwitcher.setMode(0);
+
+  /// diagnostic information
 }
 
 void initialSetup(std::string& name, int& framerate) {
@@ -33,19 +39,18 @@ int MapData::event0Handle() {  //this mode is used for the main menu
     if(lk == sf::Keyboard::Enter) {
       switch(mainMenu.onPress) {
       case 1:
-	modeSwitcher.setMode(1);
-	return 0; 
+        modeSwitcher.setMode(1);
+        return 0; 
       case -1:
-	return -1;
-	//signal window to close, somehow
+        return -1;
       }
     }
   }
   return 0;
 }
 
-// TODO: modify this function to fix diagonal movement bug MkII 
 
+  // turn the interaction handler into a seperate function so it can be recursed
 void MapData::event1Handle() {
   //this is the basic gameplay mode
   sf::Keyboard::Key lk;
@@ -57,32 +62,30 @@ void MapData::event1Handle() {
     }
     if(lk == sf::Keyboard::W) {
       if(moveDir.y == 0)
-	moveDir.y = -1;
+        moveDir.y = -1;
       else
-	moveDir.y = 0;
+        moveDir.y = 0;
     }
     else if(lk == sf::Keyboard::A) {
       if(moveDir.x == 0)
-	moveDir.x = -1;
+        moveDir.x = -1;
       else
-	moveDir.x = 0;
+        moveDir.x = 0;
     }
     else if(lk == sf::Keyboard::S) {
       if(moveDir.y == 0)
-	moveDir.y = 1;
+        moveDir.y = 1;
       else
-	moveDir.y = 0;
+        moveDir.y = 0;
     }
     else if(lk == sf::Keyboard::D) {
       if(moveDir.x == 0)
-	moveDir.x = 1;
+        moveDir.x = 1;
       else
-	moveDir.x = 0;
+        moveDir.x = 0;
     }
   }
-  //std::cout << moveDir.x << ',' << moveDir.y << '\n';
   //now that all input has been gathered, handle movement
-  //int tempSpeed;
   sf::Vector2i sp(moveDir.x * player.getSpeed(), moveDir.y * player.getSpeed());
 
 
@@ -91,6 +94,16 @@ void MapData::event1Handle() {
   //check for interaction between player and objects/entities
 
   //this might make more sense to be a separate function
+
+  //this structure contains interaction status of all objects
+  std::vector<Interaction> objStatus(levelSlot.getObjNum());
+
+  for(int i=0;i<levelSlot.getObjNum();i++) {
+    Object ob = levelSlot.getObj(i);
+    levelSlot.queryInteractions(player, -1, i, true);
+    //call the interaction detector on levelSlot.getObj(i)
+  }
+
 
   //for each element of the object/entity vectors, check if it intersects with the player
   //If so, do something...maybe run a callback from the object/entity
@@ -104,8 +117,6 @@ void MapData::event1Handle() {
     sf::Vector2i omin{ob.getPos()};
     sf::Vector2i omax{omin+ob.getSize()-sf::Vector2i(1,1)};
 
-    //I really think there is a better way to do this whole interaction thing
-
     if(pmin.x > omax.x || omin.x > pmax.x || pmin.y > omax.y || omin.y > pmax.y) {
       //no interaction
     }
@@ -115,56 +126,57 @@ void MapData::event1Handle() {
       //use object id for this
       switch(ob.getId()) {
       case 0:
-	//stone: push player out
-	solidBehave(ob, this);
-	break;
+        //stone: push player out
+        solidBehave(ob, this);
+        break;
       case 1:
-
-	pushBehave(ob, this);
-	break;
+        //crate: pushed by player
+        pushBehave(ob, this);
+        break;
       case 2:
-	//key: is picked up, and something happens. Attempts to play the cutscene specified
-	//in ob.text. If a valid cutscene is not specified, play cutscene `key'
+        //key: picked up, and something happens. Attempts to play the cutscene specified
+        //in ob.text. If a valid cutscene is not specified, play cutscene `key'
 
-	if(cutsceneManager.cutsceneExists(ob.getText())) {
-	  cutscenePlayer.loadCutscene(cutsceneManager.getCutscene(ob.getText()));
-	}
-	else {
-	  cutscenePlayer.loadCutscene(cutsceneManager.getCutscene("key"));
-	}
-	modeSwitcher.setMode(2);
-	//destroy object, decrement i;
-	levelSlot.removeObject(i);
-	i--;
-	break;
+        if(cutsceneManager.cutsceneExists(ob.getText())) {
+          cutscenePlayer.loadCutscene(cutsceneManager.getCutscene(ob.getText()));
+        }
+        else {
+          cutscenePlayer.loadCutscene(cutsceneManager.getCutscene("key"));
+        }
+        modeSwitcher.setMode(2);
+        //destroy object, decrement i;
+        levelSlot.removeObject(i);
+        i--;
+        break;
       case 3:
-	//board
-	//play the message found in text
-	if(ob.getText() != "") {
-	  message.addMessage(ob.getText());
-	}
-	break;
+        //board
+        //play the message found in text
+        if(ob.getText() != "") {
+          message.addMessage(ob.getText());
+        }
+        break;
       case 4:
-	//cutscene player
-	
-	if(cutsceneManager.cutsceneExists(ob.getText())) {
-	  cutscenePlayer.loadCutscene(cutsceneManager.getCutscene(ob.getText()));
-	  modeSwitcher.setMode(2);
-	}
-	break;
+        //cutscene player
+        if(cutsceneManager.cutsceneExists(ob.getText())) {
+          cutscenePlayer.loadCutscene(cutsceneManager.getCutscene(ob.getText()));
+          modeSwitcher.setMode(2);
+        }
+        break;
       case 5:
-	//spikes
-	hurtBehave(ob, this);
-	break;
+        //spikes
+        hurtBehave(ob, this);
+        break;
+      case 6:
+        //Status effect
+        //create effect
+        break;
       default:
-	//No interaction
-	break;
+        //No interaction
+        break;
       }
       if(i == j) {
-	levelSlot.updateObj(i, ob);
+        levelSlot.updateObj(i, ob);
       }
-    //if(i >= levelSlot.getObjNum()) {
-    //break;  // this is necessary until I find a better way, otherwise it attempts to read from removed nodes
     }
   }
 
@@ -184,12 +196,13 @@ void MapData::event1Handle() {
       //make player interact with entity
       switch(en.getType()) {
       default:
-	//no interaction
-	break;
+        //no interaction
+        break;
       }
     }
   }
 
+  //various player updates
   if(player.damaged) {
     player.damaged = false;
     player.resetCooldown();
@@ -197,22 +210,27 @@ void MapData::event1Handle() {
   else if(player.getCooldown() != 0) {
     player.decrementCooldown();
   }
-  sf::Vector2i oldps(player.getXScreen(), player.getYScreen());
+  sf::Vector2i oldps(player.getScreen().x, player.getScreen().y);
   player.update(levelSlot.getTilesize());
-  sf::Vector2i newps(player.getXScreen(), player.getYScreen());
+  sf::Vector2i newps(player.getScreen().x, player.getScreen().y);
 
+  //various updates
   if(oldps != newps)
     levelSlot.displayUpdate = true;
 
   levelSlot.handleEntities();
   levelSlot.handleObjects(player.getPos(), player.getSize());
 
+  //cutscenes don't work like this anymore... use a cutscene_player object
+  /*
   std::string cn = levelSlot.getNode(player.getLevelXPos(levelSlot.getTilesizeX()), player.getLevelYPos(levelSlot.getTilesizeY())).getCutname();
   if(cn != "") {
     cutscenePlayer.loadCutscene(cutsceneManager.getCutscene(cn));
     modeSwitcher.setMode(2);
   }
-
+  */
+  
+  // If player has died, display death screen and switch to mode 0 
   if(player.getHealth() == 0) {
     modeSwitcher.setMode(0);
     mainMenu.spT.loadFromFile("assets/splash/deathscreen.png");
@@ -230,9 +248,9 @@ void MapData::event2Handle() {  //this is the cutscene mode
     //cutscene is over; do things now... 
     modeSwitcher.setMode(1); //switch back to gameplay mode
   }
-  sf::Vector2i oldps(player.getXScreen(), player.getYScreen());
+  sf::Vector2i oldps(player.getScreen().x, player.getScreen().y);
   player.update(levelSlot.getTilesize());
-  sf::Vector2i newps(player.getXScreen(), player.getYScreen());
+  sf::Vector2i newps(player.getScreen().x, player.getScreen().y);
 
   if(oldps != newps)
     levelSlot.displayUpdate = true;

@@ -8,17 +8,22 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include "color.h"
 
 #define ARG_NUM 1
 //how many arguments a transform has
 
 struct Transform {
   enum Type {
-    Slide_X = 1,
-    Slide_Y = 2,
-    Set_Width = 3,
-    Set_Height = 4
-
+    Slide_X,
+    Slide_Y,
+    Set_Width,
+    Set_Height,
+    Rotate,
+    Tint_Color,
+    Tint_Mask,
+    And_Mask,
+    Displacement_Mask
   };
   Type type;
   std::array<int, ARG_NUM> args;

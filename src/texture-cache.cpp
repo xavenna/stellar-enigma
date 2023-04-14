@@ -1,4 +1,5 @@
 #include "texture-cache.h"
+#include <algorithm>
 
 
 bool Transform::operator!=(Transform t) const {
@@ -92,11 +93,11 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
 
   if(index >= 0) {
     // requested texture exists
-    //std::cout << "Fetching texture from slot " << index << "\n\n";
+    //std::clog << "Fetching texture from slot " << index << "\n\n";
     return cache[attr.srcImg][index].tex;
   }
   else {
-    //std::cout << "Cache miss in subcache " << attr.srcImg << "\n";
+    //std::clog << "Cache miss in subcache " << attr.srcImg << "\n";
     //cache miss
     //generate a texture with the requested transformations, create a CacheNode using it and
     //attr, and append it to the appropriate vector in Cache
@@ -123,9 +124,45 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
 	//set the height of the Texture
 	window.height = x.args[0];
 	break;
+      case Transform::Tint_Color:
+	//tint image by specified color
+	{
+	  float hue = x.args[0] / 360.f;
+	  for(unsigned i=0;i<finalImage.getSize().x;i++) {
+	    for(unsigned j=0;j<finalImage.getSize().y;j++) {
+	      sf::Color c = finalImage.getPixel(i, j);
+	      c = tint(c, hue);
+	      finalImage.setPixel(i, j, c);
+	    }
+	  }
+	}
+	break;
+      case Transform::Rotate: {
+	int rotationAmount = (x.args[0] % 4);
+	rotationAmount = 90 * (rotationAmount==0?2:rotationAmount==2?0:rotationAmount);
+	sf::RenderTexture tex;
+	tex.create(finalImage.getSize().x, finalImage.getSize().y);
+	sf::Texture p;
+	p.loadFromImage(finalImage);
+	sf::Sprite s(p);
+	s.setOrigin(finalImage.getSize().x/2.f, finalImage.getSize().y/2.f);
+	s.setPosition(finalImage.getSize().x/2.f, finalImage.getSize().y/2.f);
+	s.setRotation(rotationAmount);
+	tex.draw(s);
+	finalImage = tex.getTexture().copyToImage();
+
+      }
+	break;
+      case Transform::Tint_Mask:
+      case Transform::And_Mask:
+      case Transform::Displacement_Mask:
+	//not implemented
+	std::cout << "Requested transformation has not been implemented yet\n";
+	break;
       default:
 	//invalid transformation
 	std::cout << "Error: invalid transformation. Skipped\n";
+	break;
       }
     }
     //std::cout << "Writing texture\n";

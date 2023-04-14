@@ -8,7 +8,7 @@
 #include <string>
 #include <map>
 
-//Documented?
+// The Audio Module of Stellar Enigma
 
 //! An enum for status of a sound slot
 enum Status {

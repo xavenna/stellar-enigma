@@ -4,10 +4,10 @@
 #include "stellar-enigma.hpp"
 
 //! For objects that don't interact with player
-void nullBehave(Object* ob, Player* player, Level* level);
+sf::Vector2i nullBehave(Object* ob, MapData* md, bool dryRun = false);
 
 //! For objects that block player motion
-void solidBehave(Object& ob, MapData* md);
+sf::Vector2i solidBehave(Object& ob, MapData* md, bool dryRun = false);
 
 //! For objects that can be pushed by player
 void pushBehave(Object& ob, MapData* md);

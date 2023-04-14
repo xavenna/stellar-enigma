@@ -6,15 +6,17 @@
 
 //If I can figure it out, these eventually will be some kind of callback or function pointer
 //That's why the file is named 'callback.cpp'
-void nullBehave(Object& ob, MapData* md) {
+//! Returns the coordinates the object would move to, in theory
+sf::Vector2i nullBehave(Object* ob, MapData* md, bool dryRun) {
   //do nothing
 
   //this is here b/c the compiler won't be happy otherwise
-  ob.getXPos();
-  md->player.getXPos();
+  ob->getPos();
+  dryRun = !dryRun;
+  return md->player.getPos();
 }
 
-void solidBehave(Object& ob, MapData* md) {
+sf::Vector2i solidBehave(Object& ob, MapData* md, bool dryRun) {
   sf::Vector2i pmin{md->player.getPos()};
   sf::Vector2i pmax{pmin+md->player.getSize()-sf::Vector2i(1,1)};
   sf::Vector2i plmin{md->player.getLastPos()};
@@ -37,22 +39,40 @@ void solidBehave(Object& ob, MapData* md) {
   bool xInt = xAfter && !xBefore && ((yAfter && yBefore) || (!yBefore && yAfter));
   bool yInt = yAfter && !yBefore && ((xAfter && xBefore) || (!xBefore && xAfter));
 
+  if(!dryRun) {
+    if(xInt && pmin.x < omin.x) {
+      md->player.setXPos(ob.getPos().x-md->player.getSize().y);
+    }
+    if(yInt && pmin.y < omin.y) {
+      md->player.setYPos(ob.getPos().y-md->player.getSize().x);
+    }
+    if(xInt && pmin.x > omin.x) {
+      md->player.setXPos(ob.getPos().x+ob.getSize().x);
+    }
+    if(yInt && pmin.y > omin.y) {
+      md->player.setYPos(ob.getPos().y+ob.getSize().y);
+    }
+  }
+
   if(xInt && pmin.x < omin.x) {
-    md->player.setXPos(ob.getXPos()-md->player.getSize().y);
+    return sf::Vector2i(ob.getPos().x-md->player.getSize().y, md->player.getPos().y);
   }
   if(yInt && pmin.y < omin.y) {
-    md->player.setYPos(ob.getYPos()-md->player.getSize().x);
+    return sf::Vector2i(md->player.getPos().y, ob.getPos().y-md->player.getSize().x);
   }
   if(xInt && pmin.x > omin.x) {
-    md->player.setXPos(ob.getXPos()+ob.getSize().x);
+    return sf::Vector2i(ob.getPos().x+ob.getSize().x, md->player.getPos().y);
   }
   if(yInt && pmin.y > omin.y) {
-    md->player.setYPos(ob.getYPos()+ob.getSize().y);
+    return sf::Vector2i(md->player.getPos().x, ob.getPos().y+ob.getSize().y);
   }
+
+  return (md->player.getPos());
+
 }
 
 void pushBehave(Object& ob, MapData* md) {
-  //crate: attempts to move md->playerSpeed units in md->player facing direction
+  //pushable object
   
   sf::Vector2i pmin{md->player.getPos()};
   sf::Vector2i pmax{pmin+md->player.getSize()-sf::Vector2i(1,1)};
@@ -78,21 +98,21 @@ void pushBehave(Object& ob, MapData* md) {
   bool yInt = yAfter && !yBefore && ((xAfter && xBefore) || (!xBefore && xAfter));
 
   if(xInt && yInt) {
-    return; //For now, diagonal
+    return; //For now, diagonal interactions are ignored
   }
 
   sf::Vector2i residSpeed;
   if(xInt && pmin.x < omin.x) {
-    residSpeed.x = md->player.getXPos()+md->player.getSize().x-ob.getXPos();
+    residSpeed.x = md->player.getPos().x+md->player.getSize().x-ob.getPos().x;
   }  //moving right
   if(yInt && pmin.y < omin.y) {
-    residSpeed.y = md->player.getYPos()+md->player.getSize().y-ob.getYPos();
+    residSpeed.y = md->player.getPos().y+md->player.getSize().y-ob.getPos().y;
   }
   if(xInt && pmin.x > omin.x) {
-    residSpeed.x = md->player.getXPos() - (ob.getXPos()+ob.getSize().x);
+    residSpeed.x = md->player.getPos().x - (ob.getPos().x+ob.getSize().x);
   }
   if(yInt && pmin.y > omin.y) {
-    residSpeed.y = md->player.getYPos() - (ob.getYPos()+ob.getSize().y);
+    residSpeed.y = md->player.getPos().y - (ob.getPos().y+ob.getSize().y);
   }
   sf::Vector2i moveDistance;
   moveDistance = md->levelSlot.validMove(ob.getPos(), ob.getSize(), residSpeed);
@@ -126,19 +146,19 @@ void hurtBehave(Object& ob, MapData* md) {
 
   bool hurt = false;
   if(xInt && pmin.x < omin.x) {
-    md->player.setXPos(ob.getXPos()-md->player.getSize().y);
+    md->player.setXPos(ob.getPos().x-md->player.getSize().y);
     hurt = true;
   }
   if(yInt && pmin.y < omin.y) {
-    md->player.setYPos(ob.getYPos()-md->player.getSize().x);
+    md->player.setYPos(ob.getPos().y-md->player.getSize().x);
     hurt = true;
   }
   if(xInt && pmin.x > omin.x) {
-    md->player.setXPos(ob.getXPos()+ob.getSize().x);
+    md->player.setXPos(ob.getPos().x+ob.getSize().x);
     hurt = true;
   }
   if(yInt && pmin.y > omin.y) {
-    md->player.setYPos(ob.getYPos()+ob.getSize().y);
+    md->player.setYPos(ob.getPos().y+ob.getSize().y);
     hurt = true;
   }
   if(hurt) {

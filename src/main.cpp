@@ -21,7 +21,7 @@ int main() {
   int msgOfY;
   sf::Vector2i windowSize;
   InterfaceManager interfaceManager;
-  windowSize = interfaceManager.initializeInterface(sf::Vector2i(288, 288), msgOfY, panOfX, &mapData.player);
+  windowSize = interfaceManager.initializeInterface(sf::Vector2i(WINDOW_WIDTH * mapData.levelSlot.getTilesize().x, WINDOW_HEIGHT * mapData.levelSlot.getTilesize().y), msgOfY, panOfX, &mapData.player);
 
 
   std::string windowName;  //this is the name of the window
@@ -61,7 +61,7 @@ int main() {
 
   //also, encapsulate this within Message, maybe in the constructor
   mapData.message.setFont(courier);
-  mapData.message.setPosition(40, msgOfY);
+  mapData.message.setPosition(4+mapData.levelSlot.getTilesize().x, msgOfY);
 
 
   //call custom initialization behavior

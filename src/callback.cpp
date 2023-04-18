@@ -71,6 +71,65 @@ sf::Vector2i solidBehave(Object& ob, MapData* md, bool dryRun) {
 
 }
 
+
+sf::Vector2i toggleBehave(Object& ob, MapData* md, bool dryRun) {
+  sf::Vector2i pmin{md->player.getPos()};
+  sf::Vector2i pmax{pmin+md->player.getSize()-sf::Vector2i(1,1)};
+  sf::Vector2i plmin{md->player.getLastPos()};
+  sf::Vector2i plmax{plmin+md->player.getSize()-sf::Vector2i(1,1)};
+
+  //just incase objects move, so the algorithm doesn't break
+  sf::Vector2i omin{ob.getPos()};
+  sf::Vector2i omax{omin+ob.getSize()-sf::Vector2i(1,1)};
+  sf::Vector2i olmin{ob.getLastPos()};
+  sf::Vector2i olmax{olmin+ob.getSize()-sf::Vector2i(1,1)};
+  //determine interaction for each direction:
+  //was player intersecting with object on the x-axis?
+  bool xAfter = !(omax.x < pmin.x || omin.x > pmax.x);
+  bool xBefore = !(olmax.x < plmin.x || olmin.x > plmax.x);
+
+  bool yAfter = !(omax.y < pmin.y || omin.y > pmax.y);
+  bool yBefore = !(olmax.y < plmin.y || olmin.y > plmax.y);
+
+  //x, y interactions
+  bool xInt = xAfter && !xBefore && ((yAfter && yBefore) || (!yBefore && yAfter));
+  bool yInt = yAfter && !yBefore && ((xAfter && xBefore) || (!xBefore && xAfter));
+
+  if(!dryRun) {
+    if(xInt && pmin.x < omin.x) {
+      md->player.setXPos(ob.getPos().x-md->player.getSize().y);
+    }
+    if(yInt && pmin.y < omin.y) {
+      md->player.setYPos(ob.getPos().y-md->player.getSize().x);
+    }
+    if(xInt && pmin.x > omin.x) {
+      md->player.setXPos(ob.getPos().x+ob.getSize().x);
+    }
+    if(yInt && pmin.y > omin.y) {
+      md->player.setYPos(ob.getPos().y+ob.getSize().y);
+    }
+  }
+
+  if(xInt && pmin.x < omin.x) {
+    return sf::Vector2i(ob.getPos().x-md->player.getSize().y, md->player.getPos().y);
+  }
+  if(yInt && pmin.y < omin.y) {
+    return sf::Vector2i(md->player.getPos().y, ob.getPos().y-md->player.getSize().x);
+  }
+  if(xInt && pmin.x > omin.x) {
+    return sf::Vector2i(ob.getPos().x+ob.getSize().x, md->player.getPos().y);
+  }
+  if(yInt && pmin.y > omin.y) {
+    return sf::Vector2i(md->player.getPos().x, ob.getPos().y+ob.getSize().y);
+  }
+
+  // this needs to actually toggle between states
+
+
+  return (md->player.getPos());
+
+}
+
 void pushBehave(Object& ob, MapData* md) {
   //pushable object
   

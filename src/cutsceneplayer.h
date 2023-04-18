@@ -8,7 +8,6 @@
 #include "message.h"
 #include "player.h"
 #include "object.h"
-#include "entity.h"
 #include "mode.h"
 #include "level.h"
 #include "audio.h"

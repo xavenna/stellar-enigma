@@ -13,7 +13,6 @@
 #include "direction.h"
 #include "mutable.h"
 #include "object.h"
-#include "entity.h"
 #include "player.h"
 #include "message.h"
 #include "mapnode.h"

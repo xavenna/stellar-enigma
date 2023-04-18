@@ -7,10 +7,10 @@ sf::Vector2u PanelCreator::findPanelDimensions() {
 
 void PanelCreator::fixPanelOffsets(int panOff) {
   for(auto& x : icons) {
-    x.setPosition(x.getPosition().x+panOff, x.getPosition().y+36);
+    x.setPosition(x.getPosition().x+panOff, x.getPosition().y+16);
   }
   for(auto& x : picons) {
-    x.setPosition(x.getPosition().x+panOff, x.getPosition().y+36);
+    x.setPosition(x.getPosition().x+panOff, x.getPosition().y+16);
   }
 }
 

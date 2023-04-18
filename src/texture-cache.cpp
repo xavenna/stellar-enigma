@@ -109,60 +109,60 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
     for(auto x : attr.tList) {
       switch(x.type) { //apply each transformation
       case Transform::Slide_X:
-	//slide the window horizontally
-	window.left += x.args[0];
-	break;
+        //slide the window horizontally
+        window.left += x.args[0];
+        break;
       case Transform::Slide_Y:
-	//slide the window vertically
-	window.top += x.args[0];
-	break;
+        //slide the window vertically
+        window.top += x.args[0];
+        break;
       case Transform::Set_Width:
-	//set the width of the Texture
-	window.width = x.args[0];
-	break;
+        //set the width of the Texture
+        window.width = x.args[0];
+        break;
       case Transform::Set_Height:
-	//set the height of the Texture
-	window.height = x.args[0];
-	break;
+        //set the height of the Texture
+        window.height = x.args[0];
+        break;
       case Transform::Tint_Color:
-	//tint image by specified color
-	{
-	  float hue = x.args[0] / 360.f;
-	  for(unsigned i=0;i<finalImage.getSize().x;i++) {
-	    for(unsigned j=0;j<finalImage.getSize().y;j++) {
-	      sf::Color c = finalImage.getPixel(i, j);
-	      c = tint(c, hue);
-	      finalImage.setPixel(i, j, c);
-	    }
-	  }
-	}
-	break;
+        //tint image by specified color
+        {
+          float hue = x.args[0] / 360.f;
+          for(unsigned i=0;i<finalImage.getSize().x;i++) {
+            for(unsigned j=0;j<finalImage.getSize().y;j++) {
+              sf::Color c = finalImage.getPixel(i, j);
+              c = tint(c, hue);
+              finalImage.setPixel(i, j, c);
+            }
+          }
+        }
+        break;
       case Transform::Rotate: {
-	int rotationAmount = (x.args[0] % 4);
-	rotationAmount = 90 * (rotationAmount==0?2:rotationAmount==2?0:rotationAmount);
-	sf::RenderTexture tex;
-	tex.create(finalImage.getSize().x, finalImage.getSize().y);
-	sf::Texture p;
-	p.loadFromImage(finalImage);
-	sf::Sprite s(p);
-	s.setOrigin(finalImage.getSize().x/2.f, finalImage.getSize().y/2.f);
-	s.setPosition(finalImage.getSize().x/2.f, finalImage.getSize().y/2.f);
-	s.setRotation(rotationAmount);
-	tex.draw(s);
-	finalImage = tex.getTexture().copyToImage();
+        int rotationAmount = (x.args[0] % 4);
+        rotationAmount = 90 * (rotationAmount==0?2:rotationAmount==2?0:rotationAmount);
+        sf::RenderTexture tex;
+        tex.create(finalImage.getSize().x, finalImage.getSize().y);
+        sf::Texture p;
+        p.loadFromImage(finalImage);
+        sf::Sprite s(p);
+        s.setOrigin(finalImage.getSize().x/2.f, finalImage.getSize().y/2.f);
+        s.setPosition(finalImage.getSize().x/2.f, finalImage.getSize().y/2.f);
+        s.setRotation(rotationAmount);
+        tex.draw(s);
+        finalImage = tex.getTexture().copyToImage();
 
       }
-	break;
+      break;
       case Transform::Tint_Mask:
       case Transform::And_Mask:
       case Transform::Displacement_Mask:
-	//not implemented
-	std::cout << "Requested transformation has not been implemented yet\n";
-	break;
+        //not implemented
+        std::cout << "Requested transformation has not been implemented yet\n";
+        break;
       default:
-	//invalid transformation
-	std::cout << "Error: invalid transformation. Skipped\n";
-	break;
+        //invalid transformation
+        std::cout << "Error: invalid transformation. Skipped\n";
+        break;
       }
     }
     //std::cout << "Writing texture\n";

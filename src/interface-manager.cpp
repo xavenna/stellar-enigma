@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <filesystem>
 
-InterfaceManager::InterfaceManager() : bd(sf::Vector2i(36,36)) {
+InterfaceManager::InterfaceManager() : bd(sf::Vector2i(16,16)) {
 }
 
 //this function needs to return:
@@ -24,24 +24,24 @@ sf::Vector2i InterfaceManager::initializeInterface(sf::Vector2i windowSize, int&
   pc.createPanel();
   //determine panel size
   sf::Vector2i panelSize{pc.findPanelDimensions()};
-  sf::Vector2i messageSize{288, 108};
+  sf::Vector2i messageSize{288, 96};
 
   //alter sizes so the components fit together
-  if(panelSize.y > 36+windowSize.y+messageSize.y) {
+  if(panelSize.y > 16+windowSize.y+messageSize.y) {
     //make message longer
-    messageSize.y = panelSize.y - windowSize.y - 36;
+    messageSize.y = panelSize.y - windowSize.y - 16;
   }
-  else if(panelSize.y < 36+windowSize.y+messageSize.y) {
+  else if(panelSize.y < 16+windowSize.y+messageSize.y) {
     //make panel longer
-    panelSize.y = windowSize.y + 36 + messageSize.y;
+    panelSize.y = windowSize.y + 16 + messageSize.y;
   }
 
   messageSize.x = windowSize.x;
 
 
   //set offsets for Panel and message positions
-  msgOff = 72+windowSize.y;
-  panOff = 72+windowSize.x;
+  msgOff = 32+windowSize.y;
+  panOff = 32+windowSize.x;
 
   //construct border
   bd.drawBorder(windowSize, panelSize, messageSize);
@@ -49,7 +49,7 @@ sf::Vector2i InterfaceManager::initializeInterface(sf::Vector2i windowSize, int&
   // reposition each icon
   pc.fixPanelOffsets(panOff);
   
-  sf::Vector2i interfaceSize{108+windowSize.x+panelSize.x, 72+panelSize.y};
+  sf::Vector2i interfaceSize{48+windowSize.x+panelSize.x, 32+panelSize.y};
   return interfaceSize;
 
 }

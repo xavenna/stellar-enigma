@@ -55,8 +55,15 @@ sf::Color hsv2rgb(sf::Vector3f p) {
   float r;
   float g;
   float b;
+
+
+  if(h < 0 || h > 6) {
+    h = 0; 
+    std::clog << "Invalid color passed to hsv2rgb()\n";
+  }
+
   switch(int(h)) {
-  case 0:
+  default: //case 0:
     r = c;
     g = x;
     b = 0;

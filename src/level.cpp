@@ -21,9 +21,6 @@ void Level::updateObj(unsigned index, const Object& ob) {
   objectList.at(index) = ob;
 }
 
-Entity Level::getEnt(int index) const {
-  return entityList.at(index);
-}
 void Level::newReadyWindow(int xscr, int yscr) {
   //determine which screen to view
   int xwid = WINDOW_WIDTH-2;
@@ -60,13 +57,13 @@ void Level::updateNode(const int& x, const int& y, const MapNode& node) {
   mapBase[x][y] = node;
 }
 Level::Level(const size_t& x, const size_t& y) : mapBase{x, std::vector<NodeBase>(y)} {
-  tilesizeX = 36;  //for now, this is constant, but it may change in the future
-  tilesizeY = 36;
+  tilesizeX = 16;  //for now, this is constant, but it may change in the future
+  tilesizeY = 16;
   updateWindowPos();
 }
 Level::Level() : mapBase{1, std::vector<NodeBase>(1)} {
-  tilesizeX = 36;
-  tilesizeY = 36;
+  tilesizeX = 16;
+  tilesizeY = 16;
   updateWindowPos();
 }
 void Level::updateWindowPos() {
@@ -162,7 +159,6 @@ void Level::loadMutables(const std::string& levelname) {
   std::ifstream get(complevel);
   std::string line;
   std::string accum;
-  Entity n;
   Object o;  //these are defined now so they don't have to be every loop
   if(!get.is_open()) {
     throw 0;
@@ -205,9 +201,6 @@ sf::Vector2i Level::getTilesize() const {
 int Level::getObjNum() const {
   return objectList.size();
 }
-int Level::getEntNum() const {
-  return entityList.size();
-}
 
 void Level::assignTextureToWinNode(sf::Vector2i pos, TextureCache& cache) {
   //determine what texture to use and which transformations to apply
@@ -227,7 +220,7 @@ void Level::assignTextureToWinNode(sf::Vector2i pos, TextureCache& cache) {
   
   //generate cna.tList
   switch(window[pos.x][pos.y].getId()) {
-  case 5: {
+  case 8: {
     //water: add a xShift transformation
     Transform t;
     t.type = Transform::Set_Width;
@@ -236,18 +229,20 @@ void Level::assignTextureToWinNode(sf::Vector2i pos, TextureCache& cache) {
     
     Transform t2;
     t2.type = Transform::Slide_X;
-    t2.args[0] = 3*(int(frameCount/10)%12);
+    t2.args[0] = 2*(int(frameCount/10)%8);
     cna.tList.push_back(t2);
   }
     break;
+    /*
   case 8: {
     //barrier: add a color Tint
     Transform t;
     t.type = Transform::Tint_Color;
     t.args[0] = (frameCount)%360;
     cna.tList.push_back(t);
-  }
+    }
     break;
+    */
   default:
     //no transformations
     break;
@@ -291,37 +286,6 @@ void Level::assignTextureToObject(unsigned index, TextureCache& cache) {
   }
 }
 
-void Level::assignTextureToEntity(unsigned index, TextureCache& cache) {
-  //determine what texture to use and which transformations to apply
-  if(index > entityList.size()) {
-    throw std::invalid_argument("Level::assignTextureToEntity() : Requested entity does not exist");
-  }
-  
-  CacheNodeAttributes cna;
-  //to find srcImg, look for entityList[index].getId()
-  int s = cache.entityFilenameHash(entityList[index].getType());
-  if(s < 0) {
-    //error: requested entity doesn't exist
-    std::cout << "Texture not assigned to entity no. "<<index << "\n";
-    return;
-  }
-  cna.srcImg = s;
-  
-  
-  //generate cna.tList
-  switch(entityList[index].getType()) {
-  default:
-    //no transformations
-    break;
-  }
-  try {
-    entityList[index].setTexture(cache.getTexture(cna));
-  }
-  catch (...) {
-    std::cout << "Error: target image not found\n";
-  }
-}
-
 
 int Level::advanceFrameCount() {
   if(frameCount == 1799) {
@@ -332,15 +296,6 @@ int Level::advanceFrameCount() {
   
 }
 
-void Level::addEntity(const Entity& en) {
-  entityList.push_back(en);
-}
-void Level::removeEntity(unsigned index) {
-  if(index >= entityList.size()) {
-    throw std::invalid_argument("Level::removeEntity() : Invalid index");
-  }
-  entityList.erase(entityList.begin()+index);
-}
 void Level::addObject(const Object& ob) {
   objectList.push_back(ob);
 }
@@ -350,24 +305,11 @@ void Level::removeObject(unsigned index) {
   }
   objectList.erase(std::next(objectList.begin(),index));
 }
-void Level::handleEntities() {
-  for(unsigned i=0;i<entityList.size();i++) {
-    //auto& x = entityList[i];
-    //do things for x.
-    // If you remove an entity, make sure to do i--;
-  }
-}
 
 void Level::handleObjects(sf::Vector2i pos, sf::Vector2i size) {
   for(unsigned i=0;i<objectList.size();i++) {
     auto& x = objectList[i];
     //do things for x.
-    
-    // int pxRel = (pos.x-size.x)%(size.x*(WINDOW_WIDTH-2))+size.x;
-    // int pyRel = (pos.y-size.y)%(size.y*(WINDOW_HEIGHT-2))+size.y;
-    
-    // int pscrx = (pos.x-pxRel)/((WINDOW_WIDTH-2)*tilesizeX);
-    // int pscry = (pos.y-pyRel)/((WINDOW_HEIGHT-2)*tilesizeY);
     
     sf::Vector2i mid(pos.x+size.x/2, pos.y+size.y/2);
     int pscrx = (mid.x-tilesizeX) / (tilesizeX*(WINDOW_WIDTH-2));
@@ -377,9 +319,8 @@ void Level::handleObjects(sf::Vector2i pos, sf::Vector2i size) {
     //calculate objects position on player's screen. If it can be displayed, display it:
     
     sf::Vector2i relPos(x.getPos().x-(WINDOW_WIDTH-2)*tilesizeX*pscrx+tilesizeX,
-            x.getPos().y-(WINDOW_HEIGHT-2)*tilesizeY*pscry+tilesizeY);
+    x.getPos().y-(WINDOW_HEIGHT-2)*tilesizeY*pscry+tilesizeY);
     x.setPosition(relPos.x,relPos.y);
-    //setPosition((mid.x-tilesize.x)%(tilesize.x*(WINDOW_WIDTH-2))+tilesize.x*2-(width/2), (mid.y-tilesize.y)%(tilesize.y*(WINDOW_HEIGHT-2))+tilesize.y*2-(height/2));
     
     x.setLastPos(x.getPos());
     // If you remove an object, make sure to do i--;
@@ -647,13 +588,13 @@ void Level::handleInteractions() {
   
 }
 
-Interaction Level::queryInteractions(const Mutable& mut, int id, int targetId, bool object) {
+Interaction Level::queryInteractions(const Mutable& mut, int id, int targetId) {
   //get the interaction status of the mutable in question with the map
   //id is the id of mut, to prevent checking self-interactions
   //for mutable not part of Level, id should equal -1
-  if(targetId < 0 || (object && targetId > objectList.size()) || (!object && targetId < entityList.size())) {
+  if(targetId < 0 || unsigned(targetId) > objectList.size()) {
     std::clog << "Error: out-of-bounds level mutable interaction status query: id=";
-    std::clog << id << ",len=" << (object?objectList.size():entityList.size()) << "\n";
+    std::clog << id << ",len=" << objectList.size() << "\n";
     return Interaction(false, -1, sf::Vector2i(0,0));
   }
 
@@ -662,10 +603,10 @@ Interaction Level::queryInteractions(const Mutable& mut, int id, int targetId, b
   sf::Vector2i plmin{mut.getLastPos()};
   sf::Vector2i plmax{plmin+mut.getSize()-sf::Vector2i(1,1)};
   
-  sf::Vector2i omin{object ? objectList[targetId].getPos() : entityList[targetId].getPos()};
-  sf::Vector2i omax{omin+( object ? objectList[targetId].getSize() : entityList[targetId].getSize() ) -sf::Vector2i(1,1)};
-  sf::Vector2i olmin{object ? objectList[targetId].getLastPos() : entityList[targetId].getLastPos()};
-  sf::Vector2i olmax{olmin+( object ? objectList[targetId].getSize() : entityList[targetId].getSize() )-sf::Vector2i(1,1)};
+  sf::Vector2i omin{objectList[targetId].getPos()};
+  sf::Vector2i omax{omin+objectList[targetId].getSize() -sf::Vector2i(1,1)};
+  sf::Vector2i olmin{objectList[targetId].getLastPos()};
+  sf::Vector2i olmax{olmin+objectList[targetId].getSize()-sf::Vector2i(1,1)};
 
 
   //determine interaction for each direction:

@@ -1,12 +1,11 @@
 #ifndef LEVEL_H
 #define LEVEL_H
 
-#define WINDOW_WIDTH 8
-#define WINDOW_HEIGHT 8
+#define WINDOW_WIDTH 16
+#define WINDOW_HEIGHT 12
 
 #include "mapnode.h"
 #include "object.h"
-#include "entity.h"
 #include "texture-cache.h"
 #include "player.h"
 #include <iostream>
@@ -29,7 +28,6 @@ class Level {
 private:
   std::vector<std::vector<NodeBase>> mapBase; //!< The level data of the map
   std::vector<Object> objectList; //!< A list of objects found in the map
-  std::vector<Entity> entityList; //!< A list of entities found in the map
   int tilesizeX;  //!< The width of a tile, in pixels? currently unused?
   int tilesizeY;  //!< The height of a tile, in pixels? currently unused?
   int winOffX = 0;
@@ -40,8 +38,6 @@ public:
   NodeBase getNode(const int&, const int&) const;
   //! returns a copy of specified object
   Object getObj(int index) const;
-  //! returns a copy of specified entity
-  Entity getEnt(int index) const;
   //! updates specified object with passed object
   void updateObj(unsigned index, const Object&);
   //! a fixed-size map that is actually drawn to the screen
@@ -58,8 +54,6 @@ public:
   void assignTextureToWinNode(sf::Vector2i, TextureCache&);
   //! Uses a texturemap to assign a texture to the specified object
   void assignTextureToObject(unsigned, TextureCache&);
-  //! Uses a texturemap to assign a texture to the specified entity
-  void assignTextureToEntity(unsigned, TextureCache&);
   //! Loads mapBase from file, specified by argument.
   /*! 
    *  Searches for file in /levels/
@@ -85,22 +79,16 @@ public:
   //! gets the number of entities
   int getEntNum() const;
 
-  //! Adds passed entity to entityList
-  void addEntity(const Entity& en);
   //! Adds passed Object to objectList
   void addObject(const Object& ob);
-  //! Removes specified entity from entity list
-  void removeEntity(unsigned index);
   //! Removes specified object from object list
   void removeObject(unsigned index);
 
   //! Returns the status of the interaction between the passed mutable and specified object 
-  Interaction queryInteractions(const Mutable& mut, int id, int targetId, bool object);
+  Interaction queryInteractions(const Mutable& mut, int id, int targetId);
 
   void handleInteractions();
 
-  //! Doesn't do anything yet
-  void handleEntities();
   //! Handles objects
   /*!
    *  Updates entity tile positions

@@ -6,11 +6,11 @@
 
 void MapData::customInit() {
   //initialize player
-  player.setXPos(36);
-  player.setYPos(36);
-  player.setWidth(36);
-  player.setHeight(36);
-  player.setSpeed(6);
+  player.setXPos(32);
+  player.setYPos(32);
+  player.setWidth(16);
+  player.setHeight(16);
+  player.setSpeed(4);
   player.setHealth(5);
   //initialize some sound things
   sf::SoundBuffer step;
@@ -100,7 +100,7 @@ void MapData::event1Handle() {
 
   for(int i=0;i<levelSlot.getObjNum();i++) {
     Object ob = levelSlot.getObj(i);
-    levelSlot.queryInteractions(player, -1, i, true);
+    levelSlot.queryInteractions(player, -1, i);
     //call the interaction detector on levelSlot.getObj(i)
   }
 
@@ -180,28 +180,6 @@ void MapData::event1Handle() {
     }
   }
 
-  for(int i=0;i<levelSlot.getEntNum();i++) {
-    //handle entities
-    Entity en{levelSlot.getEnt(i)};
-    sf::Vector2i pmin{player.getPos()};
-    sf::Vector2i pmax{pmin+player.getSize()-sf::Vector2i(1,1)};
-
-    sf::Vector2i emin{en.getPos()};
-    sf::Vector2i emax{emin+en.getSize()-sf::Vector2i(1,1)};
-
-    if(pmin.x > emax.x || emin.x > pmax.x || pmin.y > emax.y || emin.y > pmax.y) {
-      //no interaction
-    }
-    else {
-      //make player interact with entity
-      switch(en.getType()) {
-      default:
-        //no interaction
-        break;
-      }
-    }
-  }
-
   //various player updates
   if(player.damaged) {
     player.damaged = false;
@@ -218,17 +196,10 @@ void MapData::event1Handle() {
   if(oldps != newps)
     levelSlot.displayUpdate = true;
 
-  levelSlot.handleEntities();
+  //levelSlot.handleEntities();
   levelSlot.handleObjects(player.getPos(), player.getSize());
 
   //cutscenes don't work like this anymore... use a cutscene_player object
-  /*
-  std::string cn = levelSlot.getNode(player.getLevelXPos(levelSlot.getTilesizeX()), player.getLevelYPos(levelSlot.getTilesizeY())).getCutname();
-  if(cn != "") {
-    cutscenePlayer.loadCutscene(cutsceneManager.getCutscene(cn));
-    modeSwitcher.setMode(2);
-  }
-  */
   
   // If player has died, display death screen and switch to mode 0 
   if(player.getHealth() == 0) {

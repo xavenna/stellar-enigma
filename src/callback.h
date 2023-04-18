@@ -9,6 +9,8 @@ sf::Vector2i nullBehave(Object* ob, MapData* md, bool dryRun = false);
 //! For objects that block player motion
 sf::Vector2i solidBehave(Object& ob, MapData* md, bool dryRun = false);
 
+sf::Vector2i toggleBehave(Object& ob, MapData* md, bool dryRun = false);
+
 //! For objects that can be pushed by player
 void pushBehave(Object& ob, MapData* md);
 

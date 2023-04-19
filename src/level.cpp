@@ -7,18 +7,25 @@ Interaction::Interaction() : interaction{false}, object{0}, delta{0,0} {}
 
 
 NodeBase Level::getNode(const int& x, const int& y) const {
-  return mapBase[x][y];
+  return field.getNode(x,y);
 }
 
 Object Level::getObj(int index) const {
-  return objectList.at(index);
+  return objects.getObj(index);
+}
+Object& Level::getObjRef(unsigned ind) {
+  return objects.getObjRef(ind);
+}
+
+Object* Level::getObjPtr(unsigned ind) {
+  return objects.getObjPtr(ind);
 }
 
 void Level::updateObj(unsigned index, const Object& ob) {
-  if(index >= objectList.size()) {
+  if(index >= objects.size()) {
     throw std::invalid_argument("Level::updateObj() : Invalid index");
   }
-  objectList.at(index) = ob;
+  (objects.getObjRef(index)) = ob;
 }
 
 void Level::newReadyWindow(int xscr, int yscr) {
@@ -53,15 +60,15 @@ void Level::readyWindow(int xScreen, int yScreen) {
 }
 // currently unused
 
-void Level::updateNode(const int& x, const int& y, const MapNode& node) {
-  mapBase[x][y] = node;
+void Level::updateNode(const int& x, const int& y, const NodeBase& node) {
+  field.updateNode(x, y, node);
 }
-Level::Level(const size_t& x, const size_t& y) : mapBase{x, std::vector<NodeBase>(y)} {
+Level::Level(const size_t& x, const size_t& y) : field{x, y} {
   tilesizeX = 16;  //for now, this is constant, but it may change in the future
   tilesizeY = 16;
   updateWindowPos();
 }
-Level::Level() : mapBase{1, std::vector<NodeBase>(1)} {
+Level::Level() : field{1, 1} {
   tilesizeX = 16;
   tilesizeY = 16;
   updateWindowPos();
@@ -82,78 +89,16 @@ void Level::updateWindowPos() {
     4       | unsigned int  :  height of sprites
     5,height| comma-delimited list  :  nodes of map
 */
-int Level::loadLevel(const std::string& levelname) {
-  std::string complevel = "assets/level/" + levelname + ".sel";
-  std::ifstream load(complevel);
-  if(!load.is_open())
-    throw 0;
-  std::string line;
-  int section = 0;
-  int column = 0;
-  int row = 0;
-  while(load.peek() != EOF) {
-    std::getline(load, line);
-    //parse line
-    if(line.size() == 0 || (line.size() > 0 && line[0] == '#'))
-      continue;
-    if(section == 0) {
-      if(isNum(line)) {
-    mapBase.resize(std::stoi(line));
-    section++;
-      }
-      else {
-    throw -1;  //invalid level: non-integer found in integer parameter;
-      }
-    }
-    else if(section == 1) {
-      if(isNum(line)) {
-    for(auto& m : mapBase) {
-      m.resize(std::stoi(line));
-    }
-    section++;
-      }
-      else {
-    throw -1; //invalid level: non-integer found in integer parameter;
-      }
-    }
-    else if(section == 2) {
-      if(isNum(line)) {
-    tilesizeX = std::stoi(line);
-    section++;
-      }
-      else {
-    throw -1; //invalid level: non-integer found in integer parameter;
-      }
-    }
-    else if(section == 3) {
-      if(isNum(line)) {
-    tilesizeY = std::stoi(line);
-    section++;
-      }
-      else {
-    throw -1; //invalid level: non-integer found in integer parameter;
-      }
-    }
-    else if(section == 4) {
-      column = 0;
-      MapNode node;
-      //actual level content
-      //this line loads into the vector
-      //getFront of line
-      while(nodify(line, node)) {
-    this->updateNode(column, row, node);  //x and y were flipped in order to make maps not load wrongly
-    column++;
-      }
-      row++;
-    }
-    
-  }
-  loadMutables(levelname);
-  return 0;
-}
 //format:
 // 1 char: [oe]; Object or Entity
 //if_o:  oxpos`ypos`width`height`solid?`id`value`collectable?`text
+
+int Level::loadLevel(const std::string& levelname) {
+  // create the levelName
+  field.loadLevel(levelname);
+  loadMutables(levelname);
+  return 0;
+}
 void Level::loadMutables(const std::string& levelname) {
   std::string complevel = "assets/level/" + levelname + ".sml";  //stellar mutable list
   std::ifstream get(complevel);
@@ -171,12 +116,11 @@ void Level::loadMutables(const std::string& levelname) {
     if(line.back() != '`')
       line += '`';
     //parse `line' as a mutable
-    if(line[0] == 'o') {
+    if(line[0] == 'o') {  //this needs to be refactored to fit the new system
       //object
       str2obj(line.substr(1), o);
       o.setPosition(o.getPos().x+tilesizeX, o.getPos().y+tilesizeY);
-      objectList.push_back(o);
-      //add o to object list
+      objects.storeObj(o.getPos(), o.getSize(), o.getId(), o.getValue(), o.getSolid(), o.getCollectable(), o.getText(), o.getArgs(), getType(o.getId()));
     }
     //the others will be written once objects work
     
@@ -184,22 +128,22 @@ void Level::loadMutables(const std::string& levelname) {
   return;
 }
 int Level::getWidth() const {
-  return mapBase.size();
+  return field.getWidth();
 }
 int Level::getHeight() const {
-  return mapBase[0].size();
+  return field.getHeight();
 }
 int Level::getTilesizeX() const {
-  return tilesizeX;
+  return field.getTilesizeX();
 }
 int Level::getTilesizeY() const {
-  return tilesizeY;
+  return field.getTilesizeY();
 }
 sf::Vector2i Level::getTilesize() const {
-  return sf::Vector2i(tilesizeX, tilesizeY);
+  return field.getTilesize();
 }
 int Level::getObjNum() const {
-  return objectList.size();
+  return objects.size();
 }
 
 void Level::assignTextureToWinNode(sf::Vector2i pos, TextureCache& cache) {
@@ -257,13 +201,13 @@ void Level::assignTextureToWinNode(sf::Vector2i pos, TextureCache& cache) {
 
 void Level::assignTextureToObject(unsigned index, TextureCache& cache) {
   //determine what texture to use and which transformations to apply
-  if(index > objectList.size()) {
+  if(index > objects.size()) {
     throw std::invalid_argument("Level::assignTextureToObject() : Requested object does not exist");
   }
   
   CacheNodeAttributes cna;
   //to find srcImg, look for objectList[index].getId()
-  int s = cache.objectFilenameHash(objectList[index].getId());
+  int s = cache.objectFilenameHash(objects.getObj(index).getId());
   if(s < 0) {
     //error: requested object doesn't exist
     std::cout << "Texture not assigned to object no. "<<index << "\n";
@@ -273,13 +217,13 @@ void Level::assignTextureToObject(unsigned index, TextureCache& cache) {
   
   
   //generate cna.tList
-  switch(objectList[index].getId()) {
+  switch(objects.getObj(index).getId()) {
   default:
     //no transformations
     break;
   }
   try {
-    objectList[index].setTexture(cache.getTexture(cna));
+    objects.getObjRef(index).setTexture(cache.getTexture(cna));
   }
   catch (...) {
     std::cout << "Error: target image not found\n";
@@ -297,18 +241,18 @@ int Level::advanceFrameCount() {
 }
 
 void Level::addObject(const Object& ob) {
-  objectList.push_back(ob);
+  objects.storeObj(ob, getType(ob.getId()));
 }
 void Level::removeObject(unsigned index) {
-  if(index >= objectList.size()) {
+  if(index >= objects.size()) {
     throw std::invalid_argument("Level::removeObject() : Invalid index");
   }
-  objectList.erase(std::next(objectList.begin(),index));
+  objects.removeObj(index);
 }
 
 void Level::handleObjects(sf::Vector2i pos, sf::Vector2i size) {
-  for(unsigned i=0;i<objectList.size();i++) {
-    auto& x = objectList[i];
+  for(unsigned i=0;i<objects.size();i++) {
+    auto& x = objects.getObjRef(i);
     //do things for x.
     
     sf::Vector2i mid(pos.x+size.x/2, pos.y+size.y/2);
@@ -328,11 +272,11 @@ void Level::handleObjects(sf::Vector2i pos, sf::Vector2i size) {
 }
 bool Level::displayObject(unsigned index, sf::Vector2i ppos, sf::Vector2i size) const {
   
-  if(objectList.size() <= index) {
+  if(objects.size() <= index) {
     return false;
   }
   
-  Object ob{objectList[index]};
+  Object ob{objects.getObj(index)};
   //don't display invisible objects
   switch(ob.getId()) {
   case 4: //add any other invisible objects here
@@ -539,8 +483,8 @@ sf::Vector2i Level::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i 
   
   //just repeat this with entities, if necessary
   sf::Vector2i ts = moveDistance;
-  for(int i=0;i<static_cast<int>(objectList.size());i++) {
-    auto x = objectList[i];
+  for(int i=0;i<static_cast<int>(objects.size());i++) {
+    auto x = objects.getObj(i);
     if(i == ignore) {
       continue;
     }
@@ -592,9 +536,9 @@ Interaction Level::queryInteractions(const Mutable& mut, int id, int targetId) {
   //get the interaction status of the mutable in question with the map
   //id is the id of mut, to prevent checking self-interactions
   //for mutable not part of Level, id should equal -1
-  if(targetId < 0 || unsigned(targetId) > objectList.size()) {
+  if(targetId < 0 || unsigned(targetId) > objects.size()) {
     std::clog << "Error: out-of-bounds level mutable interaction status query: id=";
-    std::clog << id << ",len=" << objectList.size() << "\n";
+    std::clog << id << ",len=" << objects.size() << "\n";
     return Interaction(false, -1, sf::Vector2i(0,0));
   }
 
@@ -603,10 +547,10 @@ Interaction Level::queryInteractions(const Mutable& mut, int id, int targetId) {
   sf::Vector2i plmin{mut.getLastPos()};
   sf::Vector2i plmax{plmin+mut.getSize()-sf::Vector2i(1,1)};
   
-  sf::Vector2i omin{objectList[targetId].getPos()};
-  sf::Vector2i omax{omin+objectList[targetId].getSize() -sf::Vector2i(1,1)};
-  sf::Vector2i olmin{objectList[targetId].getLastPos()};
-  sf::Vector2i olmax{olmin+objectList[targetId].getSize()-sf::Vector2i(1,1)};
+  sf::Vector2i omin{objects.getObj(targetId).getPos()};
+  sf::Vector2i omax{omin+objects.getObj(targetId).getSize() -sf::Vector2i(1,1)};
+  sf::Vector2i olmin{objects.getObj(targetId).getLastPos()};
+  sf::Vector2i olmax{olmin+objects.getObj(targetId).getSize()-sf::Vector2i(1,1)};
 
 
   //determine interaction for each direction:
@@ -659,71 +603,6 @@ Interaction Level::queryInteractions(const Mutable& mut, int id, int targetId) {
   return Interaction(xInt||yInt, targetId, delta);
 }
 
-// nodify destroys the passed string, maybe this should be rewritten
-bool nodify(std::string& line, MapNode& node) {
-  if(line.empty())
-    return false;
-  std::string accum;
-  while(line.size() != 0) {
-    char x = line[0];
-    if(x == ',') {
-      //end of node
-      if(!strToNode(accum, node)) {
-    throw -3;
-      }
-      accum.clear();
-      line.erase(0,1);
-      break;
-    }
-    else {
-      accum += x;
-      line.erase(0,1);
-    }
-  }
-  return true;
-}
-// fields are as follows:  id-int
-bool strToNode(const std::string& line, MapNode& node) {
-  int field = 0;  
-  std::string accum;
-  for(auto x : line) {
-    if(x == '`') {
-      //add accum to appropriate field
-      switch(field) {
-      case 0:
-        if(!isNum(accum)) {
-        return false;
-    }
-    else {
-      node.setId(std::stoi(accum));
-    }
-    break;
-      case 1:
-    if(!isNum(accum) || std::stoi(accum) < 0 || std::stoi(accum) > 15) {
-      return false;
-    }
-    node.setSolid(Up, std::stoi(accum) & 1);
-    node.setSolid(Right, !!((std::stoi(accum) & 2) >> 1));
-    node.setSolid(Down, !!((std::stoi(accum) & 4) >> 2));
-    node.setSolid(Left, !!((std::stoi(accum) & 8) >> 3));
-    break;
-      case 2:
-    node.setCutname(accum);
-    break;
-      default:
-    //invalid field
-    throw -2;  //error: nonexistent field
-    break;
-      }
-      field++;
-      accum.clear();
-    }
-    else {
-      accum += x;
-    }
-  }
-  return true;
-}
 
 bool str2obj(const std::string& line, Object& obj) {
   //#oxpos`ypos`width`height`solid?`id`value`collectable?`text

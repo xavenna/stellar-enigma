@@ -16,6 +16,25 @@ int main() {
   MapData mapData(15, unsigned(0.082126 * 288), 55, 20, 20);
 
 
+  try {
+    mapData.levelSlot.loadLevel("default");
+  }
+  catch (int e) {  //make these error codes better
+    if(e == 0) {
+      std::cout << "Error 0: Level not found\n";
+    }
+    else if(e == -1) {
+      std::cout << "Error -1: Non-integer found in integer parameter\n";
+    }
+    else if(e == -2) {
+      std::cout << "Error: -2\n";
+    }
+    else if(e == -3) {
+      std::cout << "Error: -3\n";
+    }
+    return e;
+  }
+
   //generate the interface
   int panOfX;
   int msgOfY;
@@ -39,24 +58,6 @@ int main() {
   courier.loadFromFile("assets/cour.ttf");
 
   TextureCache textureCache("assets/texturemap/default.tm");
-  try {
-    mapData.levelSlot.loadLevel("default");
-  }
-  catch (int e) {  //make these error codes better
-    if(e == 0) {
-      std::cout << "Error 0: Level not found\n";
-    }
-    else if(e == -1) {
-      std::cout << "Error -1: Non-integer found in integer parameter\n";
-    }
-    else if(e == -2) {
-      std::cout << "Error: -2\n";
-    }
-    else if(e == -3) {
-      std::cout << "Error: -3\n";
-    }
-    return e;
-  }
 
 
   //also, encapsulate this within Message, maybe in the constructor
@@ -70,6 +71,7 @@ int main() {
   //more player initialization
   mapData.player.update(mapData.levelSlot.getTilesize());
   mapData.player.assignTexture(textureCache);
+
 
   //main loop
   while(window.isOpen()) {

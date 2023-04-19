@@ -11,6 +11,7 @@
 #include <iostream>
 #include <fstream>
 #include "util.h"
+#include "field.h"
 
 struct Interaction {
   bool interaction=false;
@@ -26,24 +27,29 @@ struct Interaction {
  */
 class Level {
 private:
-  std::vector<std::vector<NodeBase>> mapBase; //!< The level data of the map
-  std::vector<Object> objectList; //!< A list of objects found in the map
-  int tilesizeX;  //!< The width of a tile, in pixels? currently unused?
-  int tilesizeY;  //!< The height of a tile, in pixels? currently unused?
+  ObjContainer objects; //!< The object factory/container
+  //std::vector<Object> objectList; //!< A list of objects found in the map
+  int tilesizeX;  //!< The width of a tile, in pixels
+  int tilesizeY;  //!< The height of a tile, in pixels
   int winOffX = 0;
   int winOffY = 0;
   int frameCount = 0; //!< The current frame, modulo 1800 (used for animations)
 public:
+  Field field; //!< The tile field
   //! returns a copy of specified node
   NodeBase getNode(const int&, const int&) const;
   //! returns a copy of specified object
   Object getObj(int index) const;
+  //! returns a reference to specified object
+  Object& getObjRef(unsigned);
+  //! returns a pointer to specified object
+  Object* getObjPtr(unsigned);
   //! updates specified object with passed object
   void updateObj(unsigned index, const Object&);
   //! a fixed-size map that is actually drawn to the screen
   std::array<std::array<MapNode, WINDOW_HEIGHT>, WINDOW_WIDTH> window;
   //! overwrites the mapnode at position x,y with node
-  void updateNode(const int& x, const int& y, const MapNode& node);
+  void updateNode(const int& x, const int& y, const NodeBase& node);
   //! This will copy the necessary nodes over to window in order to set it up
   void readyWindow(int xScreen, int yScreen);
   //! like readyWindow, but better
@@ -76,8 +82,6 @@ public:
   sf::Vector2i getTilesize() const;
   //! gets the number of objects
   int getObjNum() const;
-  //! gets the number of entities
-  int getEntNum() const;
 
   //! Adds passed Object to objectList
   void addObject(const Object& ob);
@@ -115,10 +119,6 @@ public:
   int advanceFrameCount();
 };
 
-//! parses a string containing a node, uses nodify
-bool nodify(std::string&, MapNode&);
-//! creates a node from a string representation of a node
-bool strToNode(const std::string&, MapNode&);
 //! creates an object from a string representation of an object
 bool str2obj(const std::string& line, Object& node);
 

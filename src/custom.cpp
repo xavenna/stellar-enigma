@@ -110,18 +110,35 @@ void MapData::event1Handle() {
   for(int i=0;i<levelSlot.getObjNum();i++) {
     int j = i;
     //check for collision between player and levelSlot.getObject(i);
-    Object ob{levelSlot.getObj(i)};
+    Object* ob = (levelSlot.getObjPtr(i));
     sf::Vector2i pmin{player.getPos()};
     sf::Vector2i pmax{pmin+player.getSize()-sf::Vector2i(1,1)};
 
-    sf::Vector2i omin{ob.getPos()};
-    sf::Vector2i omax{omin+ob.getSize()-sf::Vector2i(1,1)};
+    sf::Vector2i omin{ob->getPos()};
+    sf::Vector2i omax{omin+ob->getSize()-sf::Vector2i(1,1)};
 
     if(pmin.x > omax.x || omin.x > pmax.x || pmin.y > omax.y || omin.y > pmax.y) {
       //no interaction
     }
     else {
       //interaction happens
+      auto res = ob->behave(&player, &levelSlot.field, false);
+      if(std::get<1>(res) != "") {
+        message.addMessage(std::get<1>(res));
+      }
+      if(std::get<2>(res) != "") {
+        if(cutsceneManager.cutsceneExists(std::get<2>(res))) {
+          cutscenePlayer.loadCutscene(cutsceneManager.getCutscene(std::get<2>(res)));
+        }
+        else {
+          cutscenePlayer.loadCutscene(cutsceneManager.getCutscene(std::get<2>(res)));
+        }
+        modeSwitcher.setMode(2);
+        //destroy object, decrement i;
+        levelSlot.removeObject(i);
+        i--;
+      }
+      /*
       //what type of interaction is it?
       //use object id for this
       switch(ob.getId()) {
@@ -174,8 +191,9 @@ void MapData::event1Handle() {
         //No interaction
         break;
       }
+      */
       if(i == j) {
-        levelSlot.updateObj(i, ob);
+        levelSlot.updateObj(i, *ob);
       }
     }
   }

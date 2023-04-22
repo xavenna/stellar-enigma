@@ -8,7 +8,6 @@
 #include "stellar-enigma.hpp"
 
 //This is the main file
-//Certain customizations need to be done here
 int main() {
   //initialization
 
@@ -54,11 +53,10 @@ int main() {
 
 
   //setup other useful things
-  sf::Font courier;  //font maybe should go somewhere?
+  sf::Font courier;  //font maybe should go somewhere, like within Message?
   courier.loadFromFile("assets/cour.ttf");
 
   TextureCache textureCache("assets/texturemap/default.tm");
-
 
   //also, encapsulate this within Message, maybe in the constructor
   mapData.message.setFont(courier);
@@ -73,7 +71,6 @@ int main() {
   mapData.player.assignTexture(textureCache);
 
 
-  //main loop
   while(window.isOpen()) {
     sf::Event event;
     while(window.pollEvent(event)) {
@@ -106,8 +103,6 @@ int main() {
     else if(currentMode == 1) {
       //level player logic
       mapData.event1Handle();
-      //other things
-      
     }
     else if(currentMode == 2) {
       //cutscene player logic
@@ -120,53 +115,49 @@ int main() {
 
     interfaceManager.updateInterface(&mapData.player);
 
-
-    //final drawing
     window.clear();
     //draw based on which mode the engine is currently in
     switch(mapData.modeSwitcher.getMode()) {
     case 0:
-      //main menu
+      //menu mode
       window.draw(mapData.mainMenu.splash);
       break;
     case 1:
-    case 2:  //cutscenes work the same as normal
-      // eventually find a way to implement animated textures
+    case 2:  //cutscene mode works the same as gameplay mode
       //assign sprites
       if(mapData.levelSlot.displayUpdate) {
-	mapData.levelSlot.newReadyWindow(mapData.player.getScreen().x, mapData.player.getScreen().y);
+        mapData.levelSlot.newReadyWindow(mapData.player.getScreen().x, mapData.player.getScreen().y);
       }
       for(int i=0;i<WINDOW_WIDTH;i++) {
-	for(int j=0;j<WINDOW_HEIGHT;j++) {
-	  mapData.levelSlot.assignTextureToWinNode(sf::Vector2i(i,j), textureCache);
-	  window.draw(mapData.levelSlot.window[i][j]);
-	}
+        for(int j=0;j<WINDOW_HEIGHT;j++) {
+          mapData.levelSlot.assignTextureToWinNode(sf::Vector2i(i,j), textureCache);
+          window.draw(mapData.levelSlot.window[i][j]);
+        }
       }
 
       for(int i=0;i<mapData.levelSlot.getObjNum();i++) {
-	//write this
-	mapData.levelSlot.assignTextureToObject(i, textureCache);
-	if(mapData.levelSlot.displayObject(i, mapData.player.getPos(), mapData.player.getSize())) {
-	  window.draw(mapData.levelSlot.getObj(i));
-	}
+        mapData.levelSlot.assignTextureToObject(i, textureCache);
+        if(mapData.levelSlot.displayObject(i, mapData.player.getPos(), mapData.player.getSize())) {
+          window.draw(mapData.levelSlot.getObj(i));
+        }
       }
-
-
 
       //update things
       mapData.player.update(mapData.levelSlot.getTilesize());
       mapData.player.assignTexture(textureCache);
-      //this needs to eventually use player tile size
       window.draw(mapData.player);
+
+      //draw icons
+      interfaceManager.drawIcons(window);
+
+      //draw message
       mapData.message.handleMessages();
       mapData.message.wrapMessage();
       window.draw(mapData.message);
 
-      //draw icons
-      interfaceManager.drawIcons(window);
-      //now, draw border
+      //draw border
       for(int i=0;i<interfaceManager.getBorderLen();i++) {
-	window.draw(interfaceManager.getBorderElem(i));
+        window.draw(interfaceManager.getBorderElem(i));
       }
       break;
     default:

@@ -45,6 +45,7 @@ public:
 };
 
 
+//! Texture manager, serves as an abstraction for textures. Allows transformations
 class TextureCache {
 private:
   std::vector<std::string> imgNameHash;

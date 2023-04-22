@@ -120,7 +120,7 @@ void Level::loadMutables(const std::string& levelname) {
       //object
       str2obj(line.substr(1), o);
       o.setPosition(o.getPos().x+tilesizeX, o.getPos().y+tilesizeY);
-      objects.storeObj(o.getPos(), o.getSize(), o.getId(), o.getValue(), o.getSolid(), o.getCollectable(), o.getText(), o.getArgs(), getType(o.getId()));
+      objects.storeObj(o.getPos(), o.getSize(), o.getId(), o.getValue(), o.getSolid(), o.getText(), o.getArgs(), getType(o.getId()));
     }
     //the others will be written once objects work
     
@@ -201,19 +201,25 @@ void Level::assignTextureToWinNode(sf::Vector2i pos, TextureCache& cache) {
 
 void Level::assignTextureToObject(unsigned index, TextureCache& cache) {
   //determine what texture to use and which transformations to apply
+  
+  // this needs to use some sort of Object virtual function to take obj_args into account
+
   if(index > objects.size()) {
     throw std::invalid_argument("Level::assignTextureToObject() : Requested object does not exist");
   }
+
+  Object* ob = objects.getObjPtr(index);
+  //create cna using a virtual function
   
-  CacheNodeAttributes cna;
+  CacheNodeAttributes cna = ob->draw(&cache);
   //to find srcImg, look for objectList[index].getId()
-  int s = cache.objectFilenameHash(objects.getObj(index).getId());
-  if(s < 0) {
+  //int s = cache.objectFilenameHash(objects.getObj(index).getId());
+  //if(s < 0) {
     //error: requested object doesn't exist
-    std::cout << "Texture not assigned to object no. "<<index << "\n";
-    return;
-  }
-  cna.srcImg = s;
+    //std::cout << "Texture not assigned to object no. "<<index << "\n";
+    //return;
+  //}
+  //cna.srcImg = s;
   
   
   //generate cna.tList
@@ -254,6 +260,8 @@ void Level::handleObjects(sf::Vector2i pos, sf::Vector2i size) {
   for(unsigned i=0;i<objects.size();i++) {
     auto& x = objects.getObjRef(i);
     //do things for x.
+
+    //this could be restructured to use virtual functions
     
     sf::Vector2i mid(pos.x+size.x/2, pos.y+size.y/2);
     int pscrx = (mid.x-tilesizeX) / (tilesizeX*(WINDOW_WIDTH-2));
@@ -290,18 +298,21 @@ bool Level::displayObject(unsigned index, sf::Vector2i ppos, sf::Vector2i size) 
   int pxRel = (mid.x-size.x)%(size.x*(WINDOW_WIDTH-2))+size.x;
   int pyRel = (mid.y-size.y)%(size.y*(WINDOW_HEIGHT-2))+size.y;
   
-  int pscrx = (mid.x-pxRel)/((WINDOW_WIDTH-2)*tilesizeX);
-  int pscry = (mid.y-pyRel)/((WINDOW_HEIGHT-2)*tilesizeY);
+  int pscrx = (mid.x-pxRel)/((WINDOW_WIDTH-2)*field.getTilesize().x);
+  int pscry = (mid.y-pyRel)/((WINDOW_HEIGHT-2)*field.getTilesize().y);
   
   //calculate objects position on player's screen. If it can be displayed, display it:
   
-  sf::Vector2i relPos(ob.getPos().x-(WINDOW_WIDTH-2)*tilesizeX*pscrx,
-              ob.getPos().y-(WINDOW_HEIGHT-2)*tilesizeY*pscry);
+  sf::Vector2i relPos(ob.getPos().x-(WINDOW_WIDTH-2)*field.getTilesize().x*pscrx,
+              ob.getPos().y-(WINDOW_HEIGHT-2)*field.getTilesize().y*pscry);
   
+  if(ob.getId() == 3) {
+    //std::clog << relPos.y + ob.getSize().y << "," << field.getTilesize().y << ',' << pscry << '\n';
+  }
   if(relPos.x+ob.getSize().x < 0 ||
      relPos.y+ob.getSize().y < 0 ||
-     relPos.x + ob.getSize().x > (WINDOW_WIDTH+1)*tilesizeX ||
-     relPos.y + ob.getSize().y > (WINDOW_HEIGHT+1)*tilesizeY) {
+     relPos.x + ob.getSize().x >= (WINDOW_WIDTH+2)*field.getTilesize().x ||
+     relPos.y + ob.getSize().y >= (WINDOW_HEIGHT+2)*field.getTilesize().y) {
     return false;
   }
   return true;
@@ -481,7 +492,6 @@ sf::Vector2i Level::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i 
   
   //make sure to prevent player becoming trapped inside a solid object
   
-  //just repeat this with entities, if necessary
   sf::Vector2i ts = moveDistance;
   for(int i=0;i<static_cast<int>(objects.size());i++) {
     auto x = objects.getObj(i);
@@ -670,14 +680,6 @@ bool str2obj(const std::string& line, Object& obj) {
         }
         break;
       case 7:
-        if(!isBool(accum)) {
-          return false;
-        }
-        else {
-          obj.setCollectable(std::stoi(accum));
-        }
-        break;
-      case 8:
         obj.setText(accum);
         break;
       default:

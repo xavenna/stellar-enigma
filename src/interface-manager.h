@@ -36,6 +36,8 @@ public:
 private:
   PanelCreator pc;
   BorderDrawer bd;
+  sf::RectangleShape msgRect;
+  sf::RectangleShape panelRect;
 };
 
 #endif

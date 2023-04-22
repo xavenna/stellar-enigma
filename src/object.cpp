@@ -1,6 +1,11 @@
 #include "object.h"
 #include <iostream>
-class Stone;
+
+
+Interface::Interface(sf::Vector2i p, std::string mes, std::string cut) : pos{p}, message{mes}, cutscene{cut} {}
+
+Interface::Interface() : pos{0,0} {}
+
 
 int Object::getId() const{
   return id;
@@ -14,10 +19,6 @@ int Object::getValue() const{
 }
 void Object::setValue(int n) {
   value = n;
-}
-
-bool Object::getCollectable() const{
-  return collectable;
 }
 
 void Object::setArg(std::size_t slot, int value) {
@@ -39,8 +40,8 @@ int Object::getArg(std::size_t slot) const {
 std::array<int, 8> Object::getArgs() const {
   return args;
 }
-void Object::setCollectable(bool n) {
-  collectable = n;
+int Object::getStatus() const {
+  return status;
 }
 std::string Object::getText() const {
   return text;
@@ -48,7 +49,7 @@ std::string Object::getText() const {
 void Object::setText(const std::string& n) {
   text = n;
 }
-Object::Object(int x, int y, int wid, int hei, int i, int v, bool sol, bool col, const std::string& txt) : text{txt} {
+Object::Object(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt) : text{txt} {
   pos.x = x;
   pos.y = y;
   size.x = wid;
@@ -56,9 +57,8 @@ Object::Object(int x, int y, int wid, int hei, int i, int v, bool sol, bool col,
   id = i;
   value = v;
   solid = sol;
-  collectable = col;
 }
-Object::Object(int x, int y, int wid, int hei, int i, int v, bool sol, bool col, const std::string& txt, std::array<int, 8> a) : text{txt} {
+Object::Object(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a) : text{txt} {
   pos.x = x;
   pos.y = y;
   size.x = wid;
@@ -66,7 +66,6 @@ Object::Object(int x, int y, int wid, int hei, int i, int v, bool sol, bool col,
   id = i;
   value = v;
   solid = sol;
-  collectable = col;
   args = a;
 }
 
@@ -77,18 +76,19 @@ Object::Object() {
   size.y = 0;
   id = 0;
   solid = false;
-  collectable = false;
 }
 
 
-Stone::Stone(int x, int y, int wid, int hei, int i, int v, bool sol, bool col, const std::string& txt, std::array<int, 8> a) : Object(x, y, wid, hei, i, v, sol, col, txt, a) {}
-Crate::Crate(int x, int y, int wid, int hei, int i, int v, bool sol, bool col, const std::string& txt, std::array<int, 8> a) : Object(x, y, wid, hei, i, v, sol, col, txt, a) {}
-Board::Board(int x, int y, int wid, int hei, int i, int v, bool sol, bool col, const std::string& txt, std::array<int, 8> a) : Object(x, y, wid, hei, i, v, sol, col, txt, a) {}
-Spike::Spike(int x, int y, int wid, int hei, int i, int v, bool sol, bool col, const std::string& txt, std::array<int, 8> a) : Object(x, y, wid, hei, i, v, sol, col, txt, a) {}
-Key::Key(int x, int y, int wid, int hei, int i, int v, bool sol, bool col, const std::string& txt, std::array<int, 8> a) : Object(x, y, wid, hei, i, v, sol, col, txt, a) {}
+Solid::Solid(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a) : Object(x, y, wid, hei, i, v, sol, txt, a) {}
+Pushable::Pushable(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a) : Object(x, y, wid, hei, i, v, sol, txt, a) {}
+Board::Board(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a) : Object(x, y, wid, hei, i, v, sol, txt, a) {}
+Spike::Spike(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a) : Object(x, y, wid, hei, i, v, sol, txt, a) {}
+Key::Key(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a) : Object(x, y, wid, hei, i, v, sol, txt, a) {}
+CutPlay::CutPlay(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a) : Object(x, y, wid, hei, i, v, sol, txt, a) {}
+ToggleBlock::ToggleBlock(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a) : Object(x, y, wid, hei, i, v, sol, txt, a) {}
 
-Stone::Stone() : Object() {}
-Stone::Stone(Object ob) : Object(ob) {}
+Solid::Solid() : Object() {}
+Solid::Solid(Object ob) : Object(ob) {}
 
 Board::Board() : Object() {}
 Board::Board(Object ob) : Object(ob) {}
@@ -96,19 +96,30 @@ Board::Board(Object ob) : Object(ob) {}
 Spike::Spike() : Object() {}
 Spike::Spike(Object ob) : Object(ob) {}
 
-Crate::Crate() : Object() {}
-Crate::Crate(Object ob) : Object(ob) {}
+Pushable::Pushable() : Object() {}
+Pushable::Pushable(Object ob) : Object(ob) {}
 
 Key::Key() : Object() {}
 Key::Key(Object ob) : Object(ob) {}
 
 
-std::tuple<sf::Vector2i, std::string, std::string> Object::behave(Player*, Field*, bool) {
+CutPlay::CutPlay() : Object() {}
+CutPlay::CutPlay(Object ob) : Object(ob) {}
+
+Interface Object::behave(Player*, Field*, bool) {
   // do absolutely nothing by default
-  return std::make_tuple(pos, "", "");
+  return Interface(pos, "", "");
 }
 
-std::tuple<sf::Vector2i, std::string, std::string> Crate::behave(Player* p, Field* l, bool) {
+CacheNodeAttributes Object::draw(const TextureCache* cache) {
+  // draw a blank tile with no transforms
+  CacheNodeAttributes cna;
+  cna.srcImg = cache->reverseHash("null.png");
+  //no transforms, so tlist is left blank
+  return cna;
+}
+
+Interface Pushable::behave(Player* p, Field* l, bool) {
   sf::Vector2i pmin{p->getPos()};
   sf::Vector2i pmax{pmin+p->getSize()-sf::Vector2i(1,1)};
   sf::Vector2i plmin{p->getLastPos()};
@@ -133,7 +144,7 @@ std::tuple<sf::Vector2i, std::string, std::string> Crate::behave(Player* p, Fiel
   bool yInt = yAfter && !yBefore && ((xAfter && xBefore) || (!xBefore && xAfter));
 
   if(xInt && yInt) {
-    return std::make_tuple(pos, "", ""); //For now, diagonal interactions are ignored
+    return Interface(pos, "", ""); //For now, diagonal interactions are ignored
   }
 
   sf::Vector2i residSpeed;
@@ -156,10 +167,23 @@ std::tuple<sf::Vector2i, std::string, std::string> Crate::behave(Player* p, Fiel
 
   pos = pos+moveDistance;
   p->setPos(p->getPos() -(residSpeed - moveDistance));
-  return std::make_tuple(pos, "", "");
+  return Interface(pos, "", "");
 }
 
-std::tuple<sf::Vector2i, std::string, std::string> Stone::behave(Player* p, Field*, bool dryRun) {
+CacheNodeAttributes Pushable::draw(const TextureCache* cache) {
+  // draw a blank tile with no transforms
+  CacheNodeAttributes cna;
+  switch(args[0]) {
+  default:
+    cna.srcImg = cache->reverseHash("crate.png");
+  //others can go here for more freedom
+  }
+  //no transforms, so tlist is left blank
+  return cna;
+}
+
+
+Interface Solid::behave(Player* p, Field*, bool dryRun) {
   sf::Vector2i pmin{p->getPos()};
   sf::Vector2i pmax{pmin+p->getSize()-sf::Vector2i(1,1)};
   sf::Vector2i plmin{p->getLastPos()};
@@ -198,29 +222,61 @@ std::tuple<sf::Vector2i, std::string, std::string> Stone::behave(Player* p, Fiel
   }
 
   if(xInt && pmin.x < omin.x) {
-    return std::make_tuple(sf::Vector2i(pos.x-p->getSize().y, p->getPos().y), "", "");
+    return Interface(sf::Vector2i(pos.x-p->getSize().y, p->getPos().y), "", "");
   }
   if(yInt && pmin.y < omin.y) {
-    return std::make_tuple(sf::Vector2i(p->getPos().y, pos.y-p->getSize().x), "", "");
+    return Interface(sf::Vector2i(p->getPos().y, pos.y-p->getSize().x), "", "");
   }
   if(xInt && pmin.x > omin.x) {
-    return std::make_tuple(sf::Vector2i(pos.x+size.x, p->getPos().y), "", "");
+    return Interface(sf::Vector2i(pos.x+size.x, p->getPos().y), "", "");
   }
   if(yInt && pmin.y > omin.y) {
-    return std::make_tuple(sf::Vector2i(p->getPos().x, pos.y+size.y), "", "");
+    return Interface(sf::Vector2i(p->getPos().x, pos.y+size.y), "", "");
   }
 
-  return std::make_tuple(p->getPos(), "", "");
+  return Interface(p->getPos(), "", "");
 }
 
-std::tuple<sf::Vector2i, std::string, std::string> Key::behave(Player*, Field*, bool) {
-  return std::make_tuple(pos, "", "key");
+CacheNodeAttributes Solid::draw(const TextureCache* cache) {
+  // draw a solid object with no transforms
+  // use obj_arg[0] to decide which texture to draw
+  CacheNodeAttributes cna;
+  switch(args[0]) {
+  default:
+    cna.srcImg = cache->reverseHash("stone.png");
+  //other textures can be placed here for more design freedom
+  }
+  //no transforms, so tlist is left blank
+  return cna;
 }
 
-std::tuple<sf::Vector2i, std::string, std::string> Board::behave(Player*, Field*, bool) {
-  return std::make_tuple(pos, text, "");
+Interface Key::behave(Player*, Field*, bool) {
+  // once keys are a thing that the player can collect, this will increment key count
+  status = Destroy;
+  return Interface(pos, "", "key");
 }
-std::tuple<sf::Vector2i, std::string, std::string> Spike::behave(Player* p, Field*, bool) {
+
+CacheNodeAttributes Key::draw(const TextureCache* cache) {
+  // draw a key with no transforms
+  CacheNodeAttributes cna;
+  cna.srcImg = cache->reverseHash("key.png");
+  //no transforms, so tlist is left blank
+  return cna;
+}
+
+Interface Board::behave(Player*, Field*, bool) {
+  return Interface(pos, text, "");
+}
+
+CacheNodeAttributes Board::draw(const TextureCache* cache) {
+  // draw a board with no transforms
+  CacheNodeAttributes cna;
+  cna.srcImg = cache->reverseHash("board.png");
+  //no transforms, so tlist is left blank
+  return cna;
+}
+
+Interface Spike::behave(Player* p, Field*, bool) {
   sf::Vector2i pmin{p->getPos()};
   sf::Vector2i pmax{pmin+p->getSize()-sf::Vector2i(1,1)};
   sf::Vector2i plmin{p->getLastPos()};
@@ -266,7 +322,93 @@ std::tuple<sf::Vector2i, std::string, std::string> Spike::behave(Player* p, Fiel
       p->damaged = true;
     }
   }
-  return std::make_tuple(pos, "", "");
+  return Interface(pos, "", "");
+}
+
+CacheNodeAttributes Spike::draw(const TextureCache* cache) {
+  // draw a cactus with no transforms
+  CacheNodeAttributes cna;
+  cna.srcImg = cache->reverseHash("cactus.png");
+  //no transforms, so tlist is left blank
+  return cna;
+}
+
+Interface CutPlay::behave(Player*, Field*, bool) {
+  // play cutscene, nothing else (for now)
+  if(args[0] == 1) { 
+    status = Destroy;
+  }
+  else {
+    status = Normal;
+  }
+
+  return Interface(pos, "", text); 
+}
+
+Interface ToggleBlock::behave(Player* p, Field*, bool dryRun) {
+  sf::Vector2i pmin{p->getPos()};
+  sf::Vector2i pmax{pmin+p->getSize()-sf::Vector2i(1,1)};
+  sf::Vector2i plmin{p->getLastPos()};
+  sf::Vector2i plmax{plmin+p->getSize()-sf::Vector2i(1,1)};
+
+  //just incase objects move, so the algorithm doesn't break
+  sf::Vector2i omin{pos};
+  sf::Vector2i omax{omin+size-sf::Vector2i(1,1)};
+  sf::Vector2i olmin{lastPos};
+  sf::Vector2i olmax{olmin+size-sf::Vector2i(1,1)};
+  //determine interaction for each direction:
+  //was player intersecting with object on the x-axis?
+  bool xAfter = !(omax.x < pmin.x || omin.x > pmax.x);
+  bool xBefore = !(olmax.x < plmin.x || olmin.x > plmax.x);
+
+  bool yAfter = !(omax.y < pmin.y || omin.y > pmax.y);
+  bool yBefore = !(olmax.y < plmin.y || olmin.y > plmax.y);
+
+  //x, y interactions
+  bool xInt = xAfter && !xBefore && ((yAfter && yBefore) || (!yBefore && yAfter));
+  bool yInt = yAfter && !yBefore && ((xAfter && xBefore) || (!xBefore && xAfter));
+
+  if(!dryRun) {
+    if(xInt && pmin.x < omin.x) {
+      p->setXPos(pos.x-p->getSize().y);
+    }
+    if(yInt && pmin.y < omin.y) {
+      p->setYPos(pos.y-p->getSize().x);
+    }
+    if(xInt && pmin.x > omin.x) {
+      p->setXPos(pos.x+size.x);
+    }
+    if(yInt && pmin.y > omin.y) {
+      p->setYPos(pos.y+size.y);
+    }
+  }
+
+  if(xInt || yInt) {
+    //toggle state
+  }
+
+  if(xInt && pmin.x < omin.x) {
+    return Interface(sf::Vector2i(pos.x-p->getSize().y, p->getPos().y), "", "");
+  }
+  if(yInt && pmin.y < omin.y) {
+    return Interface(sf::Vector2i(p->getPos().y, pos.y-p->getSize().x), "", "");
+  }
+  if(xInt && pmin.x > omin.x) {
+    return Interface(sf::Vector2i(pos.x+size.x, p->getPos().y), "", "");
+  }
+  if(yInt && pmin.y > omin.y) {
+    return Interface(sf::Vector2i(p->getPos().x, pos.y+size.y), "", "");
+  }
+
+  return Interface(p->getPos(), "", "");
+}
+
+CacheNodeAttributes ToggleBlock::draw(const TextureCache* cache) {
+  // check value of some internal state, and draw using obj_args
+  CacheNodeAttributes cna;
+  cna.srcImg = cache->reverseHash("null.png");
+  //no transforms, so tlist is left blank
+  return cna;
 }
 
 std::size_t ObjContainer::size() const {
@@ -315,13 +457,15 @@ void ObjContainer::removeObj(unsigned ind) {
 ObjContainer::Type getType(unsigned p) {
   switch(p) {
   case 0:
-    return ObjContainer::stone;
+    return ObjContainer::solid;
   case 1:
-    return ObjContainer::crate;
+    return ObjContainer::pushable;
   case 2:
     return ObjContainer::key;
   case 3:
     return ObjContainer::board;
+  case 4:
+    return ObjContainer::cutscene_player;
   case 5:
     return ObjContainer::spike;
   default:
@@ -333,17 +477,20 @@ bool ObjContainer::storeObj(Object ob, ObjContainer::Type t) {
   case ObjContainer::obj:
     list.push_back(new Object(ob));
     break;
-  case ObjContainer::stone:
-    list.push_back(new Stone(ob));
+  case ObjContainer::solid:
+    list.push_back(new Solid(ob));
     break;
-  case ObjContainer::crate:
-    list.push_back(new Crate(ob));
+  case ObjContainer::pushable:
+    list.push_back(new Pushable(ob));
     break;
   case ObjContainer::key:
     list.push_back(new Key(ob));
     break;
   case ObjContainer::board:
     list.push_back(new Board(ob));
+    break;
+  case ObjContainer::cutscene_player:
+    list.push_back(new CutPlay(ob));
     break;
   case ObjContainer::spike:
     list.push_back(new Spike(ob));
@@ -356,25 +503,28 @@ bool ObjContainer::storeObj(Object ob, ObjContainer::Type t) {
 }
 
 
-bool ObjContainer::storeObj(sf::Vector2i pos, sf::Vector2i size, int id, int val, bool s, bool c, const std::string& tex, std::array<int, 8> args, ObjContainer::Type t) {
+bool ObjContainer::storeObj(sf::Vector2i pos, sf::Vector2i size, int id, int val, bool s, const std::string& tex, std::array<int, 8> args, ObjContainer::Type t) {
   switch(t) {
   case ObjContainer::obj:
-    list.push_back(new Object(pos.x, pos.y, size.x, size.y, id, val, s, c, tex, args));
+    list.push_back(new Object(pos.x, pos.y, size.x, size.y, id, val, s, tex, args));
     break;
-  case ObjContainer::stone:
-    list.push_back(new Stone(pos.x, pos.y, size.x, size.y, id, val, s, c, tex, args));
+  case ObjContainer::solid:
+    list.push_back(new Solid(pos.x, pos.y, size.x, size.y, id, val, s, tex, args));
     break;
-  case ObjContainer::crate:
-    list.push_back(new Crate(pos.x, pos.y, size.x, size.y, id, val, s, c, tex, args));
+  case ObjContainer::pushable:
+    list.push_back(new Pushable(pos.x, pos.y, size.x, size.y, id, val, s, tex, args));
     break;
   case ObjContainer::key:
-    list.push_back(new Key(pos.x, pos.y, size.x, size.y, id, val, s, c, tex, args));
+    list.push_back(new Key(pos.x, pos.y, size.x, size.y, id, val, s, tex, args));
     break;
   case ObjContainer::board:
-    list.push_back(new Board(pos.x, pos.y, size.x, size.y, id, val, s, c, tex, args));
+    list.push_back(new Board(pos.x, pos.y, size.x, size.y, id, val, s, tex, args));
+    break;
+  case ObjContainer::cutscene_player:
+    list.push_back(new CutPlay(pos.x, pos.y, size.x, size.y, id, val, s, tex, args));
     break;
   case ObjContainer::spike:
-    list.push_back(new Spike(pos.x, pos.y, size.x, size.y, id, val, s, c, tex, args));
+    list.push_back(new Spike(pos.x, pos.y, size.x, size.y, id, val, s, tex, args));
     break;
   default:
     std::clog << "Error: Invalid object type\n";
@@ -387,17 +537,20 @@ bool ObjContainer::storeObj(ObjContainer::Type t) {
   case ObjContainer::obj:
     list.push_back(new Object);
     break;
-  case ObjContainer::stone: 
-    list.push_back(new Stone);
+  case ObjContainer::solid: 
+    list.push_back(new Solid);
     break;
-  case ObjContainer::crate:
-    list.push_back(new Crate);
+  case ObjContainer::pushable:
+    list.push_back(new Pushable);
     break;
   case ObjContainer::key:
     list.push_back(new Key);
     break;
   case ObjContainer::board:
     list.push_back(new Board);
+    break;
+  case ObjContainer::cutscene_player:
+    list.push_back(new CutPlay);
     break;
   case ObjContainer::spike:
     list.push_back(new Spike);
@@ -408,3 +561,4 @@ bool ObjContainer::storeObj(ObjContainer::Type t) {
   }
   return true;
 }
+

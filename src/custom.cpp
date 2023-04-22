@@ -1,6 +1,5 @@
 #include "stellar-enigma.hpp"
 #include "mapdata.h"
-#include "callback.h"
 #include "color.h"
 #include <tuple>
 
@@ -123,18 +122,17 @@ void MapData::event1Handle() {
     else {
       //interaction happens
       auto res = ob->behave(&player, &levelSlot.field, false);
-      if(std::get<1>(res) != "") {
-        message.addMessage(std::get<1>(res));
+      if(res.message != "") {
+        message.addMessage(res.message);
       }
-      if(std::get<2>(res) != "") {
-        if(cutsceneManager.cutsceneExists(std::get<2>(res))) {
-          cutscenePlayer.loadCutscene(cutsceneManager.getCutscene(std::get<2>(res)));
-        }
-        else {
-          cutscenePlayer.loadCutscene(cutsceneManager.getCutscene(std::get<2>(res)));
+      if(res.cutscene != "") {
+        if(cutsceneManager.cutsceneExists(res.cutscene)) {
+          cutscenePlayer.loadCutscene(cutsceneManager.getCutscene(res.cutscene));
         }
         modeSwitcher.setMode(2);
-        //destroy object, decrement i;
+      }
+
+      if(ob->getStatus() == Object::Destroy) {
         levelSlot.removeObject(i);
         i--;
       }
@@ -142,47 +140,6 @@ void MapData::event1Handle() {
       //what type of interaction is it?
       //use object id for this
       switch(ob.getId()) {
-      case 0:
-        //stone: push player out
-        solidBehave(ob, this);
-        break;
-      case 1:
-        //crate: pushed by player
-        pushBehave(ob, this);
-        break;
-      case 2:
-        //key: picked up, and something happens. Attempts to play the cutscene specified
-        //in ob.text. If a valid cutscene is not specified, play cutscene `key'
-
-        if(cutsceneManager.cutsceneExists(ob.getText())) {
-          cutscenePlayer.loadCutscene(cutsceneManager.getCutscene(ob.getText()));
-        }
-        else {
-          cutscenePlayer.loadCutscene(cutsceneManager.getCutscene("key"));
-        }
-        modeSwitcher.setMode(2);
-        //destroy object, decrement i;
-        levelSlot.removeObject(i);
-        i--;
-        break;
-      case 3:
-        //board
-        //play the message found in text
-        if(ob.getText() != "") {
-          message.addMessage(ob.getText());
-        }
-        break;
-      case 4:
-        //cutscene player
-        if(cutsceneManager.cutsceneExists(ob.getText())) {
-          cutscenePlayer.loadCutscene(cutsceneManager.getCutscene(ob.getText()));
-          modeSwitcher.setMode(2);
-        }
-        break;
-      case 5:
-        //spikes
-        hurtBehave(ob, this);
-        break;
       case 6:
         //Status effect
         //create effect
@@ -217,8 +174,6 @@ void MapData::event1Handle() {
   //levelSlot.handleEntities();
   levelSlot.handleObjects(player.getPos(), player.getSize());
 
-  //cutscenes don't work like this anymore... use a cutscene_player object
-  
   // If player has died, display death screen and switch to mode 0 
   if(player.getHealth() == 0) {
     modeSwitcher.setMode(0);

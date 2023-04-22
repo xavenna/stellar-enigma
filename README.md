@@ -15,14 +15,17 @@ stellar-enigma has many different components that provide functionality:
 
 
 ## Instructions:
-To add custom behavior to the engine, modify the functions found in custom.cpp
+To add custom behavior to the engine, modify the functions found in custom.cpp.
 These functions allow custom code to mostly be contained to one file
 
+To add custom objects, create a class that extends Object. Implement behave() and draw(),
+create a constructor.
 
 
 ## Documentation:
-Documentaion can be generated using Doxygen. Currently, only parts of the code
-are documented
+Documentaion can be generated using Doxygen. The documentation is currently incomplete.
+Additionally, an copy of the documentation can be found [here](https://xavenna.github.io/projects/stellar-docs). This is likely out-of-date, though.
+
 
 ## Build:
 stellar-enigma builds are tested on linux; The makefile may require tweaking to work on

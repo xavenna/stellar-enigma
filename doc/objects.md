@@ -18,6 +18,7 @@ Possible Values (Object::Status) :
 
 ## Built-in Objects
 
+Overview:\
 | Name           | ID |  Description                           |
 |----------------|----|----------------------------------------|
 | Solid Block    | 0  | blocks player's path                   |
@@ -26,9 +27,10 @@ Possible Values (Object::Status) :
 | board          | 3  | displays message stored in text        |
 | cutscene player| 4  | plays a cutscene                       | 
 | cactus         | 5  | harms player                           | 
-| status         | 6  | gives player a status effect           |
+| toggle-block   | 6  | toggles state upon player contact      |
+| status         | 7  | gives player a status effect           |
 
-## Arguments:
+## Arguments/Variables:
 
 ### Solid:
 Arg 0 (uint): Texture
@@ -45,8 +47,11 @@ N/A
 text: message to display
 
 ### Cutscene Player:
-text: name of cutscene to play
+Var 0 (uint): remaining cooldown
+
 Arg 0 (bool): Single-Use?
+Arg 1 (uint): maximum cooldown duration
+text: name of cutscene to play
 
 ### Spike:
 N/A
@@ -55,7 +60,9 @@ N/A
 N/A
 
 ### Toggle BlocK:
-N/A
+Var 0 (bool): Is Block Active?
+Var 1 (uint): Toggle Cooldown remaining
 
-
+Arg 0 (bool): Starting State
+Arg 2 (uint): Maximum cooldown duration
 

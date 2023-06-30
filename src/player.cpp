@@ -32,7 +32,7 @@ void Player::update(sf::Vector2i tilesize) {
 void Player::assignTexture(TextureCache& cache) {
   CacheNodeAttributes cna;
   // player sprite is categorized as an entity
-  int s = cache.reverseHash("player.png");
+  int s = cache.reverseHash("player");
   if(s < 0) {
     std::clog << "Error: player sprite not found\n";
     return;

@@ -207,37 +207,45 @@ sf::Vector2i Field::loadLevel(const std::string& levelname) {
       continue;
         if(section == 0) {
           if(isNum(line)) {
-        mapBase.resize(std::stoi(line));
-        section++;
+            if((std::stoi(line)-2)%(WINDOW_WIDTH-2) != 0) {
+              std::cerr << "Error: invalid width ("<<line<<")\n";
+              throw -1;
+            }
+            mapBase.resize(std::stoi(line));
+            section++;
           }
           else {
-        throw -1;  //invalid level: non-integer found in integer parameter;
-      }
-    }
-    else if(section == 1) {
-      if(isNum(line)) {
-        for(auto& m : mapBase) {
-          m.resize(std::stoi(line));
+            throw -1;  //invalid level: non-integer found in integer parameter;
+          }
         }
-        section++;
-      }
-      else {
-    throw -1; //invalid level: non-integer found in integer parameter;
-      }
-    }
-    else if(section == 2) {
-      if(isNum(line)) {
-        tilesize.x = std::stoi(line);
-        section++;
-      }
-      else {
-    throw -1; //invalid level: non-integer found in integer parameter;
-      }
-    }
-    else if(section == 3) {
-      if(isNum(line)) {
-        tilesize.y = std::stoi(line);
-        section++;
+        else if(section == 1) {
+          if(isNum(line)) {
+            if((std::stoi(line)-2)%(WINDOW_HEIGHT-2) != 0) {
+              std::cerr << "Error: invalid height ("<<line<<")\n";
+              throw -1;
+            }
+            for(auto& m : mapBase) {
+              m.resize(std::stoi(line));
+            }
+            section++;
+          }
+          else {
+            throw -1; //invalid level: non-integer found in integer parameter;
+          }
+        }
+        else if(section == 2) {
+          if(isNum(line)) {
+            tilesize.x = std::stoi(line);
+            section++;
+          }
+          else {
+            throw -1; //invalid level: non-integer found in integer parameter;
+          }
+        }
+        else if(section == 3) {
+          if(isNum(line)) {
+            tilesize.y = std::stoi(line);
+            section++;
           }
           else {
         throw -1; //invalid level: non-integer found in integer parameter;
@@ -250,8 +258,8 @@ sf::Vector2i Field::loadLevel(const std::string& levelname) {
       //this line loads into the vector
       //getFront of line
       while(nodify(line, node)) {
-    this->updateNode(column, row, node);  //x and y were flipped in order to make maps not load wrongly
-    column++;
+        this->updateNode(column, row, node);  //x and y were flipped in order to make maps not load wrongly
+        column++;
       }
       row++;
     }

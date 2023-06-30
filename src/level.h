@@ -1,9 +1,6 @@
 #ifndef LEVEL_H
 #define LEVEL_H
 
-#define WINDOW_WIDTH 16
-#define WINDOW_HEIGHT 12
-
 #include "mapnode.h"
 #include "object.h"
 #include "texture-cache.h"
@@ -12,6 +9,7 @@
 #include <fstream>
 #include "util.h"
 #include "field.h"
+#include "obj-container.h"
 
 struct Interaction {
   bool interaction=false;

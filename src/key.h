@@ -1,0 +1,15 @@
+#ifndef KEY_H
+#define KEY_H
+#include "object.h"
+
+//! An object that can be picked up, plays cutscene 'key' when picked up
+class Key : public Object {
+public:
+  virtual Interface interact(Player*, Field*, bool);
+  virtual CacheNodeAttributes draw(const TextureCache*);
+  Key(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8>);
+  Key();
+  Key(Object);
+};
+
+#endif

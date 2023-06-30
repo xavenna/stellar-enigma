@@ -1,6 +1,7 @@
-#include "level.h"
 #include <iostream>
 #include <tuple>
+#include "level.h"
+#include "util.h"
 
 Interaction::Interaction(bool b, int i, sf::Vector2i d) : interaction{b}, object{i}, delta{d} {}
 Interaction::Interaction() : interaction{false}, object{0}, delta{0,0} {}
@@ -156,7 +157,7 @@ void Level::assignTextureToWinNode(sf::Vector2i pos, TextureCache& cache) {
   int s = cache.tileFilenameHash(window[pos.x][pos.y].getId());
   if(s < 0) {
     //error: requested object doesn't exist
-    std::cout << "Texture not assigned to tile ("<<pos.x<<','<<pos.y << ")\n";
+    std::clog << "Texture not assigned to tile ("<<pos.x<<','<<pos.y << ")\n";
     return;
   }
   cna.srcImg = s;
@@ -192,10 +193,14 @@ void Level::assignTextureToWinNode(sf::Vector2i pos, TextureCache& cache) {
     break;
   }
   try {
+    //std::cerr << cache.getTexture(cna).getSize().x;
     window[pos.x][pos.y].setTexture(cache.getTexture(cna));
   }
+  catch (const std::invalid_argument* e) {
+    std::clog << e->what();
+  }
   catch (...) {
-    std::cout << "Error: target image not found\n";
+    std::clog << "Error: target image not found\n";
   }
 }
 
@@ -232,7 +237,7 @@ void Level::assignTextureToObject(unsigned index, TextureCache& cache) {
     objects.getObjRef(index).setTexture(cache.getTexture(cna));
   }
   catch (...) {
-    std::cout << "Error: target image not found\n";
+    std::clog << "Error: target image not found\n";
   }
 }
 
@@ -258,23 +263,24 @@ void Level::removeObject(unsigned index) {
 
 void Level::handleObjects(sf::Vector2i pos, sf::Vector2i size) {
   for(unsigned i=0;i<objects.size();i++) {
-    auto& x = objects.getObjRef(i);
+    Object* x = objects.getObjPtr(i);
     //do things for x.
+    x->behave();
+    //eventually implement API backend for x->behave();
 
-    //this could be restructured to use virtual functions
     
     sf::Vector2i mid(pos.x+size.x/2, pos.y+size.y/2);
     int pscrx = (mid.x-tilesizeX) / (tilesizeX*(WINDOW_WIDTH-2));
     int pscry = (mid.y-tilesizeY) / (tilesizeY*(WINDOW_HEIGHT-2));
     
-    sf::Vector2i omid(x.getPos().x+x.getSize().x/2, x.getPos().y+x.getSize().y/2);
+    sf::Vector2i omid(x->getPos().x+x->getSize().x/2, x->getPos().y+x->getSize().y/2);
     //calculate objects position on player's screen. If it can be displayed, display it:
     
-    sf::Vector2i relPos(x.getPos().x-(WINDOW_WIDTH-2)*tilesizeX*pscrx+tilesizeX,
-    x.getPos().y-(WINDOW_HEIGHT-2)*tilesizeY*pscry+tilesizeY);
-    x.setPosition(relPos.x,relPos.y);
+    sf::Vector2i relPos(x->getPos().x-(WINDOW_WIDTH-2)*tilesizeX*pscrx+tilesizeX,
+    x->getPos().y-(WINDOW_HEIGHT-2)*tilesizeY*pscry+tilesizeY);
+    x->setPosition(relPos.x,relPos.y);
     
-    x.setLastPos(x.getPos());
+    x->setLastPos(x->getPos());
     // If you remove an object, make sure to do i--;
   }
 }
@@ -337,7 +343,6 @@ sf::Vector2i Level::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i 
   //find destination square
   
   if(speed.y < 0) {
-    //std::cout << speed.x << '\n';
     if(pos.y < speed.y) {
       fullMove = false;
       moveDistance.y = pos.y;
@@ -428,7 +433,6 @@ sf::Vector2i Level::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i 
   int playYgn = int((p.y+size.y-1) / getTilesizeY());
   bool colly = false;
   bool collx = false;
-  //std::cout << playXn << ' ' << playXgn << '\n';
   
   if(moveDistance.x < 0 && moveDistance.y < 0) {
     if(playX != playXn) {
@@ -483,7 +487,6 @@ sf::Vector2i Level::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i 
     moveDistance.x = 0;
   if(colly)
     moveDistance.y = 0;
-  //std::cout << moveDistance.x << ' ' << moveDistance.y << ' ' << md2.x << ' ' << md2.y << '\n';
   
   
   //check if the resulting move
@@ -615,7 +618,7 @@ Interaction Level::queryInteractions(const Mutable& mut, int id, int targetId) {
 
 
 bool str2obj(const std::string& line, Object& obj) {
-  //#oxpos`ypos`width`height`solid?`id`value`collectable?`text
+  //#oxpos`ypos`width`height`solid?`id`value`collectable?`args-csv`text
   int field = 0;  
   std::string accum;
   for(auto x : line) {
@@ -680,6 +683,27 @@ bool str2obj(const std::string& line, Object& obj) {
         }
         break;
       case 7:
+        //parse as a list of 8 comma-delimited integers
+        {
+          std::vector<std::string> a;
+          std::array<int, 8> args;
+          parse(accum, a, ",");
+          if(a.size() != 8) {
+            std::clog << "Error: Wrong number of arguments in mutable list\n";
+            return false;
+          }
+          for(unsigned i=0;i<8;i++) {
+            if(!isNum(a[i])) {
+              std::clog << "Error: non-number argument in object arguments in mutable list\n";
+              return false;
+            }
+            args[i] = std::stoi(accum);
+          }
+          
+          obj.setArgs(args);
+        }
+        break;
+      case 8:
         obj.setText(accum);
         break;
       default:

@@ -20,19 +20,22 @@ bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwit
     while(ms.getLastKey(k)) {
       //check if key is valid
       if(e[1] == 1 || (e[1] == 0 && e[0] == k)) {
-	//event is over
-	if(finalEvent) {
-	  //cutscene is over, return or whatever
-	  return false;
-	}
-	else {
-	  pos++;
-	  //start next event?
-	  if(!playEvent(pl, me, le, mp, cm)) {
-	    //error: invalid event
-	    std::cout << "Error: invalid event in cutscene. Event skipped.\n";
-	  }
-	}
+        //event is over
+        if(finalEvent) {
+          //cutscene is over, return or whatever
+          return false;
+        }
+        else {
+          pos++;
+          //start next event?
+          if(cutscene.getListLen()-1 == (int)pos) {
+            return false;
+          }
+          if(!playEvent(pl, me, le, mp, cm)) {
+            //error: invalid event
+            std::cout << "Error: invalid event in cutscene. Event skipped.\n";
+          }
+        }
       }
     }
   }
@@ -41,17 +44,18 @@ bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwit
     if(timer == 0) {
       //event is over
       if(finalEvent) {
-	//cutscene is over, return or whatever
-	return false;
+        //cutscene is over, return or whatever
+        pos = 0;
+        return false;
       }
       else {
-	pos++;
-	//start next event?
-	if(!playEvent(pl, me, le, mp, cm)) {
-	  //error: invalid event
-	  std::cout << "Error: invalid event in cutscene. Event skipped.\n";
-	  //set timer to 0?
-	}
+        pos++;
+        //start next event?
+        if(!playEvent(pl, me, le, mp, cm)) {
+          //error: invalid event
+          std::cout << "Error: invalid event in cutscene. Event skipped.\n";
+          //set timer to 0?
+        }
       }
     }
     else {

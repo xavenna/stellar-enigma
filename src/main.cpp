@@ -88,6 +88,7 @@ int main() {
     mapData.modeSwitcher.updateKeysPressed();
     int currentMode = mapData.modeSwitcher.getMode();
     
+
     if(currentMode == 0) {
       //main menu logic
       switch(mapData.event0Handle()) {
@@ -108,6 +109,9 @@ int main() {
       //cutscene player logic
       mapData.event2Handle();
     }
+    else if(currentMode == 3) {
+      //test mode logic
+    }
 
     //tasks that are common to all modes
     mapData.musicPlayer.assignSounds();
@@ -124,6 +128,7 @@ int main() {
       break;
     case 1:
     case 2:  //cutscene mode works the same as gameplay mode
+    case 3:  //debug mode can use the same drawing logic as normal mode
       //assign sprites
       if(mapData.levelSlot.displayUpdate) {
         mapData.levelSlot.newReadyWindow(mapData.player.getScreen().x, mapData.player.getScreen().y);

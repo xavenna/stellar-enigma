@@ -1,7 +1,7 @@
 # This makefile was created with help from the following stackoverflow answer:
 # https://stackoverflow.com/a/23418196
 EXE = stellar
-CC = g++
+CXX = g++
 CPPFLAGS = -Wall -Wextra -fexceptions -std=c++17
 
 
@@ -41,11 +41,11 @@ libstellar.a : $(LIBOBJS)
 	ar rcs $@ $^
 
 $(EXE): $(OBJS)
-	$(CC) $(SFLIBDIR) $(LFLAGS) -o $@ $^ $(LLIB)
+	$(CXX) $(SFLIBDIR) $(LFLAGS) -o $@ $^ $(LLIB)
 
 $(OBJ_DIR)/%.o: src/%.cpp
-	@$(CC) -MM -MP -MT $(df).o -MT $(df).d $(CPPFLAGS) $< > $(df).d
-	$(CC) $(SFINCDIR) $(CPPFLAGS) -c $< -o $@
+	@$(CXX) -MM -MP -MT $(df).o -MT $(df).d $(CPPFLAGS) $< > $(df).d
+	$(CXX) $(SFINCDIR) $(CPPFLAGS) -c $< -o $@
 
 -include $(AUTODEPS)
 

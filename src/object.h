@@ -6,19 +6,28 @@
 #include "player.h"
 #include "field.h"
 #include "texture-cache.h"
+#include "vect.h"
 
 #include <array>
 #include <tuple>
 
+class Object;
 
 //! A utility class for object behavior function return values
+/*!
+ *  This serves as an API allowing the virtual functions to cause effects, such as playing
+ *  cutscenes, displaying messages, etc. Originally, a std::tuple was used, but this
+ *  method is more flexible
+ */
 class Interface {
 public:
-  sf::Vector2i pos;
-  std::string message;
-  std::string cutscene;
-  Interface(sf::Vector2i pos, std::string mes, std::string cut);
-  Interface();
+  sf::Vector2i pos;  //!< Position of the object after interaction is complete
+  std::string message;  //!< Message to display
+  std::string cutscene;  //!< Cutscene to play
+  std::vector<Object> objs; //!< Objects to create
+  Interface(sf::Vector2i pos, std::string mes, std::string cut);  //!< Value Constructor
+  Interface(sf::Vector2i pos, std::string mes, std::string cut, std::vector<Object> o);  //!< Value Constructor, ft. Objects to create
+  Interface();  //!< Empty Constructor
 };
 
 //! A class for objects, anything with dynamic behavior
@@ -26,8 +35,12 @@ public:
  *  Extends mutable with additional attributes specific to objects
  *  Any derived classes should just redefine the virtual functions, without adding new
  *  members
- *  (for objects not interacting with player, don't redefine behave. For invisible
- *   objects, don't redefine draw)
+ * 
+ *  Virtual functions:
+ *  behave - called every frame, normal behavior occurs here
+ *  interact - called when something interacts with the object
+ *  draw - tells the engine how to draw the object
+ *  
  *
  *  To set status, use bitmasking to toggle specified bit.
  */
@@ -38,10 +51,12 @@ public:
     Destroy //!< Object should be destroyed
   };
   static const int Dest = 0x1;
-  //! base version of behave();
-  virtual Interface behave(Player*, Field*, bool);
+  //! base version of interact();
+  virtual Interface interact(Player*, Field*, bool);
   //! produces the proper CacheNodeAttributes for the state of the object
   virtual CacheNodeAttributes draw(const TextureCache*);
+  //! base version of behave();
+  virtual Interface behave();
   //! get the id of the object 
   int getId() const;
   //! get the value of the object 
@@ -54,6 +69,8 @@ public:
   int getArg(std::size_t) const;
   //! get the obj's status
   int getStatus() const;
+  //! set all args
+  void setArgs(std::array<int, 8>);
   //! set the id of the object
   void setId(int);
   //! set the value of the object
@@ -74,124 +91,13 @@ protected:
   std::string text; //!< A text field that can be used by the object
   std::array<int, 8> args; //!< Arguments for each object, usage varies
   //yes, I did just steal SMG's obj_arg system, I couldn't think of a better way
+  std::array<int, 4> vars; //!< Internal variables, used similarly to args
 
   int status; //!< Internal status, can be externally read but not written
 };
 
-//! An object that is solid and blocks movement
-class Solid : public Object {
-public:
-  virtual Interface behave(Player*, Field*, bool);
-  virtual CacheNodeAttributes draw(const TextureCache*);
-  Solid(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8>);
-  Solid();
-  Solid(Object);
-};
-//! An object that can be pushed around, sokoban style
-class Pushable : public Object {
-public:
-  virtual Interface behave(Player*, Field*, bool);
-  virtual CacheNodeAttributes draw(const TextureCache*);
-  Pushable(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8>);
-  Pushable();
-  Pushable(Object);
-};
-//! An object that can be picked up, plays cutscene 'key' when picked up
-class Key : public Object {
-public:
-  virtual Interface behave(Player*, Field*, bool);
-  virtual CacheNodeAttributes draw(const TextureCache*);
-  Key(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8>);
-  Key();
-  Key(Object);
-};
-//! An object that displays a message when picked up
-class Board : public Object {
-public:
-  virtual Interface behave(Player*, Field*, bool);
-  virtual CacheNodeAttributes draw(const TextureCache*);
-  Board(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8>);
-  Board();
-  Board(Object);
-};
-//! An object that damages player on contact and blocks movement
-class Spike : public Object {
-public:
-  virtual Interface behave(Player*, Field*, bool);
-  virtual CacheNodeAttributes draw(const TextureCache*);
-  Spike(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8>);
-  Spike();
-  Spike(Object);
-};
-//! An object that plays a cutscene upon contact
-class CutPlay : public Object {
-public:
-  virtual Interface behave(Player*, Field*, bool);
-  CutPlay(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8>);
-  CutPlay();
-  CutPlay(Object);
-};
-
-//! An object that toggles between two states upon contact
-class ToggleBlock : public Object {
-public:
-  virtual Interface behave(Player*, Field*, bool);
-  virtual CacheNodeAttributes draw(const TextureCache*);
-  ToggleBlock(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8>);
-  ToggleBlock();
-  ToggleBlock(Object);
-};
-
-
-
-//! A class for holding the object list, as well as serving as an Object Factory
-/*!
- *  Holds a list of pointers to objects. The pointers are dynamically allocated, and
- *  freed by the destructor. Objects can be added as empty, by copy, or by traits
- *  Objects can be returned by value, by pointer, or by reference, depending on situation
- */
-class ObjContainer {
-public:
-  //! Object type, used to create the appropriate type of object
-  enum Type {
-    obj, //!< Basic object
-    solid, //!< Solid object
-    pushable, //!< Pushable object
-    key, //!< Key
-    board, //!< Message Board
-    cutscene_player, //!< Cutscene Player
-    spike, //!< Damaging Object
-    toggle_block //!<two-state block, toggles upon player contact
-  };
-  //! Get reference to specified object
-  Object& getObjRef(unsigned);
-  //! Get pointer to specified object
-  Object* getObjPtr(unsigned);
-  //! Get copy of specified object
-  Object getObj(unsigned) const;
-  //! Create Object of specified type using arguments
-  bool storeObj(sf::Vector2i, sf::Vector2i, int, int, bool, const std::string&, std::array<int, 8>, Type);
-  //! Create empty Object of specified type
-  bool storeObj(Type);
-  //! Create copy of passed object, as specified type
-  bool storeObj(Object ob, Type);
-
-  //! Remove specified object and free its allocated memory
-  void removeObj(unsigned);
-
-  //! Get the number of objects stored
-  std::size_t size() const;
-  //! Constructs object container
-  ObjContainer();
-  //! Destructor; Frees all object slots
-  ~ObjContainer();
-private:
-  //! where pointers are stored internally; ObjContainer owns the objects
-  std::deque<Object*> list;
-};
-
-//! Utility function to transform an id to a type
-ObjContainer::Type getType(unsigned p);
-
+//utility functions for objects
+int binCat(std::uint16_t, std::uint16_t);
+Vector2<std::uint16_t> binDecat(int);
 
 #endif

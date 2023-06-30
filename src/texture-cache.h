@@ -23,7 +23,8 @@ struct Transform {
     Tint_Color,
     Tint_Mask,
     And_Mask,
-    Displacement_Mask
+    Displacement_Mask,
+    Add_Circle
   };
   Type type;
   std::array<int, ARG_NUM> args;
@@ -65,4 +66,8 @@ public:
   bool registerImage(sf::Image, const std::string&);
   TextureCache(const std::string& name);
 };
+
+sf::IntRect getRect(std::string);
+std::string getName(std::string);
+std::string getFile(std::string);
 #endif

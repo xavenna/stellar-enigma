@@ -121,7 +121,7 @@ void MapData::event1Handle() {
     }
     else {
       //interaction happens
-      auto res = ob->behave(&player, &levelSlot.field, false);
+      Interface res = ob->interact(&player, &levelSlot.field, false);
       if(res.message != "") {
         message.addMessage(res.message);
       }
@@ -132,23 +132,14 @@ void MapData::event1Handle() {
         modeSwitcher.setMode(2);
       }
 
+      for(auto x : res.objs) {
+        //create any requested objects
+      }
+
       if(ob->getStatus() == Object::Destroy) {
         levelSlot.removeObject(i);
         i--;
       }
-      /*
-      //what type of interaction is it?
-      //use object id for this
-      switch(ob.getId()) {
-      case 6:
-        //Status effect
-        //create effect
-        break;
-      default:
-        //No interaction
-        break;
-      }
-      */
       if(i == j) {
         levelSlot.updateObj(i, *ob);
       }
@@ -198,4 +189,9 @@ void MapData::event2Handle() {  //this is the cutscene mode
 
   if(oldps != newps)
     levelSlot.displayUpdate = true;
+}
+
+
+void MapData::event3Handle() {  //debug mode logic
+  return; //no logic occurs
 }

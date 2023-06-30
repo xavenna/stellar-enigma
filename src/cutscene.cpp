@@ -1,7 +1,12 @@
 #include "cutscene.h"
 
 Event Cutscene::getEvent(unsigned pos) {
-  return eventList.at(pos);
+  if(pos < eventList.size()) {
+    return eventList[pos];
+  }
+  else {
+    throw std::out_of_range("Cutscene::getEvent: in cutscene '" + name + "' (size is "+std::to_string(eventList.size())+", requested index is "+std::to_string(pos)+")");
+  }
 }
 int Cutscene::getListLen() {
   return eventList.size();

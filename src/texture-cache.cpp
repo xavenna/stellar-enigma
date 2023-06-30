@@ -1,4 +1,5 @@
 #include "texture-cache.h"
+#include "util.h"
 #include <algorithm>
 
 
@@ -84,6 +85,7 @@ int TextureCache::searchCache(CacheNodeAttributes attr) const {
 sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
   if(attr.srcImg > imgNameHash.size()) {
     // requested image hasn't been registered yet
+    std::cerr << "Requested Image hasn't been registered ("<<attr.srcImg<<")\n";
     throw std::invalid_argument("TextureCache::getTexture() : Requested Image hasn't been registered");
   }
 
@@ -93,7 +95,7 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
 
   if(index >= 0) {
     // requested texture exists
-    //std::clog << "Fetching texture from slot " << index << "\n\n";
+    //std::clog << "Fetching texture from cache "<<attr.srcImg<<", slot " << index << "\n";
     return cache[attr.srcImg][index].tex;
   }
   else {
@@ -170,14 +172,13 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
     c.tex.loadFromImage(finalImage, window);
     //std::cout << "Placing texture into slot " << cache[attr.srcImg].size() << '\n';
     cache[attr.srcImg].push_back(c);
-    //std::cout << "Creation successful\n\n";
+    //std::cout << "Creation successful\n";
     //create a CacheNode in the appropriate part of the cache. Use the final Image to make
     // the texture, and attr for the rest.
 
     //now return a reference to the generated texture
     return cache[attr.srcImg].back().tex;
   }
-
 }
 
 
@@ -185,9 +186,11 @@ bool TextureCache::registerImage(sf::Image img, const std::string& name) {
   //attempt to check if image has been registered
   if(reverseHash(name) != -1) {
     //image name has already been used
+    std::cerr << "Error: duplicate name\n";
     return false;
   }
   if(img.getSize().x == 0 || img.getSize().y == 0) {
+    std::cerr << "Error: image dimensions not valid\n";
     return false;
   }
   images.push_back(img);
@@ -205,28 +208,38 @@ TextureCache::TextureCache(const std::string& name) {
   }
   while(get.peek() != EOF) {
     std::getline(get, line);
+    if(line.size() == 0 || line[0] == '#') {
+      continue;
+    }
     if(line == "***") { //offset happening
       if(section == 0) {
-	//switch to object
+        //switch to object
       }
       else if(section == 1) {
-	//switch to entity
+        //switch to entity
       }
       else {
-	throw std::invalid_argument("TextureCache::TextureCache() : Extra separator found\n");
+        throw std::invalid_argument("TextureCache::TextureCache() : Extra separator found\n");
       }
       section++;
       continue;
     }
+    sf::IntRect box = getRect(line);
+    std::string srcImg = getFile(line);
+    std::string imgName = getName(line);
+    std::string fullLine = "assets/texture/" + srcImg;
     //add line to the appropriate listing
     if(section == 0) {
-      tileListing.push_back(line);
+      tileListing.push_back(imgName);
     }
     else if(section == 1) {
-      objectListing.push_back(line);
+      objectListing.push_back(imgName);
     }
     else if(section == 2) {
-      entityListing.push_back(line);
+      entityListing.push_back(imgName);
+    }
+    else {
+      std::cerr << "Error: invalid section\n";
     }
     //load image, add it to images
     if(reverseHash(line) >= 0) {
@@ -235,10 +248,53 @@ TextureCache::TextureCache(const std::string& name) {
       continue;
     }
     sf::Image im;
-    //images.push_back(im);
-    std::string fullLine = "assets/texture/" + line;
-    im.loadFromFile(fullLine);
-    registerImage(im, line);
+    if(box.width == 0 && box.height == 0) {
+      im.loadFromFile(fullLine);
+    }
+    else {
+      sf::Image i;
+      i.loadFromFile(fullLine);
+      im.create(box.width, box.height);
+      im.copy(i, 0, 0, box, false);
+    }
+    registerImage(im, imgName);
 
   }
+}
+
+
+// line format:
+// filename`x,y`wid,hei
+
+sf::IntRect getRect(std::string line) {
+  if(line.find('`') == std::string::npos) {
+    return sf::IntRect(0,0,0,0);
+  }
+  std::vector<std::string> seg;
+  std::vector<std::string> p;
+  std::vector<std::string> s;
+
+  parse(line, seg, "`");
+  parse(seg[2], p, ",");
+  parse(seg[3], s, ",");
+
+  try {
+    sf::Vector2i pos(std::stoi(p[0]),std::stoi(p[1]));
+    sf::Vector2i size(std::stoi(s[0]),std::stoi(s[1]));
+    return sf::IntRect(pos,size);
+  }
+  catch (...) {
+    return sf::IntRect(0,0,0,0);
+  }
+}
+std::string getFile(std::string line) {
+  std::vector<std::string> seg;
+  parse(line, seg, "`");
+  return seg[1];
+}
+
+std::string getName(std::string line) {
+  std::vector<std::string> seg;
+  parse(line, seg, "`");
+  return seg[0];
 }

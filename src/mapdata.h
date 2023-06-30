@@ -34,6 +34,8 @@ public:
   void event3Handle();
   //! Handles events if the engine is in mode 4
   void event4Handle();
+  //! Event handler wrapper function
+  void handleEvents();
   //! The contructor takes several parameters for the members
   MapData(unsigned pCool, unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSize);
 };

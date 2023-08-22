@@ -1,7 +1,6 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-// TODO: redesign the object system
 #include "mutable.h"
 #include "player.h"
 #include "field.h"
@@ -22,8 +21,10 @@ class Object;
 class Interface {
 public:
   sf::Vector2i pos;  //!< Position of the object after interaction is complete
+  //no longer needed
   std::string message;  //!< Message to display
   std::string cutscene;  //!< Cutscene to play
+  std::string sound; //!< Sound to play
   std::vector<Object> objs; //!< Objects to create
   Interface(sf::Vector2i pos, std::string mes, std::string cut);  //!< Value Constructor
   Interface(sf::Vector2i pos, std::string mes, std::string cut, std::vector<Object> o);  //!< Value Constructor, ft. Objects to create
@@ -46,13 +47,26 @@ public:
  */
 class Object : public Mutable {
 public:
+  enum Type {
+    Static, //!< Objects that can't be moved
+    Sliding, //!< Can be moved by others
+    Intangible, //!< Doesn't interact with other objects
+    Entity //!< Something that moves by itself
+  };
   enum Status {
     Normal, //!< No special conditions
     Destroy //!< Object should be destroyed
   };
+  //! I have no idea what this is for
   static const int Dest = 0x1;
+  //! Object's motion type
+  virtual int Type() {return Object::Intangible;} 
+  //! object interaction priority
+  virtual int priority() {return 32;} //0 is highest, decreases counting up
   //! base version of interact();
   virtual Interface interact(Player*, Field*, bool);
+  //! version of interact for object-object interactions
+  virtual Interface interact(Object*, Field*, bool);
   //! produces the proper CacheNodeAttributes for the state of the object
   virtual CacheNodeAttributes draw(const TextureCache*);
   //! base version of behave();
@@ -77,8 +91,10 @@ public:
   void setValue(int);
   //! set the text of the object
   void setText(const std::string&);
-  //! get value of specified arg
+  //! set value of specified arg
   void setArg(std::size_t slot, int value);
+  //! get active status of object
+  bool getActive() const;
   //! full parametrized constructor
   Object(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8>);
   //! ObjArg-less parametrized constructor (for legacy reasons)
@@ -86,6 +102,8 @@ public:
   //! empty constructor
   Object();
 protected:
+  int link_id; //!< an id used for interactions between objects
+  int texture_id; //!< Used to select a texture for the object
   int id; //!< the internal id of the object
   int value; //!< another int field that can be used
   std::string text; //!< A text field that can be used by the object
@@ -94,6 +112,7 @@ protected:
   std::array<int, 4> vars; //!< Internal variables, used similarly to args
 
   int status; //!< Internal status, can be externally read but not written
+  bool active; //!< Whether the object is ready to interact with other objects
 };
 
 //utility functions for objects

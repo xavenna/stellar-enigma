@@ -43,6 +43,18 @@ void ObjContainer::removeObj(unsigned ind) {
   list.erase(p);
 }
 
+
+void ObjContainer::removeObj(Object* ob) {
+
+
+  auto p = std::find(list.begin(), list.end(),ob);
+  if (p!=list.end()) {
+    //object exists within vector
+    delete ob;
+    list.erase(p);
+  }
+}
+
 ObjContainer::Type getType(unsigned p) {
   switch(p) {
   case 0:

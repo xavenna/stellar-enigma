@@ -7,6 +7,9 @@ Interface::Interface(sf::Vector2i p, std::string mes, std::string cut, std::vect
 
 Interface::Interface() : pos{0,0} {}
 
+bool Object::getActive() const {
+  return active;
+}
 
 int Object::getId() const{
   return id;
@@ -71,6 +74,7 @@ Object::Object(int x, int y, int wid, int hei, int i, int v, bool sol, const std
   value = v;
   solid = sol;
   args = a;
+  active = true;
 }
 
 Object::Object() {
@@ -80,11 +84,17 @@ Object::Object() {
   size.y = 0;
   id = 0;
   solid = false;
+  active = true;
 }
 
 
 Interface Object::interact(Player*, Field*, bool) {
   // do absolutely nothing by default
+  return Interface(pos, "", "");
+}
+
+Interface Object::interact(Object*, Field*, bool) {
+  //do absolutely nothing by default
   return Interface(pos, "", "");
 }
 

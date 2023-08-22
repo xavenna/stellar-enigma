@@ -3,6 +3,37 @@
 #include "level.h"
 #include "util.h"
 
+Inter::Inter(Object* o, const Player& pl) : p{pl} {
+  o1 = o;
+  o2 = nullptr;
+  player1 = false;
+  player2 = true;
+  priority = 32;
+  subpriority = 32;
+
+}
+Inter::Inter(Object* m, Object* n) : p{15} {
+  o1 = m;
+  o2 = n;
+  player1 = false;
+  player2 = false;
+  priority = 32;
+  subpriority = 32;
+}
+void Inter::calculatePriority() {
+  //check if configuration is valid
+  //use some formula to assign a priority to the interaction
+  if(player1 || player2) {
+    //player has the highest priority;
+    priority = -1;
+    subpriority = o1->priority();
+  }
+  else {
+    priority = (o1->priority() < o2->priority()) ? o1->priority() : o2->priority();
+    subpriority = (o1->priority() > o2->priority()) ? o1->priority() : o2->priority();
+  }
+}
+
 Interaction::Interaction(bool b, int i, sf::Vector2i d) : interaction{b}, object{i}, delta{d} {}
 Interaction::Interaction() : interaction{false}, object{0}, delta{0,0} {}
 
@@ -11,7 +42,7 @@ NodeBase Level::getNode(const int& x, const int& y) const {
   return field.getNode(x,y);
 }
 
-Object Level::getObj(int index) const {
+Object Level::getObj(unsigned index) const {
   return objects.getObj(index);
 }
 Object& Level::getObjRef(unsigned ind) {
@@ -35,8 +66,8 @@ void Level::newReadyWindow(int xscr, int yscr) {
   int ywid = WINDOW_HEIGHT-2;
   int xOff = xscr * (xwid);
   int yOff = yscr * (ywid);
-  for(int i=0;i<WINDOW_WIDTH;i++) {
-    for(int j=0;j<WINDOW_HEIGHT;j++) {
+  for(unsigned i=0;i<WINDOW_WIDTH;i++) {
+    for(unsigned j=0;j<WINDOW_HEIGHT;j++) {
       window[i][j].setId(getNode(i+xOff,j+yOff).getId());
     }
   }
@@ -51,8 +82,8 @@ void Level::readyWindow(int xScreen, int yScreen) {
   // this routine should only be called if the display needs to be updated
   int xOff = xScreen * WINDOW_WIDTH;
   int yOff = yScreen * WINDOW_HEIGHT;
-  for(int i=0;i<WINDOW_WIDTH;i++) {
-    for(int j=0;j<WINDOW_HEIGHT;j++) {
+  for(unsigned i=0;i<WINDOW_WIDTH;i++) {
+    for(unsigned j=0;j<WINDOW_HEIGHT;j++) {
       window[i][j].setId(getNode(i+xOff,j+yOff).getId());
     }
   }
@@ -143,7 +174,7 @@ int Level::getTilesizeY() const {
 sf::Vector2i Level::getTilesize() const {
   return field.getTilesize();
 }
-int Level::getObjNum() const {
+unsigned Level::getObjNum() const {
   return objects.size();
 }
 
@@ -261,6 +292,17 @@ void Level::removeObject(unsigned index) {
   objects.removeObj(index);
 }
 
+void Level::removeObject(Object* ob) {
+  objects.removeObj(ob);
+}
+
+void Level::resetObjDeltas() {
+  for(unsigned i=0;i<objects.size();i++) {
+    Object* x = objects.getObjPtr(i);
+    x->setLastPos(x->getPos());
+  }
+}
+
 void Level::handleObjects(sf::Vector2i pos, sf::Vector2i size) {
   for(unsigned i=0;i<objects.size();i++) {
     Object* x = objects.getObjPtr(i);
@@ -313,7 +355,6 @@ bool Level::displayObject(unsigned index, sf::Vector2i ppos, sf::Vector2i size) 
               ob.getPos().y-(WINDOW_HEIGHT-2)*field.getTilesize().y*pscry);
   
   if(ob.getId() == 3) {
-    //std::clog << relPos.y + ob.getSize().y << "," << field.getTilesize().y << ',' << pscry << '\n';
   }
   if(relPos.x+ob.getSize().x < 0 ||
      relPos.y+ob.getSize().y < 0 ||

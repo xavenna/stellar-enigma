@@ -19,6 +19,21 @@ struct Interaction {
   Interaction();
 };
 
+class Inter {
+public:
+  Inter(Object*, const Player&);
+  Inter(Object*, Object*);
+  void calculatePriority();
+  int priority; //spe
+  int subpriority;
+  //signify which two things are interacting
+  bool player1; //is the player object 1?
+  bool player2; //is the player object 2?
+  Object* o1;  //if player is object1, should be nullptr
+  Object* o2;  //same as above
+  Player p;  //holds information about player's position
+};
+
 //! The class that holds a complete level
 /*!
  *  Contains all tiles, as well as objects and entities.
@@ -27,8 +42,8 @@ class Level {
 private:
   ObjContainer objects; //!< The object factory/container
   //std::vector<Object> objectList; //!< A list of objects found in the map
-  int tilesizeX;  //!< The width of a tile, in pixels
-  int tilesizeY;  //!< The height of a tile, in pixels
+  unsigned tilesizeX;  //!< The width of a tile, in pixels
+  unsigned tilesizeY;  //!< The height of a tile, in pixels
   int winOffX = 0;
   int winOffY = 0;
   int frameCount = 0; //!< The current frame, modulo 1800 (used for animations)
@@ -37,7 +52,7 @@ public:
   //! returns a copy of specified node
   NodeBase getNode(const int&, const int&) const;
   //! returns a copy of specified object
-  Object getObj(int index) const;
+  Object getObj(unsigned index) const;
   //! returns a reference to specified object
   Object& getObjRef(unsigned);
   //! returns a pointer to specified object
@@ -79,12 +94,14 @@ public:
   //! gets tilesize as a sf::Vector2i
   sf::Vector2i getTilesize() const;
   //! gets the number of objects
-  int getObjNum() const;
+  unsigned getObjNum() const;
 
   //! Adds passed Object to objectList
   void addObject(const Object& ob);
   //! Removes specified object from object list
   void removeObject(unsigned index);
+  //! Remove object by pointer to it
+  void removeObject(Object* ob);
 
   //! Returns the status of the interaction between the passed mutable and specified object 
   Interaction queryInteractions(const Mutable& mut, int id, int targetId);
@@ -96,6 +113,8 @@ public:
    *  Updates entity tile positions
    */
   void handleObjects(sf::Vector2i pos, sf::Vector2i size);
+  //! Resets last pos for objects
+  void resetObjDeltas();
   //! Tells whether object is on the correct screen to be displayed
   bool displayObject(unsigned index, sf::Vector2i ppos, sf::Vector2i size) const;
 
@@ -120,4 +139,5 @@ public:
 //! creates an object from a string representation of an object
 bool str2obj(const std::string& line, Object& node);
 
+bool checkInteraction(Object*, Object*);
 #endif

@@ -8,12 +8,12 @@
 //! The base class for map nodes
 class NodeBase {
 private:
-  int id;  //!< The identifier of which tile exists here
+  unsigned id;  //!< The identifier of which tile exists here
   std::string cutname;  //!< The name of a cutscene to trigger. \0 if no cutscene
   DirectionalBool solid; //!< whether the node is solid from each direction
 public:
   //! Gets the id of the node
-  int getId() const;
+  unsigned getId() const;
   //! Sets the id of the node
   void setId(const int&);
   //! sets solidity in one direction

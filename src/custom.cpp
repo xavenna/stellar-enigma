@@ -1,9 +1,12 @@
 #include "stellar-enigma.hpp"
 #include "mapdata.h"
 #include "color.h"
-#include <tuple>
+//#include <tuple>
+#include <algorithm>
+#include <functional>
 
 void MapData::customInit() {
+  std::cerr << "\x1b[2J";
   //initialize player
   player.setXPos(32);
   player.setYPos(32);
@@ -41,6 +44,10 @@ int MapData::event0Handle() {  //this mode is used for the main menu
         modeSwitcher.setMode(1);
         return 0; 
       case -1:
+        return -1;
+      default:
+        //if an unrecognized value is returned, print an error and exit
+        std::cout << "Error: Invalid menu return code\n";
         return -1;
       }
     }
@@ -92,59 +99,216 @@ void MapData::event1Handle() {
   player.setPos(player.getPos() + sp);
   //check for interaction between player and objects/entities
 
-  //this might make more sense to be a separate function
 
-  //this structure contains interaction status of all objects
-  std::vector<Interaction> objStatus(levelSlot.getObjNum());
+  //set up interaction handler
 
-  for(int i=0;i<levelSlot.getObjNum();i++) {
-    Object ob = levelSlot.getObj(i);
-    levelSlot.queryInteractions(player, -1, i);
-    //call the interaction detector on levelSlot.getObj(i)
-  }
+  std::deque<Inter> interactions;
 
 
-  //for each element of the object/entity vectors, check if it intersects with the player
-  //If so, do something...maybe run a callback from the object/entity
-  for(int i=0;i<levelSlot.getObjNum();i++) {
-    int j = i;
-    //check for collision between player and levelSlot.getObject(i);
-    Object* ob = (levelSlot.getObjPtr(i));
-    sf::Vector2i pmin{player.getPos()};
-    sf::Vector2i pmax{pmin+player.getSize()-sf::Vector2i(1,1)};
-
-    sf::Vector2i omin{ob->getPos()};
-    sf::Vector2i omax{omin+ob->getSize()-sf::Vector2i(1,1)};
-
-    if(pmin.x > omax.x || omin.x > pmax.x || pmin.y > omax.y || omin.y > pmax.y) {
-      //no interaction
-    }
-    else {
-      //interaction happens
-      Interface res = ob->interact(&player, &levelSlot.field, false);
-      if(res.message != "") {
-        message.addMessage(res.message);
+  //iterator
+  for(unsigned n=0;;n++) {
+    interactions.clear();
+    //create a list of interactions
+    //check each pair of objects (plus player)
+    for(unsigned i=0;i<levelSlot.getObjNum();i++) {
+      if(!levelSlot.getObj(i).getActive()) {
+        continue;
       }
-      if(res.cutscene != "") {
-        if(cutsceneManager.cutsceneExists(res.cutscene)) {
-          cutscenePlayer.loadCutscene(cutsceneManager.getCutscene(res.cutscene));
+      for(unsigned j=i;j<levelSlot.getObjNum();j++) {
+        if(i==j || !levelSlot.getObj(j).getActive()) {
+          continue;
         }
-        modeSwitcher.setMode(2);
-      }
+        //check interaction between objects
+        Object* o1 = (levelSlot.getObjPtr(i));
+        Object* o2 = (levelSlot.getObjPtr(j));
 
-      for(auto x : res.objs) {
-        //create any requested objects
-      }
+        sf::Vector2i omin{o1->getPos()};
+        sf::Vector2i omax{omin+o1->getSize()-sf::Vector2i(1,1)};
 
-      if(ob->getStatus() == Object::Destroy) {
-        levelSlot.removeObject(i);
-        i--;
+        sf::Vector2i bmin{o2->getPos()};
+        sf::Vector2i bmax{bmin+o2->getSize()-sf::Vector2i(1,1)};
+
+
+        if(bmin.x > omax.x || omin.x > bmax.x || bmin.y > omax.y || omin.y > bmax.y) {
+          //no interaction
+        }
+        else {
+          //interaction;
+          //create and populate an Inter object
+          interactions.push_back(Inter(o1, o2));
+        }
       }
-      if(i == j) {
-        levelSlot.updateObj(i, *ob);
+      //check interaction with player and object[i];
+      Object* ob = (levelSlot.getObjPtr(i));
+      sf::Vector2i pmin{player.getPos()};
+      sf::Vector2i pmax{pmin+player.getSize()-sf::Vector2i(1,1)};
+
+      sf::Vector2i omin{ob->getPos()};
+      sf::Vector2i omax{omin+ob->getSize()-sf::Vector2i(1,1)};
+
+      if(pmin.x > omax.x || omin.x > pmax.x || pmin.y > omax.y || omin.y > pmax.y) {
+        //no interaction
+      }
+      else {
+        //interaction
+        interactions.push_back(Inter(ob, player));
       }
     }
+    //calculate interaction ranking
+    for(auto& x : interactions) {
+      x.calculatePriority();
+    }
+
+    //reorder interaction vector
+
+    //sorting by subpriority then priority with a stable sort ensures that the vector
+    //is lexicographically sorted
+
+    std::stable_sort(interactions.begin(), interactions.end(), [](Inter o, Inter p) {
+        return o.subpriority < p.subpriority;
+    });
+
+    std::stable_sort(interactions.begin(), interactions.end(), [](Inter o, Inter p) {
+        return o.priority < p.priority;
+    });
+
+    for(auto y : interactions) {
+      std::cerr << '[' << y.priority << ',' << y.subpriority << ']';
+    }
+    //handle in priority rank
+    for(size_t i=0;i<interactions.size();i++) {
+      bool remove = false;
+      auto& x = interactions[i];
+      std::cerr << "\x1b[0K";
+      if(x.player1 || x.player2) {
+        x.o1->savePos();
+        player.savePos();
+        //obj-player interaction
+        //call the obj's interact function on the player
+
+        Interface res = x.o1->interact(&player, &levelSlot.field, false);
+        if(res.message != "") {
+          message.addMessage(res.message);
+        }
+        if(res.cutscene != "") {
+          if(cutsceneManager.cutsceneExists(res.cutscene)) {
+            cutscenePlayer.loadCutscene(cutsceneManager.getCutscene(res.cutscene));
+          }
+          modeSwitcher.setMode(2);
+        }
+
+        for(auto y : res.objs) {
+          //create any requested objects (these won't have a link id)
+        }
+
+        if(x.o1->getStatus() == Object::Destroy) {
+          levelSlot.removeObject(x.o1);
+          remove = true;
+        }
+        x.o1->updateDelta();
+        player.updateDelta();
+      }
+      else {
+        x.o1->savePos();
+        x.o2->savePos();
+        bool initiator = true; //if true, o1 initiates
+        bool ignore = false; //if true, ignore interaction
+        //obj-obj interaction
+        sf::Vector2i delta1 = x.o1->getPos() - x.o1->getLastPos();
+        sf::Vector2i delta2 = x.o2->getPos() - x.o2->getLastPos();
+
+        //call target's interact function on initiator object
+        //if one is a static, it is the target
+        //if both are static, ignore interaction
+        //if one is an entity, it is the initiator
+        //if one is a sliding, it is the initiator
+        //if one is entity and one is sliding, entity initiates
+        //if both are entity or sliding, figure something out;
+        //check deltas. If one has a delta but the other doesn't, one with delta is
+          //initiator
+        //if both have deltas... i have no ideas
+        switch(x.o1->Type()) {
+        case Object::Intangible:
+          ignore = true;
+          break;
+        case Object::Static:
+          if(x.o2->Type() == Object::Static) {
+            //ignore interaction
+            ignore = true;
+          }
+          else if(x.o2->Type() == Object::Sliding) {
+            initiator = false;
+          }
+          else {
+            initiator = false;
+          }
+          break;
+        case Object::Sliding:
+          if(x.o2->Type() == Object::Static) {
+            initiator = true;
+          }
+          else if(x.o2->Type() == Object::Entity) {
+            initiator = false;
+          }
+          else {
+            //complicated things
+          }
+          break;
+        case Object::Entity:
+          if(x.o2->Type() == Object::Static) {
+            initiator = true;
+          }
+          else if(x.o2->Type() == Object::Sliding) {
+            initiator = true;
+          }
+          else {
+            //complicated things
+          }
+          break;
+        }
+        if(x.o2->Type() == Object::Intangible) {
+          ignore = true;
+        }
+
+        if(!ignore) {
+          Interface res = (initiator?x.o2:x.o1)->interact((initiator?x.o1:x.o2), &levelSlot.field, false);
+          if(res.message != "") {
+            message.addMessage(res.message);
+          }
+          if(res.cutscene != "") {
+            if(cutsceneManager.cutsceneExists(res.cutscene)) {
+              cutscenePlayer.loadCutscene(cutsceneManager.getCutscene(res.cutscene));
+            }
+            modeSwitcher.setMode(2);
+          }
+
+          for(auto y : res.objs) {
+            //create any requested objects
+          }
+
+          if(x.o1->getStatus() == Object::Destroy) {
+            levelSlot.removeObject(x.o1);
+          }
+          if(x.o2->getStatus() == Object::Destroy) {
+            levelSlot.removeObject(x.o2);
+          }
+          x.o1->updateDelta();
+          x.o2->updateDelta();
+        }
+      }
+    }
+
+
+    std::cerr << '\n';
+    if(interactions.empty() || n >= 6) {
+      // 50 is a hardcap for iterations, it may change
+      // also break if the list remains identical for several iterations in a row
+      break;
+    }
+
   }
+  std::cerr << "\x1b[H";
+
 
   //various player updates
   if(player.damaged) {

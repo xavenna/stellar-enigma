@@ -1,13 +1,9 @@
 #include "mapnode.h"
 
-
-
-
-
 NodeBase::NodeBase(int n, DirectionalBool b, const std::string& cutn) : id{n}, cutname{cutn}, solid{b} {
 }
 
-int NodeBase::getId() const{
+unsigned NodeBase::getId() const{
   return id;
 }
 bool NodeBase::getSolid(Direction d) const {

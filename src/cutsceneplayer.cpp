@@ -12,7 +12,7 @@ bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwit
   //make this start the next event, that would be pretty cool
   //okay, I think it does now. Yay
   Event e = cutscene.getEvent(pos);
-  bool finalEvent = (cutscene.getListLen()-1 == (int)pos);
+  bool finalEvent = (cutscene.getListLen()-1 == static_cast<int>(pos));
   //check if waiting for time or button press
   if(e.getType() == Event::GetInput) {
     //wait for player input
@@ -28,7 +28,7 @@ bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwit
         else {
           pos++;
           //start next event?
-          if(cutscene.getListLen()-1 == (int)pos) {
+          if(cutscene.getListLen()-1 == static_cast<int>(pos)) {
             return false;
           }
           if(!playEvent(pl, me, le, mp, cm)) {
@@ -70,7 +70,6 @@ bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le, MusicPlayer& 
   //add bounds checking to this
   Event e = cutscene.getEvent(pos);
   switch(e.getType()) {
-    //currently, only plyerMove does anything
   case Event::PlayerUpdate:
     //move player
     pl.setPos(e[0], e[1]);
@@ -134,6 +133,7 @@ bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le, MusicPlayer& 
     pl.setYPos(e[1]);
     break;
   case Event::Invalid:
+  default:
     //error: invalid event
     std::cout << "Error: Invalid Event\n";
     return false;

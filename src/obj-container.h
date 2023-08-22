@@ -44,6 +44,8 @@ public:
 
   //! Remove specified object and free its allocated memory
   void removeObj(unsigned);
+  //! Remove object located at specified pointer, if object is stored in container
+  void removeObj(Object*);
 
   //! Get the number of objects stored
   std::size_t size() const;

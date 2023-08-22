@@ -6,6 +6,7 @@
 //! An object that displays a message when picked up
 class Spawner : public Object {
 public:
+  virtual int Type() {return Object::Intangible;} 
   virtual Interface behave(Player*, Field*, bool);
   Spawner(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8>);
   Spawner();

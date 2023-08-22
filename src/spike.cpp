@@ -1,8 +1,8 @@
 #include "spike.h"
 
-Spike::Spike() : Object() {}
-Spike::Spike(Object ob) : Object(ob) {}
-Spike::Spike(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a) : Object(x, y, wid, hei, i, v, sol, txt, a) {}
+Spike::Spike() : Solid() {}
+Spike::Spike(Object ob) : Solid(ob) {}
+Spike::Spike(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a) : Solid(x, y, wid, hei, i, v, sol, txt, a) {}
 
 Interface Spike::interact(Player* p, Field*, bool) {
   sf::Vector2i pmin{p->getPos()};

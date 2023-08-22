@@ -1,27 +1,28 @@
 #include "toggle-block.h"
 
 
-ToggleBlock::ToggleBlock() : Object() {
+ToggleBlock::ToggleBlock() : Solid() {
   /*  once arg loading is implemented, uncomment this
   vars[0] = args[0];
    */
   vars[1] = 0;
   args[1] = 15;  //this is temporary, until arg loading works 
 }
-ToggleBlock::ToggleBlock(Object ob) : Object(ob) {
+ToggleBlock::ToggleBlock(Object ob) : Solid(ob) {
   /*  once arg loading is implemented, uncomment this
   vars[0] = args[0];
    */
   vars[1] = 0;
   args[1] = 15;  //this is temporary, until arg loading works 
 }
-ToggleBlock::ToggleBlock(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a) : Object(x, y, wid, hei, i, v, sol, txt, a) {
+ToggleBlock::ToggleBlock(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a) : Solid(x, y, wid, hei, i, v, sol, txt, a) {
   /*  once arg loading is implemented, uncomment this
   vars[0] = args[0];
    */
   vars[1] = 0;
   args[1] = 15;  //this is temporary, until arg loading works 
 }
+
 Interface ToggleBlock::interact(Player* p, Field*, bool dryRun) {
   sf::Vector2i pmin{p->getPos()};
   sf::Vector2i pmax{pmin+p->getSize()-sf::Vector2i(1,1)};

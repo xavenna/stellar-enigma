@@ -25,6 +25,7 @@ Interface CutPlay::interact(Player*, Field*, bool) {
     }
 
     vars[0] = args[1];
+    active = false;
     return Interface(pos, "", text); 
   }
   else {
@@ -35,6 +36,9 @@ Interface CutPlay::interact(Player*, Field*, bool) {
 Interface CutPlay::behave() {
   if(vars[0] > 0) {
     vars[0]--;
+  }
+  if(!vars[0]) {
+    active = true;
   }
   return Interface(pos, "", "");
 }

@@ -29,6 +29,18 @@ bool Mutable::getSolid() const{
   return solid;
 }
 
+sf::Vector2i Mutable::getDelta() const {
+  return pos - lastPos;
+}
+
+void Mutable::savePos() {
+  savedPos = pos;
+}
+void Mutable::updateDelta() {
+  lastPos = savedPos;
+}
+
+
 sf::Vector2i Mutable::getPos() const {
   return pos;
 }

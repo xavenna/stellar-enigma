@@ -13,6 +13,7 @@ class Mutable : public sf::Sprite {
 protected:
   sf::Vector2i pos; //!< Current pos of the mutable
   sf::Vector2i lastPos; //!< Where the mutable was before its most recent move
+  sf::Vector2i savedPos; //!< Used for properly resolving lastPos
   sf::Vector2i screen; //!< Which screen the mutable is on
   sf::Vector2i size; //!< Size of the mutable in pixels
   bool solid; //!< Whether other mutables can pass through the mutable
@@ -46,6 +47,13 @@ public:
   sf::Vector2i getSize() const;
   //! get the screen-pos of the mutable as a sf::Vector2i
   sf::Vector2i getScreen() const;
+  //! Returns position delta (pos - lastpos)
+  sf::Vector2i getDelta() const;
+
+  //! Save current position
+  void savePos();
+  //! move saved position to lastPos (to make deltas work)
+  void updateDelta();
 
   //! set the position of the mutable as a sf::Vector2i
   void setPos(sf::Vector2i);

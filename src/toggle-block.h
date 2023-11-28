@@ -6,14 +6,14 @@
 class ToggleBlock : public Solid {
 public:
 
-  virtual Interface interact(Player*, Field*, bool);
+  virtual Interface interact(Player*, Field*, SwitchHandler*);
   using Solid::interact;
   virtual CacheNodeAttributes draw(const TextureCache*);
-  virtual Interface behave();
+  virtual Interface behave(SwitchHandler*);
   virtual int Type() {return Object::Static;} 
   virtual int priority() {return 0;}
-  ToggleBlock(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8>);
-  ToggleBlock();
+  ToggleBlock(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8>, int);
+  ToggleBlock(int);
   ToggleBlock(Object);
 };
 

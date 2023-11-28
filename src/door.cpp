@@ -1,11 +1,24 @@
-#include "solid.h"
+#include "door.h"
 
-Solid::Solid(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a, int uid) : Object(x, y, wid, hei, i, v, sol, txt, a, uid) {}
-Solid::Solid(int uid) : Object(uid) {}
-Solid::Solid(Object ob) : Object(ob) {}
+Door::Door(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a, int uid) : Solid(x, y, wid, hei, i, v, sol, txt, a, uid) {
+  vars[0] = true;
+  vars[1] = false;
+}
+Door::Door(int uid) : Solid(uid) {
+  vars[0] = true;
+  vars[1] = false;
+}
+Door::Door(Object ob) : Solid(ob) {
+  vars[0] = true;
+  vars[1] = false;
+}
 
 
-Interface Solid::interact(Object* p, Field*, SwitchHandler*) {
+Interface Door::interact(Object* p, Field*, SwitchHandler*) {
+  if(!vars[0]) {
+    return Interface(pos, "", "");
+  }
+
   //push back slidings and entities, ignore solids
   switch(p->Type()) {
     case Object::Static:
@@ -66,7 +79,11 @@ Interface Solid::interact(Object* p, Field*, SwitchHandler*) {
   
 }
 
-Interface Solid::interact(Player* p, Field*, SwitchHandler*) {
+Interface Door::interact(Player* p, Field*, SwitchHandler*) {
+  if(!vars[0]) {
+    return Interface(pos, "", "");
+  }
+
   sf::Vector2i pmin{p->getPos()};
   sf::Vector2i pmax{pmin+p->getSize()-sf::Vector2i(1,1)};
   sf::Vector2i plmin{p->getLastPos()};
@@ -119,13 +136,13 @@ Interface Solid::interact(Player* p, Field*, SwitchHandler*) {
 }
 
 
-CacheNodeAttributes Solid::draw(const TextureCache* cache) {
+CacheNodeAttributes Door::draw(const TextureCache* cache) {
   // draw a solid object with no transforms
   // use obj_arg[0] to decide which texture to draw
   CacheNodeAttributes cna;
-  switch(args[0]) {
+  switch(texture_id) {
   default:
-    cna.srcImg = cache->reverseHash("stone");
+    cna.srcImg = cache->reverseHash("crate");
   //other textures can be placed here for more design freedom
   }
   //no transforms, so tlist is left blank
@@ -133,7 +150,19 @@ CacheNodeAttributes Solid::draw(const TextureCache* cache) {
 }
 
 
-Interface Solid::behave(SwitchHandler*) {
-  //no special behaviors
+Interface Door::behave(SwitchHandler* sh) {
+  //poll SW_Trig1
+  bool sw = sh->read(switches[SW::Trig1]);
+  if(!vars[1]) {
+    if(sw) {
+      vars[1] = true;
+      vars[0] = !vars[0];
+    }
+  }
+  else {
+    if(!sw) {
+      vars[1] = false;
+    }
+  }
   return Interface(pos, "", "");
 }

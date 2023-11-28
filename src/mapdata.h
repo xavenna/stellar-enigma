@@ -8,6 +8,7 @@
 #include "audio.h"
 #include "message.h"
 #include "cutscene-manager.h"
+#include "switch-handler.h"
 //! Mapdata is the class that encapsulates all level components
 /*!
  *  It is passed to the functions found in custom.cpp to make the code cleaner
@@ -22,6 +23,7 @@ public:
   Message message; //!< A reference to the message displayer
   CutscenePlayer cutscenePlayer; //!< A reference to the cutscene player
   CutsceneManager cutsceneManager; //!< A reference to the cutscene manager
+  SwitchHandler switchHandler;
   //! Any custom initialization behavior goes here
   void customInit();  
   //! Handles events if the engine is in mode 0

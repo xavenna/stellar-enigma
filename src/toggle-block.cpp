@@ -1,29 +1,20 @@
 #include "toggle-block.h"
 
 
-ToggleBlock::ToggleBlock() : Solid() {
-  /*  once arg loading is implemented, uncomment this
+ToggleBlock::ToggleBlock(int uid) : Solid(uid) {
   vars[0] = args[0];
-   */
   vars[1] = 0;
-  args[1] = 15;  //this is temporary, until arg loading works 
 }
 ToggleBlock::ToggleBlock(Object ob) : Solid(ob) {
-  /*  once arg loading is implemented, uncomment this
   vars[0] = args[0];
-   */
   vars[1] = 0;
-  args[1] = 15;  //this is temporary, until arg loading works 
 }
-ToggleBlock::ToggleBlock(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a) : Solid(x, y, wid, hei, i, v, sol, txt, a) {
-  /*  once arg loading is implemented, uncomment this
+ToggleBlock::ToggleBlock(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a, int uid) : Solid(x, y, wid, hei, i, v, sol, txt, a, uid) {
   vars[0] = args[0];
-   */
   vars[1] = 0;
-  args[1] = 15;  //this is temporary, until arg loading works 
 }
 
-Interface ToggleBlock::interact(Player* p, Field*, bool dryRun) {
+Interface ToggleBlock::interact(Player* p, Field*, SwitchHandler*) {
   sf::Vector2i pmin{p->getPos()};
   sf::Vector2i pmax{pmin+p->getSize()-sf::Vector2i(1,1)};
   sf::Vector2i plmin{p->getLastPos()};
@@ -46,19 +37,17 @@ Interface ToggleBlock::interact(Player* p, Field*, bool dryRun) {
   bool xInt = xAfter && !xBefore && ((yAfter && yBefore) || (!yBefore && yAfter));
   bool yInt = yAfter && !yBefore && ((xAfter && xBefore) || (!xBefore && xAfter));
 
-  if(!dryRun) {
-    if(xInt && pmin.x < omin.x) {
-      p->setXPos(pos.x-p->getSize().y);
-    }
-    if(yInt && pmin.y < omin.y) {
-      p->setYPos(pos.y-p->getSize().x);
-    }
-    if(xInt && pmin.x > omin.x) {
-      p->setXPos(pos.x+size.x);
-    }
-    if(yInt && pmin.y > omin.y) {
-      p->setYPos(pos.y+size.y);
-    }
+  if(xInt && pmin.x < omin.x) {
+    p->setXPos(pos.x-p->getSize().y);
+  }
+  if(yInt && pmin.y < omin.y) {
+    p->setYPos(pos.y-p->getSize().x);
+  }
+  if(xInt && pmin.x > omin.x) {
+    p->setXPos(pos.x+size.x);
+  }
+  if(yInt && pmin.y > omin.y) {
+    p->setYPos(pos.y+size.y);
   }
 
   if(xInt || yInt) {
@@ -99,9 +88,10 @@ CacheNodeAttributes ToggleBlock::draw(const TextureCache* cache) {
   return cna;
 }
 
-Interface ToggleBlock::behave() {
+Interface ToggleBlock::behave(SwitchHandler*) {
   if(vars[1] > 0) {
     vars[1]--;
   }
+  //this should toggle a switch
   return Interface(pos, "", "");
 }

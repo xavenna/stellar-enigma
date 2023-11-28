@@ -34,9 +34,6 @@ void Inter::calculatePriority() {
   }
 }
 
-Interaction::Interaction(bool b, int i, sf::Vector2i d) : interaction{b}, object{i}, delta{d} {}
-Interaction::Interaction() : interaction{false}, object{0}, delta{0,0} {}
-
 
 NodeBase Level::getNode(const int& x, const int& y) const {
   return field.getNode(x,y);
@@ -145,16 +142,15 @@ void Level::loadMutables(const std::string& levelname) {
     if(line.size() == 0 || line[0] == '#') {
       continue; //skip line
     }
-    if(line.back() != '`')
-      line += '`';
     //parse `line' as a mutable
-    if(line[0] == 'o') {  //this needs to be refactored to fit the new system
-      //object
-      str2obj(line.substr(1), o);
-      o.setPosition(o.getPos().x+tilesizeX, o.getPos().y+tilesizeY);
-      objects.storeObj(o.getPos(), o.getSize(), o.getId(), o.getValue(), o.getSolid(), o.getText(), o.getArgs(), getType(o.getId()));
+
+    if(!str2obj2(line, o)) {
+      std::cerr << "Error: Failed level load\n";
+      return;
     }
-    //the others will be written once objects work
+    o.setPosition(o.getPos().x+2*tilesizeX, o.getPos().y+2*tilesizeY);
+    objects.storeObj(o, getType(o.getId()));
+    
     
   }
   return;
@@ -224,7 +220,6 @@ void Level::assignTextureToWinNode(sf::Vector2i pos, TextureCache& cache) {
     break;
   }
   try {
-    //std::cerr << cache.getTexture(cna).getSize().x;
     window[pos.x][pos.y].setTexture(cache.getTexture(cna));
   }
   catch (const std::invalid_argument* e) {
@@ -257,7 +252,6 @@ void Level::assignTextureToObject(unsigned index, TextureCache& cache) {
   //}
   //cna.srcImg = s;
   
-  
   //generate cna.tList
   switch(objects.getObj(index).getId()) {
   default:
@@ -265,7 +259,7 @@ void Level::assignTextureToObject(unsigned index, TextureCache& cache) {
     break;
   }
   try {
-    objects.getObjRef(index).setTexture(cache.getTexture(cna));
+    objects.getObjPtr(index)->setTexture(cache.getTexture(cna));
   }
   catch (...) {
     std::clog << "Error: target image not found\n";
@@ -303,11 +297,11 @@ void Level::resetObjDeltas() {
   }
 }
 
-void Level::handleObjects(sf::Vector2i pos, sf::Vector2i size) {
+void Level::handleObjects(sf::Vector2i pos, sf::Vector2i size, SwitchHandler* sh) {
   for(unsigned i=0;i<objects.size();i++) {
     Object* x = objects.getObjPtr(i);
     //do things for x.
-    x->behave();
+    x->behave(sh);
     //eventually implement API backend for x->behave();
 
     
@@ -333,6 +327,7 @@ bool Level::displayObject(unsigned index, sf::Vector2i ppos, sf::Vector2i size) 
   }
   
   Object ob{objects.getObj(index)};
+
   //don't display invisible objects
   switch(ob.getId()) {
   case 4: //add any other invisible objects here
@@ -354,8 +349,6 @@ bool Level::displayObject(unsigned index, sf::Vector2i ppos, sf::Vector2i size) 
   sf::Vector2i relPos(ob.getPos().x-(WINDOW_WIDTH-2)*field.getTilesize().x*pscrx,
               ob.getPos().y-(WINDOW_HEIGHT-2)*field.getTilesize().y*pscry);
   
-  if(ob.getId() == 3) {
-  }
   if(relPos.x+ob.getSize().x < 0 ||
      relPos.y+ob.getSize().y < 0 ||
      relPos.x + ob.getSize().x >= (WINDOW_WIDTH+2)*field.getTilesize().x ||
@@ -582,83 +575,198 @@ sf::Vector2i Level::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i 
   return fullMove ? speed : moveDistance;
 }
 
-void Level::handleInteractions() {
-  
+bool str2obj2(const std::string& line, Object& obj) {
+  //parse line. Break into bracketed sections, and interpret each as a vect of strings
+  //check if each group has a valid identifier. If so, check if argument list is valid
+  //If so, write valus to variables.
+  //Otherwise, fail
+  std::vector<std::string> ids;
+  std::vector<ObjAttr> attribs;
+  bool inField{false};
+  std::string accum;
+  for(auto x : line) {  //parse line into bracketed definitions. IDs and Attribs contain the definitions
+    if(x == '{') {
+      if(inField) {
+        std::clog << "Error: malformed object list : nested braces\n";
+        return false;
+      }
+      inField = true;
+    }
+    else if(x == '}') {
+      if(!inField) {
+        std::clog << "Error: malformed object list : close brace outside of braces\n";
+        return false;
+      }
+      inField = false;
+      ids.push_back(accum);
+      accum.clear();
+    }
+    else {
+      if(!inField) {
+        //ignore whitespace
+        if(!isEmpty(x)) {
+          std::clog << "Error: malformed object list : non-whitespace '"<<x<<"' outside of braces\n";
+          return false;
+        }
+      }
+      else {
+        accum += x;
+      }
+    }
+  }
+  //process each string to extract information, check for errors
+  for(auto x : ids) { //transform the bracketed string into an ObjAttr struct
+                      //for each string in ids
+    accum.clear();
+    inField = false;
+    std::string name;
+    attribs.push_back(ObjAttr());
+    x += ','; //this ensures the last argument isn't omitted
+    for(auto y : x) {  //for each char of current string...
+      if(y == '=') {
+        if(inField) {
+          std::cerr << "Error: repeat colon in braces\n";
+          return false;
+        }
+        attribs.back().id = accum;
+        accum.clear();
+        inField = true;
+      }
+      else if(y == ',') {
+        if(!inField) {
+          //text field
+          //the entire field, except the final char, is placed in id
+          attribs.back().id = x.substr(0, x.size()-1);
+          break;
+        }
+        if(!isNum(accum)) {
+          std::cerr << "Error: non-numeric arg '"<<accum<<"' in field\n";
+          return false;
+        }
+        attribs.back().args.push_back(std::stoi(accum));
+        accum.clear();
+      }
+      else {
+        accum += y;
+      }
+    }
+  }
+  //now that data is extracted from bracketed parts, check for validity
+  //if it's valid, assign the appropriate attribute
+  //TODO: add a way to avoid duplicates
+  std::array<int, 8> args;
+  std::array<int, 8> switches;
+  sf::Vector2i pos{0,0};
+  sf::Vector2i size{0,0};
+  std::string text;
+  int type=-1;
+  int parent=-1;
+  int link=-1;
+  int tex=-1;
+  int argNum;
+  for(auto x : attribs) {
+    argNum = x.args.size();
+    if(x.id == "oa") {
+      //assign obj args
+      if(argNum > 8) {
+        std::clog << "Error: oa field accepts at most 8 arguments, "<<argNum<<" provided\n";
+        return false;
+      }
+      int i=0;
+      for(auto y : x.args) {
+        args[i++] = y;
+      }
+    }
+    else if(x.id == "sw") {
+      //assign switches
+      if(argNum > 8) {
+        std::clog << "Error: sw field accepts at most 8 arguments, "<<argNum<<" provided\n";
+        return false;
+      }
+      int i=0;
+      for(auto y : x.args) {
+        switches[i++] = y;
+      }
+    }
+    else if(x.id == "p") {
+      //assign position
+      if(argNum != 2) {
+        std::clog << "Error: p field requires 2 arguments, "<<argNum<<" provided\n";
+        return false;
+      }
+      pos.x = x.args[0];
+      pos.y = x.args[1];
+    }
+    else if(x.id == "s") {
+      //assign size
+      //are there two int args?
+      if(argNum != 2) {
+        std::clog << "Error: s field requires 2 argument, "<<argNum<<" provided\n";
+        return false;
+      }
+      size.x = x.args[0];
+      size.y = x.args[1];
+
+    }
+    else if(x.id == "t") {
+      if(argNum != 1) {
+        std::clog << "Error: t field requires 1 argument, "<<argNum<<" provided\n";
+        return false;
+      }
+      //select object type
+      type = x.args[0];
+    }
+    else if(x.id == "pi") {
+      if(argNum != 1) {
+        std::clog << "Error: pi field requires 1 argument, "<<argNum<<" provided\n";
+        return false;
+      }
+      //select object type
+      parent = x.args[0];
+    }
+    else if(x.id == "li") {
+      if(argNum != 1) {
+        std::clog << "Error: li field requires 1 argument, "<<argNum<<" provided\n";
+        return false;
+      }
+      //select object type
+      link = x.args[0];
+    }
+    else if(x.id == "ti") {
+      if(argNum != 1) {
+        std::clog << "Error: ti field requires 1 argument, "<<argNum<<" provided\n";
+        return false;
+      }
+      //select object type
+      tex = x.args[0];
+    }
+    else {
+      //invalid, or text
+      if(x.args.size() == 0) {
+        text = x.id;
+      }
+      else {
+        std::clog << "Invalid Identifier '"<<x.id<<"' in object list\n";
+        return false;
+      }
+    }
+  }
+  //now that values have been extracted, assign values to object
+  obj.setLinkID(link);
+  obj.setParentID(parent);
+  obj.setTextureID(tex);
+  obj.setId(type);
+  obj.setArgs(args);
+  obj.setSwitches(switches);
+  obj.setPos(pos);
+  obj.setSize(size);
+  obj.setText(text);
+  return true;
 }
 
-Interaction Level::queryInteractions(const Mutable& mut, int id, int targetId) {
-  //get the interaction status of the mutable in question with the map
-  //id is the id of mut, to prevent checking self-interactions
-  //for mutable not part of Level, id should equal -1
-  if(targetId < 0 || unsigned(targetId) > objects.size()) {
-    std::clog << "Error: out-of-bounds level mutable interaction status query: id=";
-    std::clog << id << ",len=" << objects.size() << "\n";
-    return Interaction(false, -1, sf::Vector2i(0,0));
-  }
-
-  sf::Vector2i pmin{mut.getPos()};
-  sf::Vector2i pmax{pmin+mut.getSize()-sf::Vector2i(1,1)};
-  sf::Vector2i plmin{mut.getLastPos()};
-  sf::Vector2i plmax{plmin+mut.getSize()-sf::Vector2i(1,1)};
-  
-  sf::Vector2i omin{objects.getObj(targetId).getPos()};
-  sf::Vector2i omax{omin+objects.getObj(targetId).getSize() -sf::Vector2i(1,1)};
-  sf::Vector2i olmin{objects.getObj(targetId).getLastPos()};
-  sf::Vector2i olmax{olmin+objects.getObj(targetId).getSize()-sf::Vector2i(1,1)};
-
-
-  //determine interaction for each direction:
-  //was player intersecting with object on the x-axis?
-  bool xAfter = !(omax.x < pmin.x || omin.x > pmax.x);
-  bool xBefore = !(olmax.x < plmin.x || olmin.x > plmax.x);
-
-  bool yAfter = !(omax.y < pmin.y || omin.y > pmax.y);
-  bool yBefore = !(olmax.y < plmin.y || olmin.y > plmax.y);
-
-  //x, y interactions
-  bool xInt = xAfter && !xBefore && ((yAfter && yBefore) || (!yBefore && yAfter));
-  bool yInt = yAfter && !yBefore && ((xAfter && xBefore) || (!xBefore && xAfter));
-
-  
-  sf::Vector2i delta(pmin - plmin); //by default this is the attempted move distance
-  if(xInt) {
-    if(plmin.x < olmin.x) { //target moved to right
-      delta.x = pmax.x - omin.x;
-    }
-    else { //target moved to left
-      delta.x = omax.x - pmin.x;
-    }
-  }
-  if(yInt) {
-    if(plmin.y < olmin.y) { //target moved to right
-      delta.y = pmax.y - omin.y;
-    }
-    else { //target moved to left
-      delta.y = omax.y - pmin.y;
-    }
-  }
-
-  //  this will need to be redesigned -- this function can't call behavior functions
-
-  sf::Vector2i maxMovement;
-  switch(mut.behaviorType) {
-  case 0:
-    //solid behave
-    break;
-  default:
-    //no interaction
-    break;
-
-  }
-
-
-  //now, do a dry run of the interaction handler on the object
-  //return Interaction(xInt||yInt, targetId, delta > maxMovement ? maxMovement : delta);
-  return Interaction(xInt||yInt, targetId, delta);
-}
-
-
+//this is now deprecated, but retained for compatibility
 bool str2obj(const std::string& line, Object& obj) {
+
   //#oxpos`ypos`width`height`solid?`id`value`collectable?`args-csv`text
   int field = 0;  
   std::string accum;

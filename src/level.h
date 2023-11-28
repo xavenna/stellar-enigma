@@ -10,31 +10,34 @@
 #include "util.h"
 #include "field.h"
 #include "obj-container.h"
+#include "switch-handler.h"
 
-struct Interaction {
-  bool interaction=false;
-  int object;
-  sf::Vector2i delta{0,0};
-  Interaction(bool b, int i, sf::Vector2i d);
-  Interaction();
+//! A utility class that represents an interaction
+/*!
+ *  Used during the interaction handling process
+ */
+
+//! An internal utility struct for parsing object lists
+struct ObjAttr {
+  std::string id;
+  std::vector<int> args;
 };
-
 class Inter {
 public:
-  Inter(Object*, const Player&);
-  Inter(Object*, Object*);
-  void calculatePriority();
-  int priority; //spe
-  int subpriority;
+  Inter(Object*, const Player&); //!< Use for player-object interactions
+  Inter(Object*, Object*);  //!< Use for object-object interactions
+  void calculatePriority();  //!< Calculates the priority based on the interaction
+  int priority;   //!< Used for ranking interactions, priority of higher ranked actor
+  int subpriority;  //!< priority of lower ranked actor
   //signify which two things are interacting
   bool player1; //is the player object 1?
   bool player2; //is the player object 2?
-  Object* o1;  //if player is object1, should be nullptr
-  Object* o2;  //same as above
-  Player p;  //holds information about player's position
+  Object* o1;  //!< The first object involved, always should be populated
+  Object* o2;  //if player is object1, should be nullptr 
+  Player p;  //!< If player is involved in interaction, 
 };
 
-//! The class that holds a complete level
+//! A class that manages the level field and objects
 /*!
  *  Contains all tiles, as well as objects and entities.
  */
@@ -103,16 +106,13 @@ public:
   //! Remove object by pointer to it
   void removeObject(Object* ob);
 
-  //! Returns the status of the interaction between the passed mutable and specified object 
-  Interaction queryInteractions(const Mutable& mut, int id, int targetId);
-
-  void handleInteractions();
+  //void handleInteractions();
 
   //! Handles objects
   /*!
    *  Updates entity tile positions
    */
-  void handleObjects(sf::Vector2i pos, sf::Vector2i size);
+  void handleObjects(sf::Vector2i pos, sf::Vector2i size, SwitchHandler*);
   //! Resets last pos for objects
   void resetObjDeltas();
   //! Tells whether object is on the correct screen to be displayed
@@ -136,8 +136,10 @@ public:
   int advanceFrameCount();
 };
 
-//! creates an object from a string representation of an object
+//! creates an object from a string representation of an object. Kept for compatibility
 bool str2obj(const std::string& line, Object& node);
+//! new version of str2obj2, for new object format.
+bool str2obj2(const std::string& line, Object& node);
 
 bool checkInteraction(Object*, Object*);
 #endif

@@ -1,12 +1,11 @@
 #include "stellar-enigma.hpp"
 #include "mapdata.h"
 #include "color.h"
-//#include <tuple>
 #include <algorithm>
 #include <functional>
 
 void MapData::customInit() {
-  std::cerr << "\x1b[2J";
+  //std::cerr << "\x1b[2J";
   //initialize player
   player.setXPos(32);
   player.setYPos(32);
@@ -172,21 +171,23 @@ void MapData::event1Handle() {
         return o.priority < p.priority;
     });
 
+    /*
     for(auto y : interactions) {
       std::cerr << '[' << y.priority << ',' << y.subpriority << ']';
     }
+    */
     //handle in priority rank
     for(size_t i=0;i<interactions.size();i++) {
       bool remove = false;
       auto& x = interactions[i];
-      std::cerr << "\x1b[0K";
+      //std::cerr << "\x1b[0K";
       if(x.player1 || x.player2) {
         x.o1->savePos();
         player.savePos();
         //obj-player interaction
         //call the obj's interact function on the player
 
-        Interface res = x.o1->interact(&player, &levelSlot.field, false);
+        Interface res = x.o1->interact(&player, &levelSlot.field, &switchHandler);
         if(res.message != "") {
           message.addMessage(res.message);
         }
@@ -202,8 +203,9 @@ void MapData::event1Handle() {
         }
 
         if(x.o1->getStatus() == Object::Destroy) {
-          levelSlot.removeObject(x.o1);
-          remove = true;
+          //don't destroy the object yet, wait until the end of the process
+          //levelSlot.removeObject(x.o1);
+          //remove = true;
         }
         x.o1->updateDelta();
         player.updateDelta();
@@ -271,7 +273,7 @@ void MapData::event1Handle() {
         }
 
         if(!ignore) {
-          Interface res = (initiator?x.o2:x.o1)->interact((initiator?x.o1:x.o2), &levelSlot.field, false);
+          Interface res = (initiator?x.o2:x.o1)->interact((initiator?x.o1:x.o2), &levelSlot.field, &switchHandler);
           if(res.message != "") {
             message.addMessage(res.message);
           }
@@ -298,16 +300,24 @@ void MapData::event1Handle() {
       }
     }
 
+    for(unsigned i=0;i<levelSlot.getObjNum();i++) {
+      auto p = levelSlot.getObj(i);
+      if(p.getStatus() == Object::Destroy) {
+        levelSlot.removeObject(i);
+        i--;
+      }
+    }
 
-    std::cerr << '\n';
+    //std::cerr << '\n';
     if(interactions.empty() || n >= 6) {
-      // 50 is a hardcap for iterations, it may change
+      // the number is a hardcap for iterations, it may change
       // also break if the list remains identical for several iterations in a row
+      // i'm not sure what the best way to do this is...
       break;
     }
 
   }
-  std::cerr << "\x1b[H";
+  //std::cerr << "\x1b[H";
 
 
   //various player updates
@@ -327,7 +337,7 @@ void MapData::event1Handle() {
     levelSlot.displayUpdate = true;
 
   //levelSlot.handleEntities();
-  levelSlot.handleObjects(player.getPos(), player.getSize());
+  levelSlot.handleObjects(player.getPos(), player.getSize(), &switchHandler);
 
   // If player has died, display death screen and switch to mode 0 
   if(player.getHealth() == 0) {

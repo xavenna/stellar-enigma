@@ -143,7 +143,7 @@ int main() {
       for(int i=0;i<mapData.levelSlot.getObjNum();i++) {
         mapData.levelSlot.assignTextureToObject(i, textureCache);
         if(mapData.levelSlot.displayObject(i, mapData.player.getPos(), mapData.player.getSize())) {
-          window.draw(mapData.levelSlot.getObj(i));
+          window.draw(mapData.levelSlot.getObjRef(i));
         }
       }
 

@@ -8,6 +8,7 @@
 #include "spike.h"
 #include "toggle-block.h"
 #include "cutplay.h"
+#include "door.h"
 
 //! A class for holding the object list, as well as serving as an Object Factory
 /*!
@@ -16,8 +17,7 @@
  *  Objects can be returned by value, by pointer, or by reference, depending on situation
  */
 class ObjContainer {
-public:
-  //! Object type, used to create the appropriate type of object
+public: //! Object type, used to create the appropriate type of object
   enum Type {
     obj, //!< Basic object
     solid, //!< Solid object
@@ -27,7 +27,7 @@ public:
     cutscene_player, //!< Cutscene Player
     spike, //!< Damaging Object
     toggle_block, //!<two-state block, toggles upon player contact
-    spawner //!< Spawner, spawns objects on a schedule
+    door  //!< Block that toggles tangibility upon switch activation
   };
   //! Get reference to specified object
   Object& getObjRef(unsigned);
@@ -35,6 +35,8 @@ public:
   Object* getObjPtr(unsigned);
   //! Get copy of specified object
   Object getObj(unsigned) const;
+  //! Get pointer to obj by link id
+  Object* getObjByID(int);
   //! Create Object of specified type using arguments
   bool storeObj(sf::Vector2i, sf::Vector2i, int, int, bool, const std::string&, std::array<int, 8>, Type);
   //! Create empty Object of specified type
@@ -56,6 +58,8 @@ public:
 private:
   //! where pointers are stored internally; ObjContainer owns the objects
   std::deque<Object*> list;
+  //! Increments whenever an object is created, used to create unique identifiers
+  long unsigned counter;
 };
 
 //! Utility function to transform an id to a type

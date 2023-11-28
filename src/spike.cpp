@@ -1,10 +1,10 @@
 #include "spike.h"
 
-Spike::Spike() : Solid() {}
+Spike::Spike(int uid) : Solid(uid) {}
 Spike::Spike(Object ob) : Solid(ob) {}
-Spike::Spike(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a) : Solid(x, y, wid, hei, i, v, sol, txt, a) {}
+Spike::Spike(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a, int uid) : Solid(x, y, wid, hei, i, v, sol, txt, a, uid) {}
 
-Interface Spike::interact(Player* p, Field*, bool) {
+Interface Spike::interact(Player* p, Field*, SwitchHandler*) {
   sf::Vector2i pmin{p->getPos()};
   sf::Vector2i pmax{pmin+p->getSize()-sf::Vector2i(1,1)};
   sf::Vector2i plmin{p->getLastPos()};

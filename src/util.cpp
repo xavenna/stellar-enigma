@@ -13,6 +13,9 @@ bool isNum(const std::string& st) {
 bool isBool(const std::string& st) {
   return (st == "0" || st == "1");
 }
+bool isEmpty(char c) {
+  return (c == ' ' || c == '\t'); 
+}
 std::string lowercase(const std::string& in) {
   std::string e;
   for(auto x : in) {

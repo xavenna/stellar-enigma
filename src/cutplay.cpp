@@ -1,11 +1,11 @@
 #include "cutplay.h"
 
-CutPlay::CutPlay(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a) : Object(x, y, wid, hei, i, v, sol, txt, a) {
+CutPlay::CutPlay(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a, int uid) : Object(x, y, wid, hei, i, v, sol, txt, a, uid) {
   vars[0] = 0;
   args[1] = 30;
 }
 
-CutPlay::CutPlay() : Object() {
+CutPlay::CutPlay(int uid) : Object(uid) {
   vars[0] = 0;
   args[1] = 30;
 }
@@ -14,7 +14,7 @@ CutPlay::CutPlay(Object ob) : Object(ob) {
   args[1] = 30;
 }
 
-Interface CutPlay::interact(Player*, Field*, bool) {
+Interface CutPlay::interact(Player*, Field*, SwitchHandler*) {
   // play cutscene, nothing else (for now)
   if(!vars[0]) {
     if(args[0]) { 
@@ -33,7 +33,7 @@ Interface CutPlay::interact(Player*, Field*, bool) {
   }
 }
 
-Interface CutPlay::behave() {
+Interface CutPlay::behave(SwitchHandler*) {
   if(vars[0] > 0) {
     vars[0]--;
   }

@@ -1,12 +1,12 @@
 #include "pushable.h"
 
 
-Pushable::Pushable(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a) : Object(x, y, wid, hei, i, v, sol, txt, a) {}
-Pushable::Pushable() : Object() {}
+Pushable::Pushable(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a, int uid) : Object(x, y, wid, hei, i, v, sol, txt, a, uid) {}
+Pushable::Pushable(int uid) : Object(uid) {}
 Pushable::Pushable(Object ob) : Object(ob) {}
 
 
-Interface Pushable::interact(Player* p, Field* l, bool) {
+Interface Pushable::interact(Player* p, Field* l, SwitchHandler*) {
   //if the crate moves into the player, switch who moves
   sf::Vector2i pmin{p->getPos()};
   sf::Vector2i pmax{pmin+p->getSize()-sf::Vector2i(1,1)};
@@ -99,7 +99,7 @@ Interface Pushable::interact(Player* p, Field* l, bool) {
   }
 }
 
-Interface Pushable::interact(Object* p, Field* l, bool) {
+Interface Pushable::interact(Object* p, Field* l, SwitchHandler*) {
   //check what type the object is
   switch(p->Type()) {
     //can be pushed by entity and sliding

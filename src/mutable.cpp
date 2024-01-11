@@ -1,30 +1,6 @@
 #include "mutable.h"
 #include <iostream>
 
-int Mutable::getXPos() const{
-  std::clog << "This function xp is deprecated, please use the Vector2 version\n";
-  return pos.x;
-}
-int Mutable::getYPos() const{
-  std::clog << "This function yp is deprecated, please use the Vector2 version\n";
-  return pos.y;
-}
-int Mutable::getWidth() const{
-  std::clog << "This function sw is deprecated, please use the Vector2 version\n";
-  return size.x;
-}
-int Mutable::getHeight() const{
-  std::clog << "This function sh is deprecated, please use the Vector2 version\n";
-  return size.y;
-}
-int Mutable::getXScreen() const{
-  std::clog << "This function xs is deprecated, please use the Vector2 version\n";
-  return screen.x;
-}
-int Mutable::getYScreen() const{
-  std::clog << "This function ys is deprecated, please use the Vector2 version\n";
-  return screen.y;
-}
 bool Mutable::getSolid() const{
   return solid;
 }

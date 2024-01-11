@@ -1,7 +1,6 @@
 #include "pushable.h"
 
 
-Pushable::Pushable(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a, int uid) : Object(x, y, wid, hei, i, v, sol, txt, a, uid) {}
 Pushable::Pushable(int uid) : Object(uid) {}
 Pushable::Pushable(Object ob) : Object(ob) {}
 
@@ -67,7 +66,7 @@ Interface Pushable::interact(Player* p, Field* l, SwitchHandler*) {
 
     pos = pos+moveDistance;
     p->setPos(p->getPos() -(residSpeed - moveDistance));
-    return Interface(pos, "", "");
+    return Interface();
   }
   else {
     sf::Vector2i residSpeed;
@@ -95,7 +94,7 @@ Interface Pushable::interact(Player* p, Field* l, SwitchHandler*) {
     p->setPos(p->getPos() + moveDistance);
     //p->setPos(p->getPos() -(residSpeed - moveDistance));
     pos = pos - (residSpeed - moveDistance);
-    return Interface(p->getPos(), "", "");
+    return Interface();
   }
 }
 
@@ -131,7 +130,7 @@ Interface Pushable::interact(Object* p, Field* l, SwitchHandler*) {
       bool yInt = yAfter && !yBefore && ((xAfter && xBefore) || (!xBefore && xAfter));
 
       if(xInt && yInt) {
-        return Interface(pos, "", ""); //For now, diagonal interactions are ignored
+        return Interface(); //For now, diagonal interactions are ignored
       }
 
       sf::Vector2i residSpeed;
@@ -156,7 +155,7 @@ Interface Pushable::interact(Object* p, Field* l, SwitchHandler*) {
       p->setPos(p->getPos() -(residSpeed - moveDistance));
       break;
   }
-  return Interface(pos, "", "");
+  return Interface();
 }
 
 

@@ -14,13 +14,13 @@ InterfaceManager::InterfaceManager() : bd(sf::Vector2i(16,16)) {
 
 
  */
-sf::Vector2i InterfaceManager::initializeInterface(sf::Vector2i windowSize, int& msgOff, int& panOff, const Player* pl) {
+sf::Vector2i InterfaceManager::initializeInterface(sf::Vector2i windowSize, int& msgOff, int& panOff, const Player* pl, TextureCache* cache) {
   //initialize panel
   if(!pc.loadIcons("assets/interface/icons.txt")) {
     //error
     std::cout << "Error Loading panel icons\n";
   }
-  pc.updateIcons(pl);
+  pc.updateIcons(pl, cache);
   pc.createPanel();
   //determine panel size
   sf::Vector2i panelSize{pc.findPanelDimensions()};
@@ -62,8 +62,8 @@ sf::Vector2i InterfaceManager::initializeInterface(sf::Vector2i windowSize, int&
 
 }
 
-void InterfaceManager::updateInterface(const Player* p) {
-  pc.updateIcons(p);
+void InterfaceManager::updateInterface(const Player* p, TextureCache* cache) {
+  pc.updateIcons(p, cache);
 }
 void InterfaceManager::drawIcons(sf::RenderWindow& w) {
   //draw rectangles

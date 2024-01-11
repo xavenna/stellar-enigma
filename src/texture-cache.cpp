@@ -57,6 +57,7 @@ int TextureCache::objectFilenameHash(unsigned index) const {
   }
   return p;
 }
+
 int TextureCache::tileFilenameHash(unsigned index) const {
   if(index >= tileListing.size()) {
     std::cout << "Error: requested tile has no associated file\n";
@@ -64,6 +65,7 @@ int TextureCache::tileFilenameHash(unsigned index) const {
   }
   return reverseHash(tileListing[index]);
 }
+
 int TextureCache::entityFilenameHash(unsigned index) const {
   if(index >= entityListing.size()) {
     std::cout << "Error: requested entity has no associated file\n";
@@ -151,6 +153,7 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
         s.setPosition(finalImage.getSize().x/2.f, finalImage.getSize().y/2.f);
         s.setRotation(rotationAmount);
         tex.draw(s);
+        tex.display();
         finalImage = tex.getTexture().copyToImage();
 
       }
@@ -161,6 +164,33 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
         //not implemented
         std::cout << "Requested transformation has not been implemented yet\n";
         break;
+      case Transform::Add_Text:
+      {
+        //adds text at (arg0, arg1), with size arg2 [ and wrap width arg3, eventually]
+        sf::RenderTexture tex;
+        tex.create(finalImage.getSize().x, finalImage.getSize().y);
+
+        sf::Texture p;
+        p.loadFromImage(finalImage);
+        sf::Sprite s(p);
+        s.setPosition(0,0);
+
+        tex.draw(s);
+        sf::Text t;
+        sf::Font courier;  //this is quite inefficient
+        courier.loadFromFile("assets/cour.ttf");
+        t.setFont(courier);
+        t.setString(x.text);
+        t.setFillColor(sf::Color::White);
+        t.setCharacterSize(x.args[2]);
+        t.setPosition(x.args[0], x.args[1]);
+        tex.draw(t);
+        tex.display();
+        finalImage = tex.getTexture().copyToImage();
+
+        //implement wrapping later
+      }
+      break;
       default:
         //invalid transformation
         std::cout << "Error: invalid transformation. Skipped\n";

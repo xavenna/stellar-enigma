@@ -1,9 +1,5 @@
 #include "cutplay.h"
 
-CutPlay::CutPlay(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a, int uid) : Object(x, y, wid, hei, i, v, sol, txt, a, uid) {
-  vars[0] = 0;
-  args[1] = 30;
-}
 
 CutPlay::CutPlay(int uid) : Object(uid) {
   vars[0] = 0;
@@ -16,6 +12,7 @@ CutPlay::CutPlay(Object ob) : Object(ob) {
 
 Interface CutPlay::interact(Player*, Field*, SwitchHandler*) {
   // play cutscene, nothing else (for now)
+  Interface inter;
   if(!vars[0]) {
     if(args[0]) { 
       status = Destroy;
@@ -26,11 +23,9 @@ Interface CutPlay::interact(Player*, Field*, SwitchHandler*) {
 
     vars[0] = args[1];
     active = false;
-    return Interface(pos, "", text); 
+    inter.playCutscene(text);
   }
-  else {
-    return Interface(pos, "", "");
-  }
+  return inter;
 }
 
 Interface CutPlay::behave(SwitchHandler*) {
@@ -40,5 +35,5 @@ Interface CutPlay::behave(SwitchHandler*) {
   if(!vars[0]) {
     active = true;
   }
-  return Interface(pos, "", "");
+  return Interface();
 }

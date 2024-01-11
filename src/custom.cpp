@@ -1,16 +1,15 @@
 #include "stellar-enigma.hpp"
 #include "mapdata.h"
 #include "color.h"
+
 #include <algorithm>
 #include <functional>
 
 void MapData::customInit() {
   //std::cerr << "\x1b[2J";
   //initialize player
-  player.setXPos(32);
-  player.setYPos(32);
-  player.setWidth(16);
-  player.setHeight(16);
+  player.setPos(32,32);
+  player.setSize(sf::Vector2i(16,16));
   player.setSpeed(4);
   player.setHealth(5);
   //initialize some sound things
@@ -21,20 +20,31 @@ void MapData::customInit() {
   //initialize cutscene file
   cutsceneManager.loadCutscenes("default");
 
-  //setup main menu
-  mainMenu.spT.loadFromFile("assets/splash/mainmenu.png");
-  mainMenu.splash.setTexture(mainMenu.spT);
   modeSwitcher.setMode(0);
+
+  //this could probably be encapsulated into a Menu:: function.
+  mainMenu.baseImage = "blanksplash";
+  mainMenu.tList.clear();
+  Transform t;
+  t.type = Transform::Add_Text;
+  t.args[0] = 8; //change this once the texture base is made
+  t.args[1] = 0; //change this once the texture base is made
+  t.args[2] = 20; //size, tweak until it looks good
+  t.text = "Stellar Enigma Engine Test\n\nVersion v0-unstable\n\n\nCreated by xavenna";
+  mainMenu.tList.push_back(t);
+  mainMenu.onPress = 1;
 
   /// diagnostic information
 }
 
+// This is likely unnecessary
 void initialSetup(std::string& name, int& framerate) {
   name = "Stellar Enigma Engine Test";  //this is the name of the window
   framerate = 30;   //the framerate
 }
 
-int MapData::event0Handle() {  //this mode is used for the main menu
+// Handles events in mode 0 (menus and splash screens)
+int MapData::event0Handle() {
   sf::Keyboard::Key lk;
   while(modeSwitcher.getLastKey(lk)) {
     if(lk == sf::Keyboard::Enter) {
@@ -336,14 +346,20 @@ void MapData::event1Handle() {
   if(oldps != newps)
     levelSlot.displayUpdate = true;
 
-  //levelSlot.handleEntities();
-  levelSlot.handleObjects(player.getPos(), player.getSize(), &switchHandler);
+  levelSlot.handleObjects(player.getPos(), player.getSize(), &switchHandler, &message);
 
   // If player has died, display death screen and switch to mode 0 
   if(player.getHealth() == 0) {
     modeSwitcher.setMode(0);
-    mainMenu.spT.loadFromFile("assets/splash/deathscreen.png");
-    mainMenu.splash.setTexture(mainMenu.spT);
+    mainMenu.baseImage = "blanksplash";
+    mainMenu.tList.clear();
+    Transform t;
+    t.type = Transform::Add_Text;
+    t.text = "You Died :(\nPress Enter to Quit";
+    t.args[0] = 8; //change this once the texture base is made
+    t.args[1] = 0; //change this once the texture base is made
+    t.args[2] = 20; //size, tweak until it looks good
+    mainMenu.tList.push_back(t);
     mainMenu.onPress = -1;
   }
 }

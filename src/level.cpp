@@ -50,13 +50,6 @@ Object* Level::getObjPtr(unsigned ind) {
   return objects.getObjPtr(ind);
 }
 
-void Level::updateObj(unsigned index, const Object& ob) {
-  if(index >= objects.size()) {
-    throw std::invalid_argument("Level::updateObj() : Invalid index");
-  }
-  (objects.getObjRef(index)) = ob;
-}
-
 void Level::newReadyWindow(int xscr, int yscr) {
   //determine which screen to view
   int xwid = WINDOW_WIDTH-2;
@@ -118,9 +111,6 @@ void Level::updateWindowPos() {
     4       | unsigned int  :  height of sprites
     5,height| comma-delimited list  :  nodes of map
 */
-//format:
-// 1 char: [oe]; Object or Entity
-//if_o:  oxpos`ypos`width`height`solid?`id`value`collectable?`text
 
 int Level::loadLevel(const std::string& levelname) {
   // create the levelName
@@ -134,6 +124,7 @@ void Level::loadMutables(const std::string& levelname) {
   std::string line;
   std::string accum;
   Object o;  //these are defined now so they don't have to be every loop
+  std::string type;  //Type of requested object
   if(!get.is_open()) {
     throw 0;
   }
@@ -144,12 +135,20 @@ void Level::loadMutables(const std::string& levelname) {
     }
     //parse `line' as a mutable
 
-    if(!str2obj2(line, o)) {
-      std::cerr << "Error: Failed level load\n";
+    if(!str2obj2(line, o, type)) {
+      std::clog << "Error: Failed level load\n";
       return;
     }
-    o.setPosition(o.getPos().x+2*tilesizeX, o.getPos().y+2*tilesizeY);
-    objects.storeObj(o, getType(o.getId()));
+    if(!o.verify()) {
+      std::clog << "Error: Invalid object configuration in object of type '";
+      std::clog << o.Name() << "'. Object wasn't added\n";
+      continue;
+      //object isn't added
+    }
+    else {
+      o.setPosition(o.getPos().x+2*tilesizeX, o.getPos().y+2*tilesizeY);
+      objects.storeObj(o, type);
+    }
     
     
   }
@@ -276,8 +275,8 @@ int Level::advanceFrameCount() {
   
 }
 
-void Level::addObject(const Object& ob) {
-  objects.storeObj(ob, getType(ob.getId()));
+void Level::addObject(const Object& ob, const std::string& s) {
+  objects.storeObj(ob, s);
 }
 void Level::removeObject(unsigned index) {
   if(index >= objects.size()) {
@@ -297,12 +296,34 @@ void Level::resetObjDeltas() {
   }
 }
 
-void Level::handleObjects(sf::Vector2i pos, sf::Vector2i size, SwitchHandler* sh) {
+void Level::handleObjects(sf::Vector2i pos, sf::Vector2i size, SwitchHandler* sh, Message* m) {
   for(unsigned i=0;i<objects.size();i++) {
     Object* x = objects.getObjPtr(i);
     //do things for x.
-    x->behave(sh);
-    //eventually implement API backend for x->behave();
+    Interface res = x->behave(sh);
+
+    if(res.message != "") {
+      m->addMessage(res.message);
+    }
+    /* This function currently has no link to the cutscene machinery
+     * This needs to be established eventually.
+    if(res.cutscene != "") {
+      if(cutsceneManager.cutsceneExists(res.cutscene)) {
+        cutscenePlayer.loadCutscene(cutsceneManager.getCutscene(res.cutscene));
+      }
+      modeSwitcher.setMode(2);
+    }
+    */
+
+    for(auto y : res.objs) {
+      //create any requested objects
+      objects.storeObj(y.first, y.second);
+    }
+
+    for(auto y : res.notifications) {
+      //send any required messages
+      objects.notify(y);
+    }
 
     
     sf::Vector2i mid(pos.x+size.x/2, pos.y+size.y/2);
@@ -529,6 +550,8 @@ sf::Vector2i Level::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i 
   
   //make sure to prevent player becoming trapped inside a solid object
   
+  //I'm pretty sure this code is vestigial, as the interaction handler supercedes this.
+  /*
   sf::Vector2i ts = moveDistance;
   for(int i=0;i<static_cast<int>(objects.size());i++) {
     auto x = objects.getObj(i);
@@ -572,10 +595,11 @@ sf::Vector2i Level::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i 
       break;
     }
   }
+  */
   return fullMove ? speed : moveDistance;
 }
 
-bool str2obj2(const std::string& line, Object& obj) {
+bool str2obj2(const std::string& line, Object& obj, std::string& objType) {
   //parse line. Break into bracketed sections, and interpret each as a vect of strings
   //check if each group has a valid identifier. If so, check if argument list is valid
   //If so, write valus to variables.
@@ -632,18 +656,29 @@ bool str2obj2(const std::string& line, Object& obj) {
         accum.clear();
         inField = true;
       }
-      else if(y == ',') {
+      else if(y == ',') {  // check if it's wrapped in a string
         if(!inField) {
           //text field
           //the entire field, except the final char, is placed in id
           attribs.back().id = x.substr(0, x.size()-1);
           break;
         }
-        if(!isNum(accum)) {
+        if(accum[0] == '"') { //argument is a string
+          if(accum.back() != '"') {
+            std::cerr << "Error: unterminated string constant in object list\n";
+            return false;
+          }
+          accum=accum.substr(1);
+          attribs.back().textArg = accum.substr(0,accum.size()-1);
+
+        }
+        else if(!isNum(accum)) {
           std::cerr << "Error: non-numeric arg '"<<accum<<"' in field\n";
           return false;
         }
-        attribs.back().args.push_back(std::stoi(accum));
+        else {
+          attribs.back().args.push_back(std::stoi(accum));
+        }
         accum.clear();
       }
       else {
@@ -659,6 +694,7 @@ bool str2obj2(const std::string& line, Object& obj) {
   sf::Vector2i pos{0,0};
   sf::Vector2i size{0,0};
   std::string text;
+  std::string objClass;
   int type=-1;
   int parent=-1;
   int link=-1;
@@ -740,6 +776,14 @@ bool str2obj2(const std::string& line, Object& obj) {
       //select object type
       tex = x.args[0];
     }
+    else if(x.id == "c") {
+      if(x.textArg.size() == 0) {
+        //null id, fail
+        std::clog << "Error: c field requires a non-empty string\n";
+        return false;
+      }
+      objClass = x.textArg;
+    }
     else {
       //invalid, or text
       if(x.args.size() == 0) {
@@ -761,111 +805,7 @@ bool str2obj2(const std::string& line, Object& obj) {
   obj.setPos(pos);
   obj.setSize(size);
   obj.setText(text);
+  objType = objClass;
   return true;
 }
 
-//this is now deprecated, but retained for compatibility
-bool str2obj(const std::string& line, Object& obj) {
-
-  //#oxpos`ypos`width`height`solid?`id`value`collectable?`args-csv`text
-  int field = 0;  
-  std::string accum;
-  for(auto x : line) {
-    if(x == '`') {
-      //add accum to appropriate field
-      switch(field) {
-      case 0:
-        if(!isNum(accum)) {
-          return false;
-        }
-        else {
-          obj.setXPos(std::stoi(accum));
-        }
-        break;
-      case 1:
-        if(!isNum(accum)) {
-          return false;
-        }
-        else {
-          obj.setYPos(std::stoi(accum));
-        }
-        break;
-      case 2:
-        if(!isNum(accum)) {
-          return false;
-        }
-        else {
-          obj.setWidth(std::stoi(accum));
-        }
-        break;
-      case 3:
-        if(!isNum(accum)) {
-          return false;
-        }
-        else {
-          obj.setHeight(std::stoi(accum));
-        }
-        break;
-      case 4:
-        //this should be a bool
-        if(!isBool(accum)) {
-          return false;
-        }
-        else {
-          obj.setSolid(std::stoi(accum));
-        }
-        break;
-      case 5:
-        if(!isNum(accum)) {
-          return false;
-        }
-        else {
-          obj.setId(std::stoi(accum));
-        }
-        break;
-      case 6:
-        if(!isNum(accum)) {
-          return false;
-        }
-        else {
-          obj.setValue(std::stoi(accum));
-        }
-        break;
-      case 7:
-        //parse as a list of 8 comma-delimited integers
-        {
-          std::vector<std::string> a;
-          std::array<int, 8> args;
-          parse(accum, a, ",");
-          if(a.size() != 8) {
-            std::clog << "Error: Wrong number of arguments in mutable list\n";
-            return false;
-          }
-          for(unsigned i=0;i<8;i++) {
-            if(!isNum(a[i])) {
-              std::clog << "Error: non-number argument in object arguments in mutable list\n";
-              return false;
-            }
-            args[i] = std::stoi(accum);
-          }
-          
-          obj.setArgs(args);
-        }
-        break;
-      case 8:
-        obj.setText(accum);
-        break;
-      default:
-        //invalid field
-        throw -2;  //error: nonexistent field
-        break;
-      }
-      field++;
-      accum.clear();
-    }
-    else {
-      accum += x;
-    }
-  }
-  return true;
-}

@@ -1,6 +1,5 @@
 #include "solid.h"
 
-Solid::Solid(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a, int uid) : Object(x, y, wid, hei, i, v, sol, txt, a, uid) {}
 Solid::Solid(int uid) : Object(uid) {}
 Solid::Solid(Object ob) : Object(ob) {}
 
@@ -47,22 +46,9 @@ Interface Solid::interact(Object* p, Field*, SwitchHandler*) {
       if(yInt && pmin.y > omin.y) {
         p->setYPos(pos.y+size.y);
       }
-
-      if(xInt && pmin.x < omin.x) {
-        return Interface(sf::Vector2i(pos.x-p->getSize().y, p->getPos().y), "", "");
-      }
-      if(yInt && pmin.y < omin.y) {
-        return Interface(sf::Vector2i(p->getPos().y, pos.y-p->getSize().x), "", "");
-      }
-      if(xInt && pmin.x > omin.x) {
-        return Interface(sf::Vector2i(pos.x+size.x, p->getPos().y), "", "");
-      }
-      if(yInt && pmin.y > omin.y) {
-        return Interface(sf::Vector2i(p->getPos().x, pos.y+size.y), "", "");
-      }
   }
 
-  return Interface(p->getPos(), "", "");
+  return Interface();
   
 }
 
@@ -102,20 +88,7 @@ Interface Solid::interact(Player* p, Field*, SwitchHandler*) {
     p->setYPos(pos.y+size.y);
   }
 
-  if(xInt && pmin.x < omin.x) {
-    return Interface(sf::Vector2i(pos.x-p->getSize().y, p->getPos().y), "", "");
-  }
-  if(yInt && pmin.y < omin.y) {
-    return Interface(sf::Vector2i(p->getPos().y, pos.y-p->getSize().x), "", "");
-  }
-  if(xInt && pmin.x > omin.x) {
-    return Interface(sf::Vector2i(pos.x+size.x, p->getPos().y), "", "");
-  }
-  if(yInt && pmin.y > omin.y) {
-    return Interface(sf::Vector2i(p->getPos().x, pos.y+size.y), "", "");
-  }
-
-  return Interface(p->getPos(), "", "");
+  return Interface();
 }
 
 
@@ -135,5 +108,5 @@ CacheNodeAttributes Solid::draw(const TextureCache* cache) {
 
 Interface Solid::behave(SwitchHandler*) {
   //no special behaviors
-  return Interface(pos, "", "");
+  return Interface();
 }

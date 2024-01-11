@@ -55,6 +55,11 @@ void ObjContainer::removeObj(unsigned ind) {
   if(list[ind]->getParentID() != -1) {
     //object has a parent. Notify
     //find object
+    //generate a msg
+    msg m;
+    m.type = 'd';
+    
+    getObjByID(list[ind]->getParentID())->notify(m);
   }
   delete list[ind];
   list.erase(p);
@@ -72,6 +77,11 @@ void ObjContainer::removeObj(Object* ob) {
     if(ob->getParentID() != -1) {
       //object has a parent. Notify
       //find object
+      //generate a msg
+      msg m;
+      m.type = 'd';
+      
+      ob->notify(m);
     }
     delete ob;
     list.erase(p);
@@ -79,7 +89,20 @@ void ObjContainer::removeObj(Object* ob) {
   
 }
 
+bool ObjContainer::notify(msg m) {
+  //check if an object with m.link is present.
+  for(auto x : list) {
+    if(x->getLinkID() == m.link) {
+      x->notify(m);
+      return true;
+    }
+  }
+  return false;
+}
+
+
 // this is kind of janky...see if there's a better way to do this
+// Deprecated
 ObjContainer::Type getType(unsigned p) {
   switch(p) {
   case 0:
@@ -102,113 +125,60 @@ ObjContainer::Type getType(unsigned p) {
     return ObjContainer::obj;
   }
 }
-bool ObjContainer::storeObj(Object ob, ObjContainer::Type t) {
-  //this could possibly be optimised
-  switch(t) {
-  case ObjContainer::obj:
-    list.push_back(new Object(ob));
-    break;
-  case ObjContainer::solid:
-    list.push_back(new Solid(ob));
-    break;
-  case ObjContainer::pushable:
-    list.push_back(new Pushable(ob));
-    break;
-  case ObjContainer::key:
-    list.push_back(new Key(ob));
-    break;
-  case ObjContainer::board:
-    list.push_back(new Board(ob));
-    break;
-  case ObjContainer::cutscene_player:
-    list.push_back(new CutPlay(ob));
-    break;
-  case ObjContainer::spike:
-    list.push_back(new Spike(ob));
-    break;
-  case ObjContainer::toggle_block:
-    list.push_back(new ToggleBlock(ob));
-    break;
-  case ObjContainer::door:
-    list.push_back(new Door(ob));
-    break;
-  default:
-    std::clog << "Error: Invalid object type\n";
-    return false;
-  }
-  return true;
-}
 
-
-bool ObjContainer::storeObj(sf::Vector2i pos, sf::Vector2i size, int id, int val, bool s, const std::string& tex, std::array<int, 8> args, ObjContainer::Type t) {
-  switch(t) {
-  case ObjContainer::obj:
-    list.push_back(new Object(pos.x, pos.y, size.x, size.y, id, val, s, tex, args, counter));
-    break;
-  case ObjContainer::solid:
-    list.push_back(new Solid(pos.x, pos.y, size.x, size.y, id, val, s, tex, args, counter));
-    break;
-  case ObjContainer::pushable:
-    list.push_back(new Pushable(pos.x, pos.y, size.x, size.y, id, val, s, tex, args, counter));
-    break;
-  case ObjContainer::key:
-    list.push_back(new Key(pos.x, pos.y, size.x, size.y, id, val, s, tex, args, counter));
-    break;
-  case ObjContainer::board:
-    list.push_back(new Board(pos.x, pos.y, size.x, size.y, id, val, s, tex, args, counter));
-    break;
-  case ObjContainer::cutscene_player:
-    list.push_back(new CutPlay(pos.x, pos.y, size.x, size.y, id, val, s, tex, args, counter));
-    break;
-  case ObjContainer::spike:
-    list.push_back(new Spike(pos.x, pos.y, size.x, size.y, id, val, s, tex, args, counter));
-    break;
-  case ObjContainer::toggle_block:
-    list.push_back(new ToggleBlock(pos.x, pos.y, size.x, size.y, id, val, s, tex, args, counter));
-    break;
-  case ObjContainer::door:
-    list.push_back(new Door(pos.x, pos.y, size.x, size.y, id, val, s, tex, args, counter));
-    break;
-  default:
-    std::clog << "Error: Invalid object type\n";
-    return false;
-  }
-  counter++;
-  return true;
-}
-bool ObjContainer::storeObj(ObjContainer::Type t) {
-  switch(t) {
-  case ObjContainer::obj:
+bool ObjContainer::storeObj(Object ob, std::string t) {
+  if(t == "obj") {
     list.push_back(new Object(counter));
-    break;
-  case ObjContainer::solid: 
+  }
+  else if(t == "solid") {
     list.push_back(new Solid(counter));
-    break;
-  case ObjContainer::pushable:
+  }
+  else if(t == "pushable") {
     list.push_back(new Pushable(counter));
-    break;
-  case ObjContainer::key:
+  }
+  else if(t == "key") {
     list.push_back(new Key(counter));
-    break;
-  case ObjContainer::board:
+  }
+  else if(t == "board") {
     list.push_back(new Board(counter));
-    break;
-  case ObjContainer::cutscene_player:
+  }
+  else if(t == "cutscene_player") {
     list.push_back(new CutPlay(counter));
-    break;
-  case ObjContainer::spike:
+  }
+  else if(t == "spike") {
     list.push_back(new Spike(counter));
-    break;
-  case ObjContainer::toggle_block:
+  }
+  else if(t == "toggle_block") {
     list.push_back(new ToggleBlock(counter));
-    break;
-  case ObjContainer::door:
+  }
+  else if(t == "door") {
     list.push_back(new Door(counter));
-    break;
-  default:
+  }
+  else {
     std::clog << "Error: Invalid object type\n";
     return false;
   }
+  //copy all externally-set attributes of the passed object to list.back();
+  list.back()->setLinkID(ob.getLinkID());
+  list.back()->setTextureID(ob.getTextureID());
+  list.back()->setParentID(ob.getParentID());
+  list.back()->setId(ob.getId());
+  
+  list.back()->setPos(ob.getPos());
+  list.back()->setSize(ob.getSize());
+  list.back()->setSolid(ob.getSolid());
+  list.back()->setText(ob.getText());
+  //list.back()->setActive(ob.getActive());
+  //active is set to true in the object constructor, so this isn't needed now.
+
+
+  list.back()->setArgs(ob.getArgs());
+  list.back()->setSwitches(ob.getSwitches());
   counter++;
   return true;
+}
+
+bool ObjContainer::storeObj(std::string t) {
+  Object o;
+  return storeObj(o, t);
 }

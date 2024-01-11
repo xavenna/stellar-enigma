@@ -2,7 +2,6 @@
 
 Spike::Spike(int uid) : Solid(uid) {}
 Spike::Spike(Object ob) : Solid(ob) {}
-Spike::Spike(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a, int uid) : Solid(x, y, wid, hei, i, v, sol, txt, a, uid) {}
 
 Interface Spike::interact(Player* p, Field*, SwitchHandler*) {
   sf::Vector2i pmin{p->getPos()};
@@ -50,7 +49,7 @@ Interface Spike::interact(Player* p, Field*, SwitchHandler*) {
       p->damaged = true;
     }
   }
-  return Interface(pos, "", "");
+  return Interface();
 }
 
 CacheNodeAttributes Spike::draw(const TextureCache* cache) {

@@ -32,7 +32,7 @@ public:
    *  For each icon contained within, the function uses the icon's 'callback' element to
    *  determine which function to use to update the icon.
    */
-  void updateIcons(const Player*);
+  void updateIcons(const Player*, TextureCache*);
   //! Draws all icons to the passed RenderWindow
   void drawIcons(sf::RenderWindow&);
   //! Empty constructor

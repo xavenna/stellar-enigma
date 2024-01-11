@@ -2,10 +2,27 @@
 #include <iostream>
 
 
-Interface::Interface(sf::Vector2i p, std::string mes, std::string cut) : pos{p}, message{mes}, cutscene{cut} {}
-Interface::Interface(sf::Vector2i p, std::string mes, std::string cut, std::vector<Object> obj) : pos{p}, message{mes}, cutscene{cut}, objs{obj} {}
 
-Interface::Interface() : pos{0,0} {}
+Interface::Interface() {}
+
+
+
+void Interface::addMessage(const std::string& m) {
+  message = m;
+}
+void Interface::playCutscene(const std::string& c) {
+  cutscene = c;
+}
+void Interface::playSound(const std::string& s) {
+  sounds.push_back(s);
+}
+void Interface::spawnObject(Object o, const std::string& s) {
+  objs.push_back(std::pair(o, s));
+}
+
+void Interface::notify(msg m) {
+  notifications.push_back(m);
+}
 
 bool Object::getActive() const {
   return active;
@@ -43,16 +60,6 @@ int Object::getUID() const {
   return unique_id;
 }
 
-//deprecated
-int Object::getValue() const{
-  std::clog << "Object::getValue() is deprecated\n";
-  return value;
-}
-void Object::setValue(int n) {
-  std::clog << "Object::setValue() is deprecated\n";
-  value = n;
-}
-
 void Object::setArg(std::size_t slot, int v) {
   if(slot > args.size()) {
     std::cerr << "Error: out-of-bounds object argument assignment\n";
@@ -72,6 +79,9 @@ int Object::getArg(std::size_t slot) const {
 std::array<int, 8> Object::getArgs() const {
   return args;
 }
+std::array<int, 8> Object::getSwitches() const {
+  return switches;
+}
 int Object::getStatus() const {
   return status;
 }
@@ -84,44 +94,17 @@ void Object::setArgs(std::array<int, 8> a) {
 void Object::setSwitches(std::array<int, 8> s) {
   switches = s;
 }
+void Object::setSwitch(unsigned index, int value) {
+  if(index >= 8) {
+    std::clog << "Error: out-of-bounds switch assignment. Ignored\n";
+    return;
+  }
+  switches[index] = value;
+}
 void Object::setText(const std::string& n) {
   text = n;
 }
-Object::Object(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt) : text{txt}, unique_id{-1} {
-  std::clog << "This constructor variant is deprecated\n";
-  pos.x = x;
-  pos.y = y;
-  size.x = wid;
-  size.y = hei;
-  id = i;
-  value = v;
-  solid = sol;
-}
-Object::Object(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a) : text{txt}, unique_id{-1} {
-  std::clog << "This constructor variant is deprecated\n";
-  pos.x = x;
-  pos.y = y;
-  size.x = wid;
-  size.y = hei;
-  id = i;
-  value = v;
-  solid = sol;
-  args = a;
-  active = true;
-}
-Object::Object(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a, int uid) : text{txt}, unique_id{uid} {
-  pos.x = x;
-  pos.y = y;
-  size.x = wid;
-  size.y = hei;
-  id = i;
-  value = v;
-  solid = sol;
-  args = a;
-  active = true;
-}
-
-Object::Object() : unique_id{-1} {
+Object::Object() {
   pos.x = 0;
   pos.y = 0;
   size.x = 0;
@@ -132,28 +115,24 @@ Object::Object() : unique_id{-1} {
 }
 
 Object::Object(int uid) : unique_id{uid} {
-  pos.x = 0;
-  pos.y = 0;
-  size.x = 0;
-  size.y = 0;
-  id = 0;
-  solid = false;
+  Object();
   active = true;
 }
 
+
 Interface Object::interact(Player*, Field*, SwitchHandler*) {
   // do absolutely nothing by default
-  return Interface(pos, "", "");
+  return Interface();
 }
 
 Interface Object::interact(Object*, Field*, SwitchHandler*) {
   //do absolutely nothing by default
-  return Interface(pos, "", "");
+  return Interface();
 }
 
 Interface Object::behave(SwitchHandler*) {
   // do absolutely nothing by default
-  return Interface(pos, "", "");
+  return Interface();
 }
 
 CacheNodeAttributes Object::draw(const TextureCache* cache) {

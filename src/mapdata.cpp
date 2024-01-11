@@ -29,3 +29,11 @@ void MapData::handleEvents() {
 
   }
 }
+
+unsigned long MapData::getFrameCount() const {
+  return frameCount;
+}
+
+void MapData::finishFrame() {
+  frameCount++;
+}

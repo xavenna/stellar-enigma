@@ -3,18 +3,18 @@
 
 Key::Key(int uid) : Object(uid) {}
 Key::Key(Object ob) : Object(ob) {
-  std::cout << switches[SW::Act1] << '\n';
+
 }
-Key::Key(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a, int uid) : Object(x, y, wid, hei, i, v, sol, txt, a, uid) {}
 
 
 Interface Key::interact(Player*, Field*, SwitchHandler* sh) {
+  Interface inter;
   // once keys are a thing that the player can collect, this will increment key count
   // trigger key switch
-  std::cout << switches[SW::Act1] << '\n';
   sh->write(switches[SW::Act1], true);
   status = Destroy;
-  return Interface(pos, "", "key");
+  inter.playCutscene("key");
+  return Interface();
 }
 
 CacheNodeAttributes Key::draw(const TextureCache* cache) {

@@ -39,21 +39,21 @@ void PanelCreator::createPanel() {
 }
 
 
-void PanelCreator::updateIcons(const Player* p) {
+void PanelCreator::updateIcons(const Player* p, TextureCache* cache) {
   for(auto& x : icons) {
     x.update();
     x.setSize(x.getTexture()->getSize());
     x.setTexture(x.tex);
   }
   for(auto& x : picons) {
-    x.update(p);
+    x.update(p, cache);
     x.setSize(x.getTexture()->getSize());
-    x.setTexture(x.tex);
+    x.setTexture(x.tex, cache);
   }
 }
 
 bool PanelCreator::isValidCallback(const std::string& call) {
-  std::vector<std::string> calls = {"null", "playerNull", "playerHealth"};
+  std::vector<std::string> calls = {"null", "playerNull", "playerHealth", "playerScore"};
   return std::find(calls.begin(), calls.end(), call) != calls.end();
   //yes, this is almost surely not the best way to do this, but it is simple
 }

@@ -30,9 +30,9 @@ public:
    *  Parameters: windowSize: size of the Gameplay window, in pixels
    *  Returns a sf::Vector2i which represents the size of the interface, in pixels.
    */
-  sf::Vector2i initializeInterface(sf::Vector2i, int& msgOff, int& panOff, const Player*);
+  sf::Vector2i initializeInterface(sf::Vector2i, int& msgOff, int& panOff, const Player*, TextureCache*);
   //! Updates the interface, specifically the PanelCreator.
-  void updateInterface(const Player*);
+  void updateInterface(const Player*, TextureCache*);
 private:
   PanelCreator pc;
   BorderDrawer bd;

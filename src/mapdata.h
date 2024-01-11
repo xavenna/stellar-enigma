@@ -9,9 +9,10 @@
 #include "message.h"
 #include "cutscene-manager.h"
 #include "switch-handler.h"
+#include "utility.h"
 //! Mapdata is the class that encapsulates all level components
 /*!
- *  It is passed to the functions found in custom.cpp to make the code cleaner
+ * Provides a convenient encapsulation of all level components.
  */
 class MapData {
 public:
@@ -24,6 +25,7 @@ public:
   CutscenePlayer cutscenePlayer; //!< A reference to the cutscene player
   CutsceneManager cutsceneManager; //!< A reference to the cutscene manager
   SwitchHandler switchHandler;
+  Utility utility; //!< A utility provider, contains miscellaneous useful functions
   //! Any custom initialization behavior goes here
   void customInit();  
   //! Handles events if the engine is in mode 0
@@ -38,7 +40,13 @@ public:
   void event4Handle();
   //! Event handler wrapper function
   void handleEvents();
+  //! Wraps up the frame, executed once at the end
+  void finishFrame();
+  //! Gets the current frame number
+  unsigned long getFrameCount() const;
   //! The contructor takes several parameters for the members
   MapData(unsigned pCool, unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSize);
+private:
+  unsigned long frameCount=0;
 };
 #endif

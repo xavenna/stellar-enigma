@@ -9,8 +9,8 @@ public:
   using Object::interact;
   virtual Interface interact(Player*, Field*, SwitchHandler*);
   virtual CacheNodeAttributes draw(const TextureCache*);
+  virtual std::string Name() {return "board";}
   virtual int Type() {return Object::Intangible;} 
-  Board(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8>, int);
   Board(int);
   Board(Object);
 };

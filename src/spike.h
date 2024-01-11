@@ -9,8 +9,8 @@ public:
   virtual int Type() {return Object::Static;} 
   virtual Interface interact(Player*, Field*, SwitchHandler*);
   virtual CacheNodeAttributes draw(const TextureCache*);
+  virtual std::string Name() {return "spike";}
   virtual int priority() {return 0;} //0 is highest, decreases counting up
-  Spike(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8>, int);
   Spike(int);
   Spike(Object);
 };

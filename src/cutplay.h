@@ -9,7 +9,7 @@ public:
   virtual int Type() {return Object::Intangible;} 
   virtual Interface interact(Player*, Field*, SwitchHandler*);
   virtual Interface behave(SwitchHandler*);
-  CutPlay(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8>, int);
+  virtual std::string Name() {return "cutscene_player";}
   CutPlay(int);
   CutPlay(Object);
 };

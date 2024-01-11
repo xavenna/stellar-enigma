@@ -19,26 +19,10 @@ protected:
   bool solid; //!< Whether other mutables can pass through the mutable
 public:
 
+  //! Deprecated
   int behaviorType;
 	
-  //these are deprecated, and will likely be removed eventually
 
-  //! Get the x position of the mutable
-  int getXPos() const;
-  //! Get the y position of the mutable
-  int getYPos() const;
-  //! Get the width of the mutable
-  int getWidth() const;
-  //! get the height of the mutable
-  int getHeight() const;
-  //! get the x-screen of the mutable
-  int getXScreen() const;
-  //! get the y-screen of the mutable
-  int getYScreen() const;
-
-
-  //! Get the solidity of the mutable
-  bool getSolid() const;
   //! get the position of the mutable as a sf::Vector2i
   sf::Vector2i getPos() const;
   //! get the last position of the mutable as a sf::Vector2i
@@ -64,12 +48,13 @@ public:
   //! set the screen-pos of the mutable as a sf::Vector2i
   void setScreen(sf::Vector2i);
 
+
+  //! set both x and y position of the mutable
+  void setPos(const int&, const int&);
   //! set the x position of the mutable
   void setXPos(const int&);
   //! set the y position of the mutable
   void setYPos(const int&);
-  //! set both x and y position of the mutable
-  void setPos(const int&, const int&);
   //! set the width of the mutable
   void setWidth(const int&);
   //! set the height of the mutable
@@ -78,8 +63,11 @@ public:
   void setXScreen(const int&);
   //! set the y screen of the mutable
   void setYScreen(const int&);
+
   //! set the solidity of the mutable
   void setSolid(const bool&);
+  //! Get the solidity of the mutable
+  bool getSolid() const;
 };
 
 #endif

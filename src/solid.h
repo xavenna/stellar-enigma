@@ -10,9 +10,9 @@ public:
   virtual Interface interact(Object*, Field*, SwitchHandler*);
   virtual CacheNodeAttributes draw(const TextureCache*);
   virtual Interface behave(SwitchHandler*);
+  virtual std::string Name() {return "solid";}
   virtual int priority() {return 0;}
   virtual int Type() {return Object::Static;} 
-  Solid(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8>, int);
   Solid(int);
   Solid(Object);
 };

@@ -2,11 +2,13 @@
 
 Board::Board(int uid) : Object(uid) {}
 Board::Board(Object ob) : Object(ob) {}
-Board::Board(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a, int uid) : Object(x, y, wid, hei, i, v, sol, txt, a, uid) {}
 
 
 Interface Board::interact(Player*, Field*, SwitchHandler*) {
-  return Interface(pos, text, "");
+  Interface inter;
+  inter.addMessage(text);
+  return inter;
+
 }
 
 CacheNodeAttributes Board::draw(const TextureCache* cache) {

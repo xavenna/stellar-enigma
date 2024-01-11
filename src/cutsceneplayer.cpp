@@ -92,11 +92,13 @@ bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le, MusicPlayer& 
     break;
   case Event::ObjectPlace:
     //place object
+    std::clog << "The Event::ObjectPlace event type is deprecated\n";
 
     //create object
     //add it to list
-    le.addObject(Object(e[0], e[1], e[2], e[3], e[4], e[5], e[6], e.getText()));
-    timer = e.getDuration();
+    //DEPRECATED
+    //le.addObject(Object(e[0], e[1], e[2], e[3], e[4], e[5], e[6], e.getText()));
+    //timer = e.getDuration();
     break;
   case Event::MessageDisplay:
     //display message
@@ -129,8 +131,7 @@ bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le, MusicPlayer& 
     //load a new map
     le.loadLevel(e.getText());
     cm.loadCutscenes(e.getText());
-    pl.setXPos(e[0]);
-    pl.setYPos(e[1]);
+    pl.setPos(e[0],e[1]);
     break;
   case Event::Invalid:
   default:

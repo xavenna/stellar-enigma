@@ -36,6 +36,8 @@ doc/html
 
 # Assets (for now)
 assets/
+# Misc
+src/ytg-objects/
 # Unused files
 unused/
 

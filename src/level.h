@@ -11,6 +11,7 @@
 #include "field.h"
 #include "obj-container.h"
 #include "switch-handler.h"
+#include "message.h"
 
 //! A utility class that represents an interaction
 /*!
@@ -21,7 +22,10 @@
 struct ObjAttr {
   std::string id;
   std::vector<int> args;
+  std::string textArg;
 };
+
+//! A utility class representing an object. Should probably be improveed later.
 class Inter {
 public:
   Inter(Object*, const Player&); //!< Use for player-object interactions
@@ -44,7 +48,6 @@ public:
 class Level {
 private:
   ObjContainer objects; //!< The object factory/container
-  //std::vector<Object> objectList; //!< A list of objects found in the map
   unsigned tilesizeX;  //!< The width of a tile, in pixels
   unsigned tilesizeY;  //!< The height of a tile, in pixels
   int winOffX = 0;
@@ -60,8 +63,6 @@ public:
   Object& getObjRef(unsigned);
   //! returns a pointer to specified object
   Object* getObjPtr(unsigned);
-  //! updates specified object with passed object
-  void updateObj(unsigned index, const Object&);
   //! a fixed-size map that is actually drawn to the screen
   std::array<std::array<MapNode, WINDOW_HEIGHT>, WINDOW_WIDTH> window;
   //! overwrites the mapnode at position x,y with node
@@ -99,8 +100,8 @@ public:
   //! gets the number of objects
   unsigned getObjNum() const;
 
-  //! Adds passed Object to objectList
-  void addObject(const Object& ob);
+  //! Adds passed Object to objectList, as specified type. Deprecated
+  void addObject(const Object& ob, const std::string&);
   //! Removes specified object from object list
   void removeObject(unsigned index);
   //! Remove object by pointer to it
@@ -112,7 +113,7 @@ public:
   /*!
    *  Updates entity tile positions
    */
-  void handleObjects(sf::Vector2i pos, sf::Vector2i size, SwitchHandler*);
+  void handleObjects(sf::Vector2i pos, sf::Vector2i size, SwitchHandler*, Message*);
   //! Resets last pos for objects
   void resetObjDeltas();
   //! Tells whether object is on the correct screen to be displayed
@@ -139,7 +140,7 @@ public:
 //! creates an object from a string representation of an object. Kept for compatibility
 bool str2obj(const std::string& line, Object& node);
 //! new version of str2obj2, for new object format.
-bool str2obj2(const std::string& line, Object& node);
+bool str2obj2(const std::string& line, Object& node, std::string&);
 
 bool checkInteraction(Object*, Object*);
 #endif

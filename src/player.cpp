@@ -28,9 +28,9 @@ void Player::update(sf::Vector2i tilesize) {
 
 } // I know this is kind of spaghetti, but it works
 
+//make this match the format of Object::Draw
 void Player::assignTexture(TextureCache& cache) {
   CacheNodeAttributes cna;
-  // player sprite is categorized as an entity
   int s = cache.reverseHash("star");
   if(s < 0) {
     std::clog << "Error: player sprite not found\n";
@@ -71,8 +71,14 @@ void Player::resetCooldown() {
 unsigned Player::modifyHealth(int h) {
   return int(health)+h<0?0:(health+=h);
 }
-unsigned Player::getHealth() {
+unsigned Player::getHealth() const {
   return health;
+}
+unsigned Player::modifyScore(int s) {
+  return int(score)+s<0?0:(score+=s);
+}
+unsigned Player::getScore() const{
+  return score;
 }
 
 void Player::setSpeed(int n) {
@@ -99,9 +105,6 @@ int Player::getSpeed() const {
 void Player::setHealth(int n) {
   health = n;
 }
-int Player::getHealth() const{
-  return health;
-}
 void Player::setFacing(Direction n) {
   facingDir = n;
 }
@@ -109,11 +112,16 @@ Direction Player::getFacing() const{
   return facingDir;
 }
 int Player::getLevelXPos(int tileWidth) {
+  std::clog << "Player::getLevelXPos() is deprecated, use getLevelPos instead\n";
   //player width maybe needs to be substituted for tileWidth
   int temp = int((pos.x+(tileWidth / 2)) / tileWidth);
   return temp;
 }
 int Player::getLevelYPos(int tileHeight) {
+  std::clog << "Player::getLevelYPos() is deprecated, use getLevelPos instead\n";
   int temp = int((pos.y+(tileHeight / 2)) / tileHeight);
   return temp;
+}
+sf::Vector2i Player::getLevelPos(sf::Vector2i tileSize) {
+  return sf::Vector2i( ((pos.x+ (tileSize.x / 2)) / tileSize.x), ((pos.y+ (tileSize.y / 2)) / tileSize.y));
 }

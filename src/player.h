@@ -7,25 +7,31 @@
 #include "texture-cache.h"
 
 //! Class used for player
-/*! *  A special extension of mutable that works specifically for player.
+/*!
+ *  A special extension of mutable that works specifically for player.
+ *  Can directly respond to keyboard inputs
  */
 class Player : public Mutable {
-protected:
-  //sf::Texture picture; //!< I don't remember what this is used for
-  int speed; //!< How many pixels the player can move per frame
-  unsigned maxCooldown=0; //!< Number of invincibility frames
-  unsigned cooldown=0; //!< Remaining invincibility frames
-  unsigned health=0; //!< The player's health
-  Direction facingDir; //!< Which direction the player is facing
-  std::vector<Effect> effects; //!< All active effects on the player
 public:
+  //! Contains values for player's interaction status
+  enum Status {
+    Interacting,  //!< Resolving an Interaction with another object
+    Acting,  //!< Entered when action button is pressed
+    Invulnerable, //!< Immune to Damage
+    Damaged,  //!< Currently recovering from damage
+    Normal   //!< Not in any special state
+  };
   bool damaged=false; //!< Has the player been damaged this frame?
   //! Updates the player's sprite based on position
   /*!
-   *  Sets the sprite's position based on where the player is located
+   *  Sets the sprite's position based on where the player is located. Ensures the player's position
+   *  is in the correct place relative to the currently displayed section of the level
    */
   void update(sf::Vector2i);
   //! Assign texture from cache
+  /*!
+   *  This needs to be restructured to match Object::draw();
+   */
   void assignTexture(TextureCache& cache);
   //! clears all effects
   void clearEffects();
@@ -36,9 +42,11 @@ public:
   //! Gets the raw speed of the player
   int getRawSpeed() const;
   //! Gets the health of the player
-  int getHealth() const;
+  unsigned getHealth() const;
   //! Gets the raw health of the player
   int getRawHealth() const;
+  //! Gets the player score
+  unsigned getScore() const;
   //! Gets the direction of the player
   Direction getFacing() const;
   //! Sets the speed of the player 
@@ -55,25 +63,42 @@ public:
   void resetCooldown();
   //! Decrements health and returns the new health
   unsigned modifyHealth(int);
-  //! Get current health
-  unsigned getHealth();
+  //! Increments score by specified amount, returns new value
+  unsigned modifyScore(int);
   //! Converts the player's position in pixels to position based on tile width
   /*!
    *  Specifically, returns the x position of the tile that the center of the
    *  player lies on
+   *  Deprecated.
    */
   int getLevelXPos(int tileWidth);
   //! Converts the player's position in pixels to position based on tile height
   /*!
    *  Specifically, returns the y position of the tile that the center of the
    *  player lies on
+   *  Deprecated.
    */
   int getLevelYPos(int tileHeight);
+  //! Converts the player's position in pixels to tile position
+  /*!
+   *  Returns the map coordinates of the tile that the center of the player lies on.
+   */
+  sf::Vector2i getLevelPos(sf::Vector2i tileSize);
   //! constructs player
   /*!
    *  
    */
   Player(unsigned);
+protected:
+  //sf::Texture picture; //!< I don't remember what this is used for
+  int speed; //!< How many pixels the player can move per frame
+  unsigned maxCooldown=0; //!< Number of invincibility frames
+  unsigned cooldown=0; //!< Remaining invincibility frames
+  unsigned health=0; //!< The player's health
+  unsigned score=0;  //!< The player's score
+  Direction facingDir; //!< Which direction the player is facing
+  Player::Status status; //!< Player's current status
+  std::vector<Effect> effects; //!< All active effects on the player
 };
 
 #endif

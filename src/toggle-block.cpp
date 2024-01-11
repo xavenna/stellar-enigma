@@ -9,10 +9,6 @@ ToggleBlock::ToggleBlock(Object ob) : Solid(ob) {
   vars[0] = args[0];
   vars[1] = 0;
 }
-ToggleBlock::ToggleBlock(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a, int uid) : Solid(x, y, wid, hei, i, v, sol, txt, a, uid) {
-  vars[0] = args[0];
-  vars[1] = 0;
-}
 
 Interface ToggleBlock::interact(Player* p, Field*, SwitchHandler*) {
   sf::Vector2i pmin{p->getPos()};
@@ -58,20 +54,7 @@ Interface ToggleBlock::interact(Player* p, Field*, SwitchHandler*) {
     }
   }
 
-  if(xInt && pmin.x < omin.x) {
-    return Interface(sf::Vector2i(pos.x-p->getSize().y, p->getPos().y), "", "");
-  }
-  if(yInt && pmin.y < omin.y) {
-    return Interface(sf::Vector2i(p->getPos().y, pos.y-p->getSize().x), "", "");
-  }
-  if(xInt && pmin.x > omin.x) {
-    return Interface(sf::Vector2i(pos.x+size.x, p->getPos().y), "", "");
-  }
-  if(yInt && pmin.y > omin.y) {
-    return Interface(sf::Vector2i(p->getPos().x, pos.y+size.y), "", "");
-  }
-
-  return Interface(p->getPos(), "", "");
+  return Interface();
 }
 
 CacheNodeAttributes ToggleBlock::draw(const TextureCache* cache) {
@@ -93,5 +76,5 @@ Interface ToggleBlock::behave(SwitchHandler*) {
     vars[1]--;
   }
   //this should toggle a switch
-  return Interface(pos, "", "");
+  return Interface();
 }

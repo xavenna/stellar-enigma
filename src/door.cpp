@@ -1,9 +1,5 @@
 #include "door.h"
 
-Door::Door(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8> a, int uid) : Solid(x, y, wid, hei, i, v, sol, txt, a, uid) {
-  vars[0] = true;
-  vars[1] = false;
-}
 Door::Door(int uid) : Solid(uid) {
   vars[0] = true;
   vars[1] = false;
@@ -16,7 +12,7 @@ Door::Door(Object ob) : Solid(ob) {
 
 Interface Door::interact(Object* p, Field*, SwitchHandler*) {
   if(!vars[0]) {
-    return Interface(pos, "", "");
+    return Interface();
   }
 
   //push back slidings and entities, ignore solids
@@ -61,27 +57,15 @@ Interface Door::interact(Object* p, Field*, SwitchHandler*) {
         p->setYPos(pos.y+size.y);
       }
 
-      if(xInt && pmin.x < omin.x) {
-        return Interface(sf::Vector2i(pos.x-p->getSize().y, p->getPos().y), "", "");
-      }
-      if(yInt && pmin.y < omin.y) {
-        return Interface(sf::Vector2i(p->getPos().y, pos.y-p->getSize().x), "", "");
-      }
-      if(xInt && pmin.x > omin.x) {
-        return Interface(sf::Vector2i(pos.x+size.x, p->getPos().y), "", "");
-      }
-      if(yInt && pmin.y > omin.y) {
-        return Interface(sf::Vector2i(p->getPos().x, pos.y+size.y), "", "");
-      }
   }
 
-  return Interface(p->getPos(), "", "");
+  return Interface();
   
 }
 
 Interface Door::interact(Player* p, Field*, SwitchHandler*) {
   if(!vars[0]) {
-    return Interface(pos, "", "");
+    return Interface();
   }
 
   sf::Vector2i pmin{p->getPos()};
@@ -119,20 +103,7 @@ Interface Door::interact(Player* p, Field*, SwitchHandler*) {
     p->setYPos(pos.y+size.y);
   }
 
-  if(xInt && pmin.x < omin.x) {
-    return Interface(sf::Vector2i(pos.x-p->getSize().y, p->getPos().y), "", "");
-  }
-  if(yInt && pmin.y < omin.y) {
-    return Interface(sf::Vector2i(p->getPos().y, pos.y-p->getSize().x), "", "");
-  }
-  if(xInt && pmin.x > omin.x) {
-    return Interface(sf::Vector2i(pos.x+size.x, p->getPos().y), "", "");
-  }
-  if(yInt && pmin.y > omin.y) {
-    return Interface(sf::Vector2i(p->getPos().x, pos.y+size.y), "", "");
-  }
-
-  return Interface(p->getPos(), "", "");
+  return Interface();
 }
 
 
@@ -164,5 +135,5 @@ Interface Door::behave(SwitchHandler* sh) {
       vars[1] = false;
     }
   }
-  return Interface(pos, "", "");
+  return Interface();
 }

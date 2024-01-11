@@ -13,6 +13,14 @@
 
 class Object;
 
+
+//! A utility struct representing an inter-object message
+struct msg {
+  unsigned link; //!< Link ID of object to notify.
+  char type; //!< What type of message is being sent? Defined on a per-obj basis
+  std::array<int, 8> data; //!< Data of message use
+};
+
 //! A utility class for object behavior function return values
 /*!
  *  This serves as an API allowing the virtual functions to cause effects, such as playing
@@ -21,22 +29,30 @@ class Object;
  */
 class Interface {
 public:
-  sf::Vector2i pos;  //!< Position of the object after interaction is complete
-  //no longer needed
-  std::string message;  //!< Message to display
+  std::string message;   //!< Message to display
   std::string cutscene;  //!< Cutscene to play
-  std::string sound; //!< Sound to play
-  std::vector<Object> objs; //!< Objects to create
-  Interface(sf::Vector2i pos, std::string mes, std::string cut);  //!< Value Constructor
-  Interface(sf::Vector2i pos, std::string mes, std::string cut, std::vector<Object> o);  //!< Value Constructor, ft. Objects to create
-  Interface();  //!< Empty Constructor
+  std::vector<std::string> sounds; //!< Sounds to play
+  std::vector<std::pair<Object, std::string>> objs; //!< Objects to create, along with type
+  std::vector<msg> notifications; //!< Notifications to send.
+
+  //! Registers message to be displayed. Overwrites previous message, if any.
+  void addMessage(const std::string&);
+  //! Chooses a cutscene to play. Overwrites previously stored cutscene, if any.
+  void playCutscene(const std::string&);
+  //! Requests selected sound to be played. Does not overwrite previous sounds
+  void playSound(const std::string&);
+  //! Requests to spawn an object. Spawned object will not have a link id, but will be the child of spawning obj.
+  void spawnObject(Object, const std::string& type);
+  //! Creates a notification to send to object with specified Link_ID
+  void notify(msg);
+
+  //! Constructs an empty Interface. Use the API functions to request actions. Eventually, the vars may be private
+  Interface();
+
+  //deprecated
+
 };
 
-//! A utility struct for obj-container to pass messages to objects
-struct msg {
-  char type; //!< What type of message is being sent? Defined on a per-obj basis
-  std::array<uint8_t, 4> data; //!< Data fields to use
-};
 
 //! A class for objects, anything with dynamic behavior
 /*!
@@ -62,7 +78,9 @@ public:
   };
   enum Status {
     Normal, //!< No special conditions
-    Destroy //!< Object should be destroyed
+    Destroy, //!< Object should be destroyed
+    Acting,  //!< Currently interacting with something
+    Invulnerable  //!< Unable to interact with anything
   };
   enum SW {  //Correlates switch array positions to names
     Appear = 0, //!< Makes the object appear
@@ -79,6 +97,8 @@ public:
 
   //! Object's motion type
   virtual int Type() {return Object::Intangible;} 
+  //! Object's string identifier -- replaces the ObjContainer::Type system
+  virtual std::string Name() {return "obj";}
   //! object interaction priority
   virtual int priority() {return 32;} //0 is highest, decreases counting up
   //! base version of interact();
@@ -106,6 +126,8 @@ public:
   int getUID() const;
   //! get all args
   std::array<int, 8> getArgs() const;
+  //! get all switches
+  std::array<int, 8> getSwitches() const;
   //! get specified arg
   int getArg(std::size_t) const;
   //! get the obj's status
@@ -114,6 +136,8 @@ public:
   std::string getText() const;
   //! set all switches at once
   void setSwitches(std::array<int, 8>);
+  //! set a specific switch
+  void setSwitch(unsigned index, int value);
   //! set the text of the object
   void setText(const std::string&);
   //! set all args at once. Probably unnecessary
@@ -130,23 +154,10 @@ public:
   void setArg(std::size_t slot, int v);
   //! get active status of object
   bool getActive() const;
-  //! full parametrized constructor, with uid
-  Object(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8>, int uid);
   //! empty constructor
   Object();
   //! uid constructor
   Object(int);
-
-  //deprecated
-
-  //! get the value of the object 
-  int getValue() const;
-  //! set the value of the object
-  void setValue(int);
-  //! ObjArg-less parametrized constructor
-  Object(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt);
-  //! full parametrized constructor
-  Object(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8>);
 
 protected:
   //can be preset
@@ -158,21 +169,20 @@ protected:
   //yes, I did just borrow SMG's obj_arg system, I couldn't think of a better way
   
   std::array<int, 8> switches;
+  std::string text; //!< A text field that can be used by the object. Deprecated.
 
   //internal, aren't preset
 
-  int unique_id; //!< Used internally to differentiate objects
+  const int unique_id=-1; //!< Used internally to differentiate objects
   std::array<int, 4> vars; //!< Internal variables, used similarly to args
-  int status; //!< Internal status, can be externally read but not written
-  bool active; //!< Whether the object is ready to interact with other objects
 
-  //deprecated
-  std::string text; //!< A text field that can be used by the object.
-  int value; //!< another int field that can be used.
+  //potentially deprecated?
+  int status; //!< Internal status, can be externally read but not written
+  bool active; //!< Whether the object is ready to interact with other objects. Superceded by enhanced status.
 };
 
 //utility functions for objects
-//deprecated
+//no longer needed, deprecated
 int binCat(std::uint16_t, std::uint16_t);
 Vector2<std::uint16_t> binDecat(int);
 

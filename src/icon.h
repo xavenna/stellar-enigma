@@ -42,7 +42,7 @@ public:
   //! A player pointer used for updates
   const Player* player;
   //! Updates the icon, using 'callback' to determine which function to use
-  void update(const Player*);
+  void update(const Player*, TextureCache*);
   //! Constructs the icon, using passed string as 'callback'
   PIcon(std::string);
 };
@@ -51,5 +51,6 @@ public:
 //! An update function that does nothing`
 void nullAct();
 //! An update function that changes based on the health of the player
-void showHealthAsNumber(const Player*, sf::Texture&);
+void showHealthAsNumber(const Player*, sf::Texture&, TextureCache*);
+void showPoints(const Player*, sf::Texture&, TextureCache*);
 #endif

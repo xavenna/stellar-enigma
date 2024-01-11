@@ -34,12 +34,14 @@ int main() {
     return e;
   }
 
+  TextureCache textureCache("assets/texturemap/default.tm");
+
   //generate the interface
   int panOfX;
   int msgOfY;
   sf::Vector2i windowSize;
   InterfaceManager interfaceManager;
-  windowSize = interfaceManager.initializeInterface(sf::Vector2i(WINDOW_WIDTH * mapData.levelSlot.getTilesize().x, WINDOW_HEIGHT * mapData.levelSlot.getTilesize().y), msgOfY, panOfX, &mapData.player);
+  windowSize = interfaceManager.initializeInterface(sf::Vector2i(WINDOW_WIDTH * mapData.levelSlot.getTilesize().x, WINDOW_HEIGHT * mapData.levelSlot.getTilesize().y), msgOfY, panOfX, &mapData.player, &textureCache);
 
 
   std::string windowName;  //this is the name of the window
@@ -56,7 +58,6 @@ int main() {
   sf::Font courier;  //font maybe should go somewhere, like within Message?
   courier.loadFromFile("assets/cour.ttf");
 
-  TextureCache textureCache("assets/texturemap/default.tm");
 
   //also, encapsulate this within Message, maybe in the constructor
   mapData.message.setFont(courier);
@@ -65,6 +66,9 @@ int main() {
 
   //call custom initialization behavior
   mapData.customInit();
+
+  //setup main menu
+
 
   //more player initialization
   mapData.player.update(mapData.levelSlot.getTilesize());
@@ -117,13 +121,16 @@ int main() {
     mapData.musicPlayer.assignSounds();
     mapData.musicPlayer.manageSounds();
 
-    interfaceManager.updateInterface(&mapData.player);
+    interfaceManager.updateInterface(&mapData.player, &textureCache);
 
     window.clear();
     //draw based on which mode the engine is currently in
     switch(mapData.modeSwitcher.getMode()) {
     case 0:
       //menu mode
+      //assign texture to mainMenu
+
+      mapData.mainMenu.assignTexture(textureCache);
       window.draw(mapData.mainMenu.splash);
       break;
     case 1:
@@ -171,5 +178,6 @@ int main() {
     }
     window.display();
     mapData.levelSlot.advanceFrameCount();
+    mapData.finishFrame();
   }
 }

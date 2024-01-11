@@ -8,9 +8,9 @@ public:
   virtual Interface interact(Player*, Field*, SwitchHandler*);
   virtual Interface interact(Object*, Field*, SwitchHandler*);
   virtual CacheNodeAttributes draw(const TextureCache*);
+  virtual std::string Name() {return "pushable";}
   virtual int Type() {return Object::Sliding;} 
   virtual int priority() {return 2;}
-  Pushable(int x, int y, int wid, int hei, int i, int v, bool sol, const std::string& txt, std::array<int, 8>, int);
   Pushable(int);
   Pushable(Object);
 };

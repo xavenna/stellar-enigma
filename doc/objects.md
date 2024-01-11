@@ -15,6 +15,23 @@ Possible Values (Object::Status) :
 | Normal| No special behavior is required  |
 | Destroy| Object should be removed from list after interaction is over  |
 
+### Object Attributes:
+
+* ID : Object's type
+* Link ID : Used to define targets for inter-object communication
+* Parent ID : The Link ID of the object's parent, if applicable
+* Texture ID : Used to select a texture to draw
+* Obj-Args : 8 General-use variables to specify object behavior
+* Switches : defines which switches the object interfaces which
+
+    Appear = 0
+    Disappear = 1
+    Act1 = 2
+    Act2 = 3
+    Trig1 = 4
+    Trig2 = 5
+    Gen1 = 6
+    Gen2 = 7
 
 ## Built-in Objects
 
@@ -23,12 +40,13 @@ Overview:\
 |----------------|----|----------------------------------------|
 | Solid Block    | 0  | blocks player's path                   |
 | Pushable Object| 1  | can be pushed by player                |
-| key            | 2  | is picked up, plays specified cutscene |
+| key            | 2  | plays cutscene and activates switch on pickup|
 | board          | 3  | displays message stored in text        |
 | cutscene player| 4  | plays a cutscene                       | 
 | cactus         | 5  | harms player                           | 
 | toggle-block   | 6  | toggles state upon player contact      |
-| status         | 7  | gives player a status effect           |
+| door           | 7  | solid, becomes intangible after switch is activated | 
+
 
 ## Arguments/Variables:
 
@@ -41,7 +59,8 @@ Arg 0 (uint): Texture
 * default: crate
 
 ### Key:
-N/A
+SW Act1: Triggered when collected
+
 
 ### Board:
 text: message to display
@@ -56,13 +75,15 @@ text: name of cutscene to play
 ### Spike:
 N/A
 
-### Status Area:
-N/A
+### Door:
+Var 0 (bool): Is door locked? (init as true)
+Var 1 (bool): Was switch activated last frame?
+SW Trig1: Opens door, changes sprite, becomes intangible
 
 ### Toggle BlocK:
 Var 0 (bool): Is Block Active?
 Var 1 (uint): Toggle Cooldown remaining
 
 Arg 0 (bool): Starting State
-Arg 2 (uint): Maximum cooldown duration
+Arg 1 (uint): Maximum cooldown duration
 

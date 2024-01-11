@@ -17,7 +17,8 @@
  *  Objects can be returned by value, by pointer, or by reference, depending on situation
  */
 class ObjContainer {
-public: //! Object type, used to create the appropriate type of object
+public:
+  //! Object type, used to create the appropriate type of object
   enum Type {
     obj, //!< Basic object
     solid, //!< Solid object
@@ -37,17 +38,18 @@ public: //! Object type, used to create the appropriate type of object
   Object getObj(unsigned) const;
   //! Get pointer to obj by link id
   Object* getObjByID(int);
-  //! Create Object of specified type using arguments
-  bool storeObj(sf::Vector2i, sf::Vector2i, int, int, bool, const std::string&, std::array<int, 8>, Type);
-  //! Create empty Object of specified type
-  bool storeObj(Type);
   //! Create copy of passed object, as specified type
-  bool storeObj(Object ob, Type);
+  bool storeObj(Object ob, std::string);
+  
+  //! Create empty Object of specified type. Wrapper to storeObj(Object, string)
+  bool storeObj(std::string);
 
   //! Remove specified object and free its allocated memory
   void removeObj(unsigned);
   //! Remove object located at specified pointer, if object is stored in container
   void removeObj(Object*);
+  //! Send notification to object.
+  bool notify(msg);
 
   //! Get the number of objects stored
   std::size_t size() const;

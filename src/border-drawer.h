@@ -17,13 +17,13 @@ public:
   void drawBorder(sf::Vector2i windowSize, sf::Vector2i panelSize, sf::Vector2i messageSize);
 
   //! Constructs the border with the size of the individual tiles
-  BorderDrawer(sf::Vector2i tilesize);
+  BorderDrawer(sf::Vector2u tilesize);
 private:
   sf::Texture corner;
   sf::Texture edge;
   sf::Texture joint;
   sf::Texture cross;
-  sf::Vector2i tileSize;
+  sf::Vector2u tileSize;
   
 };
 

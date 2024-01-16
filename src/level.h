@@ -56,7 +56,7 @@ private:
 public:
   Field field; //!< The tile field
   //! returns a copy of specified node
-  NodeBase getNode(const int&, const int&) const;
+  NodeBase getNode(int, int) const;
   //! returns a copy of specified object
   Object getObj(unsigned index) const;
   //! returns a reference to specified object
@@ -66,11 +66,9 @@ public:
   //! a fixed-size map that is actually drawn to the screen
   std::array<std::array<MapNode, WINDOW_HEIGHT>, WINDOW_WIDTH> window;
   //! overwrites the mapnode at position x,y with node
-  void updateNode(const int& x, const int& y, const NodeBase& node);
-  //! This will copy the necessary nodes over to window in order to set it up
-  void readyWindow(int xScreen, int yScreen);
-  //! like readyWindow, but better
-  void newReadyWindow(int xscr, int yscr);
+  void updateNode(int x, int y, const NodeBase& node);
+  //! copies the necessary nodes over to window in order to set it up
+  void readyWindow(int xscr, int yscr);
   //! sets the positions of the sprites of the window
   void updateWindowPos();
   //! Uses a texturemap to assign a texture to specified node in window

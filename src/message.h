@@ -22,6 +22,7 @@ private:
   const size_t maxElem;  //!< How many messages can be in the queue
   size_t cooldown; //!< How many frames of cooldown remain
   std::deque<std::string> printQueue; //!< Queue of strings to display
+  sf::Font courier;
 public:
   //! Get whether the current string is done printing 
   bool getPrinted() const;

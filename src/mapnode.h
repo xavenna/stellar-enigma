@@ -15,7 +15,7 @@ public:
   //! Gets the id of the node
   unsigned getId() const;
   //! Sets the id of the node
-  void setId(const int&);
+  void setId(unsigned);
   //! sets solidity in one direction
   bool getSolid(Direction) const;
   //! Get the cutname
@@ -27,7 +27,7 @@ public:
   //! The basic constructor. Sets id to 0 and area position to (0,0)
   NodeBase();
   //! Constructs the MapNode with passed attributes
-  NodeBase(int n, DirectionalBool b, const std::string& cutn);
+  NodeBase(unsigned n, DirectionalBool b, const std::string& cutn);
 
 };
 //! A drawable MapNode
@@ -39,7 +39,7 @@ private:
   
 public:
   //! Constructs the MapNode with passed attributes
-  MapNode(int n, DirectionalBool b, const std::string& cutn);
+  MapNode(unsigned n, DirectionalBool b, const std::string& cutn);
   MapNode();
 };
 

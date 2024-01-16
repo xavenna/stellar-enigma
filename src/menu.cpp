@@ -8,7 +8,14 @@ void Menu::initialize() {
 
 void Menu::assignTexture(TextureCache& cache) {
   CacheNodeAttributes cna;
-  cna.srcImg = cache.reverseHash(baseImage);
+  int s = cache.reverseHash(baseImage);
+  if(s < 0) {
+    std::cerr << "Error: Invalid texture\n";
+    cna.srcImg = 0;
+  }
+  else {
+    cna.srcImg = static_cast<unsigned>(s);
+  }
   cna.tList = tList;
   splash.setTexture(cache.getTexture(cna));
 }

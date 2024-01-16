@@ -36,9 +36,9 @@ public:
   //! Returns text argument
   std::string getText();
   //! Returns specified argument from internal argument vector
-  int getArg(int);
+  int getArg(unsigned);
   //! A wrapper around getArg
-  int operator[](int);
+  int operator[](unsigned);
   //! Returns duration of event
   int getDuration();
   //! Constructs event with specified attributes

@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <filesystem>
 
-InterfaceManager::InterfaceManager() : bd(sf::Vector2i(16,16)) {
+InterfaceManager::InterfaceManager() : bd(sf::Vector2u(16,16)) {
 }
 
 //this function needs to return:
@@ -71,9 +71,9 @@ void InterfaceManager::drawIcons(sf::RenderWindow& w) {
   w.draw(msgRect);
   pc.drawIcons(w);
 }
-int InterfaceManager::getBorderLen() const {
+unsigned InterfaceManager::getBorderLen() const {
   return bd.border.size();
 }
-sf::Sprite& InterfaceManager::getBorderElem(int n) {
+sf::Sprite& InterfaceManager::getBorderElem(unsigned n) {
   return bd.border.at(n);
 }

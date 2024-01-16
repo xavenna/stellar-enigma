@@ -43,6 +43,7 @@ public:
   const Player* player;
   //! Updates the icon, using 'callback' to determine which function to use
   void update(const Player*, TextureCache*);
+  using Icon::update;
   //! Constructs the icon, using passed string as 'callback'
   PIcon(std::string);
 };

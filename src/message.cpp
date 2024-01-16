@@ -59,9 +59,9 @@ void Message::wrapMessage() {
   std::string out;
   std::string n = formMessage;  //the raw message
   size_t pads = (width-(n.size()%width)%width);  //
-  for(size_t i=0;i<pads;i++)
+  for(unsigned i=0;i<pads;i++)
     n += ' ';  //pad the message so it is an even multiple of width
-  for(int i=0;i<int(n.size()/width)+1;i++) {
+  for(unsigned i=0;i<unsigned(n.size()/width)+1;i++) {
     out += n.substr(i*width,width) + '\n';
   }
   setString(out);
@@ -72,6 +72,8 @@ Message::Message(unsigned wid, unsigned cool, unsigned elem, unsigned charSize) 
   setString("");
   setFillColor(sf::Color::White);
   setCharacterSize(charSize);
+  courier.loadFromFile("assets/cour.ttf");
+  setFont(courier);
 }
 
 //this is just for debugging, and is not needed in the final thing

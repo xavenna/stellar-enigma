@@ -1,6 +1,6 @@
 #include "mapnode.h"
 
-NodeBase::NodeBase(int n, DirectionalBool b, const std::string& cutn) : id{n}, cutname{cutn}, solid{b} {
+NodeBase::NodeBase(unsigned n, DirectionalBool b, const std::string& cutn) : id{n}, cutname{cutn}, solid{b} {
 }
 
 unsigned NodeBase::getId() const{
@@ -9,7 +9,7 @@ unsigned NodeBase::getId() const{
 bool NodeBase::getSolid(Direction d) const {
   return solid[d];
 }
-void NodeBase::setId(const int& n) {
+void NodeBase::setId(unsigned n) {
   id = n;
 }
 void NodeBase::setSolid(Direction d, bool b) {
@@ -25,7 +25,7 @@ NodeBase::NodeBase() {
   id = 0;
 }
 
-MapNode::MapNode(int n, DirectionalBool b, const std::string& cutn) : NodeBase{n, b, cutn} {
+MapNode::MapNode(unsigned n, DirectionalBool b, const std::string& cutn) : NodeBase{n, b, cutn} {
 
 }
 

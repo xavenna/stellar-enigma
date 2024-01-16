@@ -116,7 +116,7 @@ bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le, MusicPlayer& 
   case Event::NodeUpdate:
     //update a node on the map
     //std::cout << "updating node\n";
-    le.updateNode(e[0], e[1], MapNode(e[2], DirectionalBool(e[3]), e.getText()));
+    le.updateNode(e[0], e[1], MapNode(static_cast<unsigned>(e[2]), DirectionalBool(e[3]), e.getText()));
     le.displayUpdate = true;
     break;
   case Event::SoundPlay:

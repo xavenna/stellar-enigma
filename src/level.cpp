@@ -12,7 +12,7 @@ Inter::Inter(Object* o, const Player& pl) : p{pl} {
   subpriority = 32;
 
 }
-Inter::Inter(Object* m, Object* n) : p{15} {
+Inter::Inter(Object* m, Object* n) {
   o1 = m;
   o2 = n;
   player1 = false;
@@ -20,6 +20,7 @@ Inter::Inter(Object* m, Object* n) : p{15} {
   priority = 32;
   subpriority = 32;
 }
+
 void Inter::calculatePriority() {
   //check if configuration is valid
   //use some formula to assign a priority to the interaction
@@ -35,8 +36,8 @@ void Inter::calculatePriority() {
 }
 
 
-NodeBase Level::getNode(const int& x, const int& y) const {
-  return field.getNode(x,y);
+NodeBase Level::getNode(int x, int y) const {
+  return field.getNode(static_cast<unsigned>(x),static_cast<unsigned>(y));
 }
 
 Object Level::getObj(unsigned index) const {
@@ -50,7 +51,7 @@ Object* Level::getObjPtr(unsigned ind) {
   return objects.getObjPtr(ind);
 }
 
-void Level::newReadyWindow(int xscr, int yscr) {
+void Level::readyWindow(int xscr, int yscr) {
   //determine which screen to view
   int xwid = WINDOW_WIDTH-2;
   int ywid = WINDOW_HEIGHT-2;
@@ -58,7 +59,7 @@ void Level::newReadyWindow(int xscr, int yscr) {
   int yOff = yscr * (ywid);
   for(unsigned i=0;i<WINDOW_WIDTH;i++) {
     for(unsigned j=0;j<WINDOW_HEIGHT;j++) {
-      window[i][j].setId(getNode(i+xOff,j+yOff).getId());
+      window[i][j].setId(getNode(static_cast<int>(i)+xOff,static_cast<int>(j)+yOff).getId());
     }
   }
   winOffY = yOff;
@@ -66,30 +67,15 @@ void Level::newReadyWindow(int xscr, int yscr) {
   displayUpdate = false;
 }
 
-//this is kept in case the new thingy breaks and I need to use this instead
-void Level::readyWindow(int xScreen, int yScreen) {
-  // xScreen and yScreen are the screen coordinates of the player, passed
-  // this routine should only be called if the display needs to be updated
-  int xOff = xScreen * WINDOW_WIDTH;
-  int yOff = yScreen * WINDOW_HEIGHT;
-  for(unsigned i=0;i<WINDOW_WIDTH;i++) {
-    for(unsigned j=0;j<WINDOW_HEIGHT;j++) {
-      window[i][j].setId(getNode(i+xOff,j+yOff).getId());
-    }
-  }
-  //this is much easier than in explor...
-  displayUpdate = false;
-}
-// currently unused
-
-void Level::updateNode(const int& x, const int& y, const NodeBase& node) {
-  field.updateNode(x, y, node);
+void Level::updateNode(int x, int y, const NodeBase& node) {
+  field.updateNode(static_cast<unsigned>(x), static_cast<unsigned>(y), node);
 }
 Level::Level(const size_t& x, const size_t& y) : field{x, y} {
   tilesizeX = 16;  //for now, this is constant, but it may change in the future
   tilesizeY = 16;
   updateWindowPos();
 }
+
 Level::Level() : field{1, 1} {
   tilesizeX = 16;
   tilesizeY = 16;
@@ -146,7 +132,7 @@ void Level::loadMutables(const std::string& levelname) {
       //object isn't added
     }
     else {
-      o.setPosition(o.getPos().x+2*tilesizeX, o.getPos().y+2*tilesizeY);
+      o.setPosition(static_cast<unsigned>(o.getPos().x)+2*tilesizeX, static_cast<unsigned>(o.getPos().y)+2*tilesizeY);
       objects.storeObj(o, type);
     }
     
@@ -178,24 +164,17 @@ void Level::assignTextureToWinNode(sf::Vector2i pos, TextureCache& cache) {
   if(pos.x > WINDOW_WIDTH || pos.y > WINDOW_HEIGHT) {
     throw std::invalid_argument("Level::assignTextureToWinNode() : Requested position out of bounds");
   }
-  
+  sf::Vector2u p{static_cast<unsigned>(pos.x),static_cast<unsigned>(pos.y)};
   CacheNodeAttributes cna;
-  int s = cache.tileFilenameHash(window[pos.x][pos.y].getId());
-  if(s < 0) {
-    //error: requested object doesn't exist
-    std::clog << "Texture not assigned to tile ("<<pos.x<<','<<pos.y << ")\n";
-    return;
-  }
-  cna.srcImg = s;
-  
+  cna.srcImg = window[p.x][p.y].getId();
   
   //generate cna.tList
-  switch(window[pos.x][pos.y].getId()) {
+  switch(window[p.x][p.y].getId()) {
   case 8: {
     //water: add a xShift transformation
     Transform t;
     t.type = Transform::Set_Width;
-    t.args[0] = tilesizeX;
+    t.args[0] = static_cast<int>(tilesizeX);
     cna.tList.push_back(t);  //set width to one tile
     
     Transform t2;
@@ -219,7 +198,7 @@ void Level::assignTextureToWinNode(sf::Vector2i pos, TextureCache& cache) {
     break;
   }
   try {
-    window[pos.x][pos.y].setTexture(cache.getTexture(cna));
+    window[p.x][p.y].setTexture(cache.getTexture(cna));
   }
   catch (const std::invalid_argument* e) {
     std::clog << e->what();
@@ -242,21 +221,7 @@ void Level::assignTextureToObject(unsigned index, TextureCache& cache) {
   //create cna using a virtual function
   
   CacheNodeAttributes cna = ob->draw(&cache);
-  //to find srcImg, look for objectList[index].getId()
-  //int s = cache.objectFilenameHash(objects.getObj(index).getId());
-  //if(s < 0) {
-    //error: requested object doesn't exist
-    //std::cout << "Texture not assigned to object no. "<<index << "\n";
-    //return;
-  //}
-  //cna.srcImg = s;
   
-  //generate cna.tList
-  switch(objects.getObj(index).getId()) {
-  default:
-    //no transformations
-    break;
-  }
   try {
     objects.getObjPtr(index)->setTexture(cache.getTexture(cna));
   }
@@ -327,14 +292,13 @@ void Level::handleObjects(sf::Vector2i pos, sf::Vector2i size, SwitchHandler* sh
 
     
     sf::Vector2i mid(pos.x+size.x/2, pos.y+size.y/2);
-    int pscrx = (mid.x-tilesizeX) / (tilesizeX*(WINDOW_WIDTH-2));
-    int pscry = (mid.y-tilesizeY) / (tilesizeY*(WINDOW_HEIGHT-2));
+    unsigned pscrx = (static_cast<unsigned>(mid.x)-tilesizeX) / (tilesizeX*(WINDOW_WIDTH-2));
+    unsigned pscry = (static_cast<unsigned>(mid.y)-tilesizeY) / (tilesizeY*(WINDOW_HEIGHT-2));
     
     sf::Vector2i omid(x->getPos().x+x->getSize().x/2, x->getPos().y+x->getSize().y/2);
     //calculate objects position on player's screen. If it can be displayed, display it:
     
-    sf::Vector2i relPos(x->getPos().x-(WINDOW_WIDTH-2)*tilesizeX*pscrx+tilesizeX,
-    x->getPos().y-(WINDOW_HEIGHT-2)*tilesizeY*pscry+tilesizeY);
+    sf::Vector2i relPos(x->getPos().x-static_cast<int>((WINDOW_WIDTH-2)*tilesizeX*pscrx)+static_cast<int>(tilesizeX), x->getPos().y-static_cast<int>((WINDOW_HEIGHT-2)*tilesizeY*pscry)+static_cast<int>(tilesizeY));
     x->setPosition(relPos.x,relPos.y);
     
     x->setLastPos(x->getPos());
@@ -458,8 +422,7 @@ sf::Vector2i Level::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i 
     }
   }
   else if(speed.x > 0) {
-    if(phx + speed.x >= getWidth() * getTilesizeX()) {
-      fullMove = false;
+    if(phx + speed.x >= getWidth() * getTilesizeX()) { fullMove = false;
       moveDistance.x = getWidth() * getTilesizeX() - phx;
     }
     if(playX != getWidth()) {
@@ -708,7 +671,7 @@ bool str2obj2(const std::string& line, Object& obj, std::string& objType) {
         std::clog << "Error: oa field accepts at most 8 arguments, "<<argNum<<" provided\n";
         return false;
       }
-      int i=0;
+      unsigned i=0;
       for(auto y : x.args) {
         args[i++] = y;
       }
@@ -719,7 +682,7 @@ bool str2obj2(const std::string& line, Object& obj, std::string& objType) {
         std::clog << "Error: sw field accepts at most 8 arguments, "<<argNum<<" provided\n";
         return false;
       }
-      int i=0;
+      unsigned i=0;
       for(auto y : x.args) {
         switches[i++] = y;
       }

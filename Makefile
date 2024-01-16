@@ -53,5 +53,3 @@ remake: clean all
 
 clean :
 	rm -f obj/debug/*.o obj/release/*.o obj/debug/*.d obj/release/*.d ./stellar
-tilde :
-	rm *~

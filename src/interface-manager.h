@@ -18,11 +18,11 @@ public:
   //! Constructs the interface manager
   InterfaceManager();
   //! Returns the number of elements in the border
-  int getBorderLen() const;
+  unsigned getBorderLen() const;
   ///! Returns the number of icons
   //size_t getNumIcons() const;
   //! Returns specified border element
-  sf::Sprite& getBorderElem(int);
+  sf::Sprite& getBorderElem(unsigned);
   //! Draws icons using passed RenderWindow.
   void drawIcons(sf::RenderWindow&);
   //! Initializes the interface using several parameters

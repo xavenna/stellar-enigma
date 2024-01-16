@@ -16,9 +16,9 @@ private:
   sf::Vector2i tilesize;
 public:
   //! returns a copy of specified node
-  NodeBase getNode(int, int) const;
+  NodeBase getNode(unsigned, unsigned) const;
   //! overwrites the mapnode at position x,y with node
-  void updateNode(int x, int y, const NodeBase& node);
+  void updateNode(unsigned x, unsigned y, const NodeBase& node);
   //! Gets map height
   int getHeight() const;
   //! Gets map width

@@ -27,7 +27,8 @@ enum Status {
  */
 class SoundRegistry {
 private:
-  std::map<std::string, sf::SoundBuffer> registry; //!< The internal map of names and sf::SoundBuffers
+  //! The internal map of names and sf::SoundBuffers
+  std::map<std::string, sf::SoundBuffer> registry; 
 public:
   //! Gets the number of sounds in registry
   int getNumSounds();

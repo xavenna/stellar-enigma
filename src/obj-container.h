@@ -18,18 +18,6 @@
  */
 class ObjContainer {
 public:
-  //! Object type, used to create the appropriate type of object
-  enum Type {
-    obj, //!< Basic object
-    solid, //!< Solid object
-    pushable, //!< Pushable object
-    key, //!< Key
-    board, //!< Message Board
-    cutscene_player, //!< Cutscene Player
-    spike, //!< Damaging Object
-    toggle_block, //!<two-state block, toggles upon player contact
-    door  //!< Block that toggles tangibility upon switch activation
-  };
   //! Get reference to specified object
   Object& getObjRef(unsigned);
   //! Get pointer to specified object
@@ -64,7 +52,5 @@ private:
   long unsigned counter;
 };
 
-//! Utility function to transform an id to a type
-ObjContainer::Type getType(unsigned p);
 
 #endif

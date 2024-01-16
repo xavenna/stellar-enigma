@@ -1,183 +1,66 @@
-#include <iostream>
-#include <vector>
-#include <deque>
-
-#include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
-
 #include "stellar-enigma.hpp"
 
 //This is the main file
 int main() {
   //initialization
+  //params found in constructor: level to load, texturemap
 
-  //construct MapData object
+  //make the constructor less arcane
   MapData mapData(15, unsigned(0.082126 * 288), 55, 20, 20);
 
 
-  try {
-    mapData.levelSlot.loadLevel("default");
-  }
-  catch (int e) {  //make these error codes better
-    if(e == 0) {
-      std::cout << "Error 0: Level not found\n";
-    }
-    else if(e == -1) {
-      std::cout << "Error -1: Non-integer found in integer parameter\n";
-    }
-    else if(e == -2) {
-      std::cout << "Error: -2\n";
-    }
-    else if(e == -3) {
-      std::cout << "Error: -3\n";
-    }
-    return e;
-  }
-
-  TextureCache textureCache("assets/texturemap/default.tm");
-
-  //generate the interface
-  int panOfX;
-  int msgOfY;
-  sf::Vector2i windowSize;
-  InterfaceManager interfaceManager;
-  windowSize = interfaceManager.initializeInterface(sf::Vector2i(WINDOW_WIDTH * mapData.levelSlot.getTilesize().x, WINDOW_HEIGHT * mapData.levelSlot.getTilesize().y), msgOfY, panOfX, &mapData.player, &textureCache);
-
-
-  std::string windowName;  //this is the name of the window
-  int frameRate;   //the framerate
-  initialSetup(windowName, frameRate);
-
-
-  sf::RenderWindow window(sf::VideoMode(windowSize.x,windowSize.y), windowName);
+  sf::RenderWindow window(sf::VideoMode(static_cast<unsigned>(mapData.windowSize.x), static_cast<unsigned>(mapData.windowSize.y)), "Stellar Enigma Engine Test");
   window.setVerticalSyncEnabled(true);
-  window.setFramerateLimit(frameRate);
+  window.setFramerateLimit(30);
 
+  //BEGIN Example initialization behavior
+  //initialize player
+  mapData.player.setPos(32,32);
+  mapData.player.setSize(sf::Vector2i(16,16));
+  mapData.player.setSpeed(4);
+  mapData.player.setHealth(5);
+  mapData.player.setMaxCooldown(15);
 
-  //setup other useful things
-  sf::Font courier;  //font maybe should go somewhere, like within Message?
-  courier.loadFromFile("assets/cour.ttf");
+  //initialize some sound things
+  sf::SoundBuffer step;
+  step.loadFromFile("assets/audio/thud.wav");
+  mapData.musicPlayer.registerSound("step", step);
+  mapData.musicPlayer.playMusic("axolotl.ogg");
+  //initialize cutscene file
 
+  mapData.modeSwitcher.setMode(0);
 
-  //also, encapsulate this within Message, maybe in the constructor
-  mapData.message.setFont(courier);
-  mapData.message.setPosition(4+mapData.levelSlot.getTilesize().x, msgOfY);
+  //this could probably be encapsulated into a Menu:: function.
+  mapData.mainMenu.baseImage = "blanksplash";
+  mapData.mainMenu.tList.clear();
+  Transform t;
+  t.type = Transform::Add_Text;
+  t.args[0] = 8; //change this once the texture base is made
+  t.args[1] = 0; //change this once the texture base is made
+  t.args[2] = 20; //size, tweak until it looks good
+  t.text = "Stellar Enigma Engine Test\n\nVersion v0-unstable\n\n\nCreated by xavenna";
+  mapData.mainMenu.tList.push_back(t);
+  mapData.mainMenu.onPress = 1;
 
+  // END Example initialization behavior
 
-  //call custom initialization behavior
-  mapData.customInit();
-
-  //setup main menu
-
-
-  //more player initialization
-  mapData.player.update(mapData.levelSlot.getTilesize());
-  mapData.player.assignTexture(textureCache);
-
-
-  while(window.isOpen()) {
-    sf::Event event;
-    while(window.pollEvent(event)) {
-      switch(event.type) {
-      case sf::Event::Closed:
-	      window.close();
-	      break;
-      default:
-	      break;
-      }
-    }
+  while(window.isOpen()) { //gameplay loop
+    mapData.pollEvents(window);
     if(!window.isOpen())
       return 0;
 
-    mapData.modeSwitcher.updateKeysPressed();
-    int currentMode = mapData.modeSwitcher.getMode();
-    
-
-    if(currentMode == 0) {
-      //main menu logic
-      switch(mapData.event0Handle()) {
-      case -1:
-	      //kill window
-	      window.close();
-	      break;
-      default:
-	      //no special behavior
-	      break;
-      }
-    }
-    else if(currentMode == 1) {
-      //level player logic
-      mapData.event1Handle();
-    }
-    else if(currentMode == 2) {
-      //cutscene player logic
-      mapData.event2Handle();
-    }
-    else if(currentMode == 3) {
-      //test mode logic
-    }
-
-    //tasks that are common to all modes
-    mapData.musicPlayer.assignSounds();
-    mapData.musicPlayer.manageSounds();
-
-    interfaceManager.updateInterface(&mapData.player, &textureCache);
-
-    window.clear();
-    //draw based on which mode the engine is currently in
-    switch(mapData.modeSwitcher.getMode()) {
-    case 0:
-      //menu mode
-      //assign texture to mainMenu
-
-      mapData.mainMenu.assignTexture(textureCache);
-      window.draw(mapData.mainMenu.splash);
-      break;
-    case 1:
-    case 2:  //cutscene mode works the same as gameplay mode
-    case 3:  //debug mode can use the same drawing logic as normal mode
-      //assign sprites
-      if(mapData.levelSlot.displayUpdate) {
-        mapData.levelSlot.newReadyWindow(mapData.player.getScreen().x, mapData.player.getScreen().y);
-      }
-      for(int i=0;i<WINDOW_WIDTH;i++) {
-        for(int j=0;j<WINDOW_HEIGHT;j++) {
-          mapData.levelSlot.assignTextureToWinNode(sf::Vector2i(i,j), textureCache);
-          window.draw(mapData.levelSlot.window[i][j]);
-        }
-      }
-
-      for(int i=0;i<mapData.levelSlot.getObjNum();i++) {
-        mapData.levelSlot.assignTextureToObject(i, textureCache);
-        if(mapData.levelSlot.displayObject(i, mapData.player.getPos(), mapData.player.getSize())) {
-          window.draw(mapData.levelSlot.getObjRef(i));
-        }
-      }
-
-      //update things
-      mapData.player.update(mapData.levelSlot.getTilesize());
-      mapData.player.assignTexture(textureCache);
-      window.draw(mapData.player);
-
-      //draw icons
-      interfaceManager.drawIcons(window);
-
-      //draw message
-      mapData.message.handleMessages();
-      mapData.message.wrapMessage();
-      window.draw(mapData.message);
-
-      //draw border
-      for(int i=0;i<interfaceManager.getBorderLen();i++) {
-        window.draw(interfaceManager.getBorderElem(i));
-      }
+    //handle event and run mode-specific tasks
+    switch(mapData.handleEvents()) {
+    case -1:
+      //kill window
+      window.close();
       break;
     default:
-      //any other modes would go here
+      //no behaviors have been requested
       break;
     }
-    window.display();
-    mapData.levelSlot.advanceFrameCount();
-    mapData.finishFrame();
+
+    //draw things, finish up the frame
+    mapData.finishFrame(window);
   }
 }

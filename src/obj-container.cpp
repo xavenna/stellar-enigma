@@ -91,8 +91,9 @@ void ObjContainer::removeObj(Object* ob) {
 
 bool ObjContainer::notify(msg m) {
   //check if an object with m.link is present.
+  //a negative link_id means that the object has no actual link_id
   for(auto x : list) {
-    if(x->getLinkID() == m.link) {
+    if(x->getLinkID() == static_cast<int>(m.link)) {
       x->notify(m);
       return true;
     }
@@ -100,31 +101,6 @@ bool ObjContainer::notify(msg m) {
   return false;
 }
 
-
-// this is kind of janky...see if there's a better way to do this
-// Deprecated
-ObjContainer::Type getType(unsigned p) {
-  switch(p) {
-  case 0:
-    return ObjContainer::solid;
-  case 1:
-    return ObjContainer::pushable;
-  case 2:
-    return ObjContainer::key;
-  case 3:
-    return ObjContainer::board;
-  case 4:
-    return ObjContainer::cutscene_player;
-  case 5:
-    return ObjContainer::spike;
-  case 6:
-    return ObjContainer::toggle_block;
-  case 7:
-    return ObjContainer::door;
-  default:
-    return ObjContainer::obj;
-  }
-}
 
 bool ObjContainer::storeObj(Object ob, std::string t) {
   if(t == "obj") {
@@ -163,7 +139,6 @@ bool ObjContainer::storeObj(Object ob, std::string t) {
   list.back()->setTextureID(ob.getTextureID());
   list.back()->setParentID(ob.getParentID());
   list.back()->setId(ob.getId());
-  
   list.back()->setPos(ob.getPos());
   list.back()->setSize(ob.getSize());
   list.back()->setSolid(ob.getSolid());

@@ -52,7 +52,9 @@ public:
   //! Sets the speed of the player 
   void setSpeed(int);
   //! Sets the health of the player 
-  void setHealth(int);
+  void setHealth(unsigned);
+  //! Sets the maximum cooldown
+  void setMaxCooldown(unsigned);
   //! Sets the direction of the player
   void setFacing(Direction);
   //! Decrements cooldown and returns the new cooldown
@@ -65,20 +67,6 @@ public:
   unsigned modifyHealth(int);
   //! Increments score by specified amount, returns new value
   unsigned modifyScore(int);
-  //! Converts the player's position in pixels to position based on tile width
-  /*!
-   *  Specifically, returns the x position of the tile that the center of the
-   *  player lies on
-   *  Deprecated.
-   */
-  int getLevelXPos(int tileWidth);
-  //! Converts the player's position in pixels to position based on tile height
-  /*!
-   *  Specifically, returns the y position of the tile that the center of the
-   *  player lies on
-   *  Deprecated.
-   */
-  int getLevelYPos(int tileHeight);
   //! Converts the player's position in pixels to tile position
   /*!
    *  Returns the map coordinates of the tile that the center of the player lies on.
@@ -88,9 +76,8 @@ public:
   /*!
    *  
    */
-  Player(unsigned);
+  Player();
 protected:
-  //sf::Texture picture; //!< I don't remember what this is used for
   int speed; //!< How many pixels the player can move per frame
   unsigned maxCooldown=0; //!< Number of invincibility frames
   unsigned cooldown=0; //!< Remaining invincibility frames

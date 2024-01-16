@@ -2,7 +2,7 @@
 A game engine that uses the SFML framework.
 
 stellar-enigma is a Top-Down, 2-D engine, inspired by games like the original Legend Of
-Zelda. It is currently a WIP
+Zelda. It is currently a Work in Progress
 
 ## Features:
 stellar-enigma has many different components that provide functionality:
@@ -15,12 +15,15 @@ stellar-enigma has many different components that provide functionality:
 
 
 ## Instructions:
-To add custom behavior to the engine, modify the functions found in custom.cpp.
-These functions allow custom code to mostly be contained to one file
+To use stellar, create a main.cpp file based on the template provided. Insert any
+custom initialization behaviors in the marked space. A level editor will be created
+eventually.
 
-To add custom objects, create a class that extends Object. Implement behave() and draw(),
-create a constructor.
+To add custom objects, create a class that extends Object. Implement the virtual
+functions in Object, create a constructor, and add an entry to ObjContainer::storeObj.
+A guide explaining this process is forthcoming.
 
+The engine needs several files to be provided in the assets/ folder, such as the level file, object list, and texturemap. These files are not included in this repository. Details for this will be included in the tutorial, once it is ready.
 
 ## Documentation:
 Documentaion can be generated using Doxygen. The documentation is currently incomplete.
@@ -29,7 +32,8 @@ Additionally, an copy of the documentation can be found [here](https://xavenna.g
 
 ## Build:
 stellar-enigma builds are tested on linux; The makefile may require tweaking to work on
-other operating systems.
+other operating systems. An option to build stellar as a static/dynamic library will be
+available eventually.
 
 ## Credits:
 stellar-enigma was created by xavenna

@@ -10,22 +10,34 @@
 #include "cutscene-manager.h"
 #include "switch-handler.h"
 #include "utility.h"
+#include "interface-manager.h"
+#include "texture-cache.h"
 //! Mapdata is the class that encapsulates all level components
 /*!
  * Provides a convenient encapsulation of all level components.
+ * All helper components will be incorporated in eventually
  */
 class MapData {
 public:
-  Player player; //!< A reference to the player
-  ModeSwitcher modeSwitcher; //!< A reference to the mode switcher
-  Level levelSlot; //!< A reference to the level container
-  Menu mainMenu; //!< A reference to the main menu
-  MusicPlayer musicPlayer; //!< A reference to the music player
-  Message message; //!< A reference to the message displayer
-  CutscenePlayer cutscenePlayer; //!< A reference to the cutscene player
-  CutsceneManager cutsceneManager; //!< A reference to the cutscene manager
-  SwitchHandler switchHandler;
+  Player player; //!< The player - the user-game interface
+  ModeSwitcher modeSwitcher; //!< The component that handles input, gamemode
+  Level levelSlot; //!< Contains the Level data, manages interaction & collision
+  Menu mainMenu; //!< Controls Menus and Splash screens
+  MusicPlayer musicPlayer; //!< Controls playing of sounds and music
+  Message message; //!< Displays textual information to the player
+  CutscenePlayer cutscenePlayer; //!< Plays cutscenes to the player
+  CutsceneManager cutsceneManager; //!< Holds cutscenes
+  SwitchHandler switchHandler;  //!< Handles Switches
   Utility utility; //!< A utility provider, contains miscellaneous useful functions
+
+  //helper components
+  TextureCache cache; //!< Manages textures & transforms
+  InterfaceManager interface; //!< Controls the UI (Border & Panel
+  
+
+  //! Required size of the RenderWindow
+  sf::Vector2i windowSize;
+
   //! Any custom initialization behavior goes here
   void customInit();  
   //! Handles events if the engine is in mode 0
@@ -39,9 +51,11 @@ public:
   //! Handles events if the engine is in mode 4
   void event4Handle();
   //! Event handler wrapper function
-  void handleEvents();
-  //! Wraps up the frame, executed once at the end
-  void finishFrame();
+  int handleEvents();
+  //! Wraps up the frame, executed once at the end. Handles drawing
+  void finishFrame(sf::RenderWindow&);
+  //! Polls events
+  void pollEvents(sf::RenderWindow&);
   //! Gets the current frame number
   unsigned long getFrameCount() const;
   //! The contructor takes several parameters for the members

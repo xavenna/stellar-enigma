@@ -26,7 +26,5 @@
 #include "interface-manager.h"
 
 
-void initialSetup(std::string&, int&);
-
 
 #endif

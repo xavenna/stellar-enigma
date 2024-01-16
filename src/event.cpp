@@ -7,15 +7,15 @@ std::string Event::getText() {
 Event::Type Event::getType() {
   return type;
 }
-int Event::getArg(int index) {
-  if(index > 8 || index < 0) {
+int Event::getArg(unsigned index) {
+  if(index > 8) {
     //error: 
     throw std::out_of_range("Event::getArg(int) : index is out of range");
   }
   return arguments[index];
 }
 
-int Event::operator[](int index) {
+int Event::operator[](unsigned index) {
   return getArg(index);
 }
 int Event::getDuration() {

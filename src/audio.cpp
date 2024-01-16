@@ -34,9 +34,9 @@ void MusicPlayer::playMusic(const std::string& filename) {
   music.play();
 }
 bool MusicPlayer::findOpenSlot(int& slotNum) {
-  for(int i=0;i<8;i++) {
+  for(unsigned i=0;i<8;i++) {
     if(soundStatus[i] == 0) {
-      slotNum = i;
+      slotNum = static_cast<int>(i);
       return true;
     }
   }
@@ -62,13 +62,13 @@ void MusicPlayer::assignSounds() {
     if(!open) {
       break;
     }
-
+    //if the code reaches here, slot is guaranteed to be positive
     std::string name = dequeueSound();
     if(name == "")
       continue;
     try {
-      soundPlayer[slot].setBuffer(SR.getSound(name));
-      soundStatus[slot] = Assigned;
+      soundPlayer[static_cast<unsigned>(slot)].setBuffer(SR.getSound(name));
+      soundStatus[static_cast<unsigned>(slot)] = Assigned;
     }
     catch (...) {
       continue;
@@ -77,27 +77,27 @@ void MusicPlayer::assignSounds() {
   }while(!open);
 }
 void MusicPlayer::manageSounds() {
-  for(int i=0;i<8;i++) {
+  for(unsigned i=0;i<8;i++) {
     switch(soundStatus[i]) {
     case Playing:
       if(soundPlayer[i].getStatus() == sf::SoundSource::Stopped) {
-	//free up slot
-	soundStatus[i] = Ready;
+        //free up slot
+        soundStatus[i] = Ready;
       }
       break;
     case ReservedPlaying:
       if(soundPlayer[i].getStatus() == sf::SoundSource::Stopped) {
-	//free up slot
-	soundStatus[i] = Reserved;
+        //free up slot
+        soundStatus[i] = Reserved;
       }
       break;
     case Assigned:
       soundPlayer[i].play();
       if(!(soundPlayer[i].getStatus() == sf::SoundSource::Playing)) {
-	soundStatus[i] = Ready;
+        soundStatus[i] = Ready;
       }
       else {
-	soundStatus[i] = Playing;
+        soundStatus[i] = Playing;
       }
       break;
     case ReservedAssigned:

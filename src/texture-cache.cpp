@@ -4,11 +4,11 @@
 
 
 bool Transform::operator!=(Transform t) const {
-  return !(type == t.type && args == t.args);
+  return !(type == t.type && args == t.args && text == t.text);
 }
 
 bool Transform::operator==(Transform t) const {
-  return (type == t.type && args == t.args);
+  return (type == t.type && args == t.args && text == t.text);
 }
 
 bool CacheNodeAttributes::operator==(CacheNodeAttributes attr) const {
@@ -37,48 +37,19 @@ std::string TextureCache::hash(unsigned index) const {
 }
 
 int TextureCache::reverseHash(const std::string& value) const {
-  for(unsigned i=0;i<imgNameHash.size();i++) {
+  for(unsigned long i=0;i<imgNameHash.size();i++) {
     if(value == imgNameHash[i]) {
-      return i;
+      return static_cast<int>(i);
     }
   }
   return -1;
 }
 
-int TextureCache::objectFilenameHash(unsigned index) const {
-  if(index >= objectListing.size()) {
-    std::cout << "Error: requested object has no associated file\n";
-    return -1;
-  }
-  int p = reverseHash(objectListing[index]);
-  if(p < 0) {
-    std::cout << "Error: reverseHash for '" << objectListing[index] << "' unsuccessful\n";
-    return -1;
-  }
-  return p;
-}
-
-int TextureCache::tileFilenameHash(unsigned index) const {
-  if(index >= tileListing.size()) {
-    std::cout << "Error: requested tile has no associated file\n";
-    return -1;
-  }
-  return reverseHash(tileListing[index]);
-}
-
-int TextureCache::entityFilenameHash(unsigned index) const {
-  if(index >= entityListing.size()) {
-    std::cout << "Error: requested entity has no associated file\n";
-    return -1;
-  }
-  return reverseHash(entityListing[index]);
-}
-
 int TextureCache::searchCache(CacheNodeAttributes attr) const {
   // if texture exists, return its index. Else, return -1
-  for(unsigned i=0;i<cache[attr.srcImg].size();i++) {
+  for(unsigned long i=0;i<cache[attr.srcImg].size();i++) {
     if(cache[attr.srcImg][i] == attr) {
-      return i;
+      return static_cast<int>(i);
     }
   }
   return -1;
@@ -95,10 +66,10 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
   int index = searchCache(attr);
 
 
-  if(index >= 0) {
+  if(index >= 0) { //index is guaranteed to be nonnegative
     // requested texture exists
     //std::clog << "Fetching texture from cache "<<attr.srcImg<<", slot " << index << "\n";
-    return cache[attr.srcImg][index].tex;
+    return cache[attr.srcImg][static_cast<unsigned>(index)].tex;
   }
   else {
     //std::clog << "Cache miss in subcache " << attr.srcImg << "\n";
@@ -108,7 +79,7 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
     
     // make a copy of requested image
     sf::Image finalImage(images[attr.srcImg]);
-    sf::IntRect window(0, 0, finalImage.getSize().x, finalImage.getSize().y);
+    sf::IntRect window(0, 0, static_cast<int>(finalImage.getSize().x), static_cast<int>(finalImage.getSize().y));
     // iterate through attr.tList, apply each transformation
     for(auto x : attr.tList) {
       switch(x.type) { //apply each transformation
@@ -182,7 +153,7 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
         t.setFont(courier);
         t.setString(x.text);
         t.setFillColor(sf::Color::White);
-        t.setCharacterSize(x.args[2]);
+        t.setCharacterSize(static_cast<unsigned>(x.args[2]));
         t.setPosition(x.args[0], x.args[1]);
         tex.draw(t);
         tex.display();
@@ -259,6 +230,7 @@ TextureCache::TextureCache(const std::string& name) {
     std::string imgName = getName(line);
     std::string fullLine = "assets/texture/" + srcImg;
     //add line to the appropriate listing
+    /*
     if(section == 0) {
       tileListing.push_back(imgName);
     }
@@ -271,6 +243,7 @@ TextureCache::TextureCache(const std::string& name) {
     else {
       std::cerr << "Error: invalid section\n";
     }
+    */
     //load image, add it to images
     if(reverseHash(line) >= 0) {
       //duplicate image
@@ -284,7 +257,7 @@ TextureCache::TextureCache(const std::string& name) {
     else {
       sf::Image i;
       i.loadFromFile(fullLine);
-      im.create(box.width, box.height);
+      im.create(static_cast<unsigned>(box.width), static_cast<unsigned>(box.height));
       im.copy(i, 0, 0, box, false);
     }
     registerImage(im, imgName);

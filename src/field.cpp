@@ -1,11 +1,11 @@
 #include "field.h"
 
 
-NodeBase Field::getNode(int x, int y) const {
+NodeBase Field::getNode(unsigned x, unsigned y) const {
   return mapBase[x][y];
 }
 
-void Field::updateNode(int x, int y, const NodeBase& node) {
+void Field::updateNode(unsigned x, unsigned y, const NodeBase& node) {
   mapBase[x][y] = node;
 }
 
@@ -54,7 +54,7 @@ sf::Vector2i Field::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i 
     int cxP = pos.x + i * getTilesizeX();
     if(cxP > phx)
       cxP = phx;
-    if(getNode(int(cxP/getTilesizeX()), int(pos.y/getTilesizeY())-1).getSolid(Up)) {
+    if(getNode(unsigned(cxP/getTilesizeX()), unsigned(pos.y/getTilesizeY())-1).getSolid(Up)) {
       tempSpeed = pos.y - playY * getTilesizeY();
       moveDistance.y = abs(moveDistance.y) > abs(tempSpeed) ? tempSpeed : moveDistance.y;
     }
@@ -74,7 +74,7 @@ sf::Vector2i Field::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i 
     int cxP = pos.x + i * getTilesizeX();
     if(cxP > phx)
       cxP = phx;
-    if(getNode(int(cxP/getTilesizeX()), int((phy)/getTilesizeY())).getSolid(Down)) {
+    if(getNode(unsigned(cxP/getTilesizeX()), unsigned((phy)/getTilesizeY())).getSolid(Down)) {
       tempSpeed = int(phy / getTilesizeY()) * getTilesizeY() - phy;
       moveDistance.y = moveDistance.y > tempSpeed ? tempSpeed : moveDistance.y;
     }
@@ -94,7 +94,7 @@ sf::Vector2i Field::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i 
     int cyP = pos.y + i * getTilesizeY();
     if(cyP > phy)
       cyP = phy;
-    if(getNode(int(pos.x/getTilesizeX())-1, int(cyP/getTilesizeY())).getSolid(Left)) {
+    if(getNode(unsigned(pos.x/getTilesizeX())-1, unsigned(cyP/getTilesizeY())).getSolid(Left)) {
       tempSpeed = pos.x - playX * getTilesizeX();
       moveDistance.x = abs(moveDistance.x) > abs(tempSpeed) ? tempSpeed : moveDistance.x;
     }
@@ -114,7 +114,7 @@ sf::Vector2i Field::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i 
     int cyP = pos.y + i * getTilesizeY();
     if(cyP > phy)
       cyP = phy;
-    if(getNode(int((phx)/getTilesizeX()), int(cyP/getTilesizeY())).getSolid(Right)) {
+    if(getNode(unsigned((phx)/getTilesizeX()), unsigned(cyP/getTilesizeY())).getSolid(Right)) {
       tempSpeed = int(phx / getTilesizeX()) * getTilesizeX() - phx;
       moveDistance.x = moveDistance.x > tempSpeed ? tempSpeed : moveDistance.x;
     }
@@ -133,53 +133,52 @@ sf::Vector2i Field::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i 
   int playYgn = int((p.y+size.y-1) / getTilesizeY());
   bool colly = false;
   bool collx = false;
-  //std::cout << playXn << ' ' << playXgn << '\n';
   
   if(moveDistance.x < 0 && moveDistance.y < 0) {
     if(playX != playXn) {
-      if(getNode(playXn, playYn).getSolid(Left)) {
-    collx = true;
+      if(getNode(static_cast<unsigned>(playXn), static_cast<unsigned>(playYn)).getSolid(Left)) {
+        collx = true;
       }
     }
     if(playY != playYn) {
-      if(getNode(playXn, playYn).getSolid(Up)) {
-    colly = true;
+      if(getNode(static_cast<unsigned>(playXn), static_cast<unsigned>(playYn)).getSolid(Up)) {
+        colly = true;
       }
     }
   }
   else if(moveDistance.x < 0 && moveDistance.y > 0) {
     if(playX != playXn) {
-      if(getNode(playXn, playYgn).getSolid(Left)) {
-    collx = true;
+      if(getNode(static_cast<unsigned>(playXn), static_cast<unsigned>(playYn)).getSolid(Left)) {
+        collx = true;
       }
     }
     if(playYg != playYgn) {
-      if(getNode(playXn, playYgn).getSolid(Down)) {
-    colly = true;
+      if(getNode(static_cast<unsigned>(playXn), static_cast<unsigned>(playYn)).getSolid(Down)) {
+        colly = true;
       }
     }
   }
   else if(moveDistance.x > 0 && moveDistance.y < 0) {
     if(playXg != playXgn) {
-      if(getNode(playXgn, playYn).getSolid(Right)) {
-    collx = true;
+      if(getNode(static_cast<unsigned>(playXn), static_cast<unsigned>(playYn)).getSolid(Right)) {
+        collx = true;
       }
     }
     if(playY != playYn) {
-      if(getNode(playXgn, playYn).getSolid(Up)) {
-    colly = true;
+      if(getNode(static_cast<unsigned>(playXn), static_cast<unsigned>(playYn)).getSolid(Up)) {
+        colly = true;
       }
     }
   }
   else if(moveDistance.x > 0 && moveDistance.y > 0) {
     if(playXg != playXgn) {
-      if(getNode(playXgn, playYgn).getSolid(Right)) {
-    collx = true;
+      if(getNode(static_cast<unsigned>(playXn), static_cast<unsigned>(playYn)).getSolid(Right)) {
+        collx = true;
       }
     }
     if(playYg != playYgn) {
-      if(getNode(playXgn, playYgn).getSolid(Down)) {
-    colly = true;
+      if(getNode(static_cast<unsigned>(playXn), static_cast<unsigned>(playYn)).getSolid(Down)) {
+        colly = true;
       }
     }
   }
@@ -198,8 +197,8 @@ sf::Vector2i Field::loadLevel(const std::string& levelname) {
     throw 0;
   std::string line;
   int section = 0;
-  int column = 0;
-  int row = 0;
+  unsigned column = 0;
+  unsigned row = 0;
   while(load.peek() != EOF) {
     std::getline(load, line);
     //parse line
@@ -211,7 +210,7 @@ sf::Vector2i Field::loadLevel(const std::string& levelname) {
               std::cerr << "Error: invalid width ("<<line<<")\n";
               throw -1;
             }
-            mapBase.resize(std::stoi(line));
+            mapBase.resize(std::stoul(line));
             section++;
           }
           else {
@@ -225,7 +224,7 @@ sf::Vector2i Field::loadLevel(const std::string& levelname) {
               throw -1;
             }
             for(auto& m : mapBase) {
-              m.resize(std::stoi(line));
+              m.resize(std::stoul(line));
             }
             section++;
           }
@@ -265,6 +264,7 @@ sf::Vector2i Field::loadLevel(const std::string& levelname) {
     }
     
   }
+  return sf::Vector2i{static_cast<int>(mapBase.size()),static_cast<int>(mapBase.at(0).size())};
 }
 
 Field::Field(size_t x, size_t y) : mapBase{x, std::vector<NodeBase>(y)} {
@@ -306,7 +306,7 @@ bool strToNode(const std::string& line, MapNode& node) {
         return false;
     }
     else {
-      node.setId(std::stoi(accum));
+      node.setId(std::stoul(accum));
     }
     break;
       case 1:

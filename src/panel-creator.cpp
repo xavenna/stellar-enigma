@@ -23,14 +23,14 @@ void PanelCreator::createPanel() {
   for(auto& x : icons) {
     //place this icon on the panel, setPos
     x.setPosition(currentPos.x, currentPos.y);
-    x.setPos(sf::Vector2i(currentPos.x, currentPos.y));
+    x.setPos(sf::Vector2i(static_cast<int>(currentPos.x), static_cast<int>(currentPos.y)));
     currentPos.y += x.getSize().y;
     maxWid = x.getSize().x > maxWid ? x.getSize().x : maxWid;
   }
   for(auto& x : picons) {
     //place this icon on the panel, setPos
     x.setPosition(currentPos.x, currentPos.y);
-    x.setPos(sf::Vector2i(currentPos.x, currentPos.y));
+    x.setPos(sf::Vector2i(static_cast<int>(currentPos.x), static_cast<int>(currentPos.y)));
     currentPos.y += x.getSize().y;
     maxWid = x.getSize().x > maxWid ? x.getSize().x : maxWid;
   }

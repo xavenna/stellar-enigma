@@ -10,9 +10,8 @@
 #include <fstream>
 #include "color.h"
 
-#define ARG_NUM 4
-//how many arguments a transform has
 
+//! A struct representing a transform for the texturecache to apply to the source image
 struct Transform {
   //! The type of transform being applied to the source image
   enum Type {
@@ -28,11 +27,11 @@ struct Transform {
     Add_Circle,
     Add_Text  //!< Superimposes text on image at specified position
   };
-  Type type;
-  std::array<int, ARG_NUM> args;
+  Type type; //!< The type of transform to apply
+  std::array<int, 4> args;  //!< Arguments for the transform
   std::string text;  //!< Text variable for some transforms
-  bool operator!=(Transform) const;
-  bool operator==(Transform) const;
+  bool operator!=(Transform) const; //!< Transform inequality operator.
+  bool operator==(Transform) const; //!< Transform equality operator.
 };
 
 //! A simple class that specifies a cache node. When an object requests a texture, it uses a CNA to do so.
@@ -42,16 +41,16 @@ struct Transform {
  */
 class CacheNodeAttributes {
 public:
-  unsigned srcImg;
-  std::vector<Transform> tList;
-  bool operator==(CacheNodeAttributes) const;
+  unsigned srcImg; //!< Which image # is used
+  std::vector<Transform> tList; //!< List of transforms to apply
+  bool operator==(CacheNodeAttributes) const; //!< Checks if two CNAs fully match
 };
 
 //! A representation of a node within the texture cache.
 class CacheNode : public CacheNodeAttributes {
 public:
-  sf::Texture tex;
-  CacheNode(CacheNodeAttributes);
+  sf::Texture tex; //!< The generated texture corresponding to the CNA.
+  CacheNode(CacheNodeAttributes); //!< Constructs the Node from the CNA.
 };
 
 
@@ -82,18 +81,11 @@ private:
   std::deque<std::deque<CacheNode>> cache;
   //! All images that have been registered
   std::vector<sf::Image> images;
-  //! These are deprecated, an artifact from an old system
-  std::vector<std::string> objectListing;
-  std::vector<std::string> entityListing;
-  std::vector<std::string> tileListing;
-  //! ...
+  //! Determines the subcache number for a given CNA.
   int searchCache(CacheNodeAttributes) const; // This is private as it is only used internally
 public:
-  //! Returns the name of 
+  //! Returns the name of the nth image stored
   std::string hash(unsigned index) const;
-  int objectFilenameHash(unsigned index) const;
-  int tileFilenameHash(unsigned index) const;
-  int entityFilenameHash(unsigned index) const;
   //! Returns the subcache id generated from the specified texture. Returns -1 if texture isn't registered
   int reverseHash(const std::string& value) const;
   //! Searches the cache for a texture matching the passed CNA. Generates and stores it if not found
@@ -103,8 +95,10 @@ public:
   //! Constructor: Initializes the cache with a texturemap file. Argument passed is filename of texturemap.
   TextureCache(const std::string& name);
 };
-
+//! Get the subrectangle from a texturemap entry
 sf::IntRect getRect(std::string);
+//! Get the imagename from a texturemap entry
 std::string getName(std::string);
+//! Get the filename from a texturemap entry
 std::string getFile(std::string);
 #endif

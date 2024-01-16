@@ -1,10 +1,9 @@
 #include "player.h"
 #include "level.h"
 
-Player::Player(unsigned c) {
+Player::Player() {
   setPos(0,0);
   facingDir = Up;
-  maxCooldown = c;
 }
 void Player::update(sf::Vector2i tilesize) {
   //set facing direction;
@@ -36,7 +35,7 @@ void Player::assignTexture(TextureCache& cache) {
     std::clog << "Error: player sprite not found\n";
     return;
   }
-  cna.srcImg = s;
+  cna.srcImg = static_cast<unsigned>(s);
 
   //apply transformations
   Transform t;
@@ -69,13 +68,25 @@ void Player::resetCooldown() {
   cooldown = maxCooldown;
 }
 unsigned Player::modifyHealth(int h) {
-  return int(health)+h<0?0:(health+=h);
+  if(static_cast<int>(health)+h < 0) {
+    health = 0;
+  }
+  else {
+    health = static_cast<unsigned>(static_cast<int>(health) + h);
+  }
+  return health;
 }
 unsigned Player::getHealth() const {
   return health;
 }
 unsigned Player::modifyScore(int s) {
-  return int(score)+s<0?0:(score+=s);
+  if(static_cast<int>(score)+s < 0) {
+    score = 0;
+  }
+  else {
+    score = static_cast<unsigned>(static_cast<int>(score) + s);
+  }
+  return score;
 }
 unsigned Player::getScore() const{
   return score;
@@ -102,25 +113,18 @@ int Player::getSpeed() const {
   }
   return speed * totalScale;
 }
-void Player::setHealth(int n) {
+void Player::setHealth(unsigned n) {
   health = n;
 }
 void Player::setFacing(Direction n) {
   facingDir = n;
 }
+
+void Player::setMaxCooldown(unsigned m) {
+  maxCooldown = m;
+}
 Direction Player::getFacing() const{
   return facingDir;
-}
-int Player::getLevelXPos(int tileWidth) {
-  std::clog << "Player::getLevelXPos() is deprecated, use getLevelPos instead\n";
-  //player width maybe needs to be substituted for tileWidth
-  int temp = int((pos.x+(tileWidth / 2)) / tileWidth);
-  return temp;
-}
-int Player::getLevelYPos(int tileHeight) {
-  std::clog << "Player::getLevelYPos() is deprecated, use getLevelPos instead\n";
-  int temp = int((pos.y+(tileHeight / 2)) / tileHeight);
-  return temp;
 }
 sf::Vector2i Player::getLevelPos(sf::Vector2i tileSize) {
   return sf::Vector2i( ((pos.x+ (tileSize.x / 2)) / tileSize.x), ((pos.y+ (tileSize.y / 2)) / tileSize.y));

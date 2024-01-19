@@ -14,7 +14,6 @@ public:
   virtual int Type() {return Object::Static;} 
   virtual int priority() {return 0;}
   ToggleBlock(int);
-  ToggleBlock(Object);
 };
 
 #endif

@@ -12,6 +12,7 @@
 #include "utility.h"
 #include "interface-manager.h"
 #include "texture-cache.h"
+#include "save.h"
 //! Mapdata is the class that encapsulates all level components
 /*!
  * Provides a convenient encapsulation of all level components.
@@ -26,9 +27,9 @@ public:
   MusicPlayer musicPlayer; //!< Controls playing of sounds and music
   Message message; //!< Displays textual information to the player
   CutscenePlayer cutscenePlayer; //!< Plays cutscenes to the player
-  CutsceneManager cutsceneManager; //!< Holds cutscenes
   SwitchHandler switchHandler;  //!< Handles Switches
   Utility utility; //!< A utility provider, contains miscellaneous useful functions
+  SaveController save; //!< Savedata manager
 
   //helper components
   TextureCache cache; //!< Manages textures & transforms

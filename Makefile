@@ -11,7 +11,7 @@ SFLIBDIR = -LC:\SFML\lib
 LLIB = -lsfml-graphics-d -lfreetype -lsfml-window-d -lopengl32 -lgdi32 -lsfml-audio-d -lopenal32 -lflac -lvorbisenc -lvorbisfile -lvorbis -logg -lsfml-system-d -lwinmm -lsfml-main-d
 EXE += .exe
 else
-LLIB = -lsfml-graphics -lsfml-window -lsfml-audio -lsfml-system
+LLIB = -lsfml-graphics -lsfml-window -lsfml-audio -lsfml-system -ljson11
 LFLAGS +=  -no-pie
 endif
 

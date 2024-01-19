@@ -2,7 +2,6 @@
 
 
 Pushable::Pushable(int uid) : Object(uid) {}
-Pushable::Pushable(Object ob) : Object(ob) {}
 
 
 Interface Pushable::interact(Player* p, Field* l, SwitchHandler*) {

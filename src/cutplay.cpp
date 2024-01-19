@@ -5,10 +5,6 @@ CutPlay::CutPlay(int uid) : Object(uid) {
   vars[0] = 0;
   args[1] = 30;
 }
-CutPlay::CutPlay(Object ob) : Object(ob) {
-  vars[0] = 0;
-  args[1] = 30;
-}
 
 Interface CutPlay::interact(Player*, Field*, SwitchHandler*) {
   // play cutscene, nothing else (for now)

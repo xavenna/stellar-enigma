@@ -8,7 +8,7 @@ void CutscenePlayer::playCutscene() {//this may be completely useless
   //actually, this could be used when switching to mode 2
 }
 
-bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwitcher& ms, MusicPlayer& mp, CutsceneManager& cm) {
+bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwitcher& ms, MusicPlayer& mp) {
   //make this start the next event, that would be pretty cool
   //okay, I think it does now. Yay
   Event e = cutscene.getEvent(pos);
@@ -31,7 +31,7 @@ bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwit
           if(cutscene.getListLen()-1 == static_cast<int>(pos)) {
             return false;
           }
-          if(!playEvent(pl, me, le, mp, cm)) {
+          if(!playEvent(pl, me, le, mp)) {
             //error: invalid event
             std::cout << "Error: invalid event in cutscene. Event skipped.\n";
           }
@@ -51,7 +51,7 @@ bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwit
       else {
         pos++;
         //start next event?
-        if(!playEvent(pl, me, le, mp, cm)) {
+        if(!playEvent(pl, me, le, mp)) {
           //error: invalid event
           std::cout << "Error: invalid event in cutscene. Event skipped.\n";
           //set timer to 0?
@@ -66,7 +66,7 @@ bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwit
   return true;
 }
 
-bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le, MusicPlayer& mp, CutsceneManager& cm) {
+bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le, MusicPlayer& mp) {
   //add bounds checking to this
   Event e = cutscene.getEvent(pos);
   switch(e.getType()) {
@@ -130,7 +130,7 @@ bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le, MusicPlayer& 
   case Event::MapLoad:
     //load a new map
     le.loadLevel(e.getText());
-    cm.loadCutscenes(e.getText());
+    man.loadCutscenes(e.getText());
     pl.setPos(e[0],e[1]);
     break;
   case Event::Invalid:

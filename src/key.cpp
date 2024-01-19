@@ -2,9 +2,6 @@
 
 
 Key::Key(int uid) : Object(uid) {}
-Key::Key(Object ob) : Object(ob) {
-
-}
 
 
 Interface Key::interact(Player*, Field*, SwitchHandler* sh) {

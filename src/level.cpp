@@ -261,36 +261,32 @@ void Level::resetObjDeltas() {
   }
 }
 
-void Level::handleObjects(sf::Vector2i pos, sf::Vector2i size, SwitchHandler* sh, Message* m) {
+Interface Level::handleObjects(sf::Vector2i pos, sf::Vector2i size, SwitchHandler* sh) {
+  Interface inter;
   for(unsigned i=0;i<objects.size();i++) {
     Object* x = objects.getObjPtr(i);
     //do things for x.
     Interface res = x->behave(sh);
-
-    if(res.message != "") {
-      m->addMessage(res.message);
+    for(auto y : res.message) {
+      inter.addMessage(y);
     }
-    /* This function currently has no link to the cutscene machinery
-     * This needs to be established eventually.
-    if(res.cutscene != "") {
-      if(cutsceneManager.cutsceneExists(res.cutscene)) {
-        cutscenePlayer.loadCutscene(cutsceneManager.getCutscene(res.cutscene));
-      }
-      modeSwitcher.setMode(2);
+    for(auto y : res.cutscene) {
+      inter.playCutscene(y);
     }
-    */
+    for(auto y : res.sounds) {
+      inter.playSound(y);
+    }
 
     for(auto y : res.objs) {
       //create any requested objects
       objects.storeObj(y.first, y.second);
     }
-
     for(auto y : res.notifications) {
       //send any required messages
       objects.notify(y);
     }
-
     
+
     sf::Vector2i mid(pos.x+size.x/2, pos.y+size.y/2);
     unsigned pscrx = (static_cast<unsigned>(mid.x)-tilesizeX) / (tilesizeX*(WINDOW_WIDTH-2));
     unsigned pscry = (static_cast<unsigned>(mid.y)-tilesizeY) / (tilesizeY*(WINDOW_HEIGHT-2));
@@ -304,6 +300,7 @@ void Level::handleObjects(sf::Vector2i pos, sf::Vector2i size, SwitchHandler* sh
     x->setLastPos(x->getPos());
     // If you remove an object, make sure to do i--;
   }
+  return inter;
 }
 bool Level::displayObject(unsigned index, sf::Vector2i ppos, sf::Vector2i size) const {
   

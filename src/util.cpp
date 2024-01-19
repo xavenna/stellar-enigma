@@ -24,6 +24,16 @@ std::string lowercase(const std::string& in) {
   return e;
 }
 
+bool getEntireFile(std::ifstream& in, std::string& out) {
+	if(!in.is_open())
+		return false;
+    std::ostringstream sstr;
+    sstr << in.rdbuf();
+	out = sstr.str();
+	return true;
+}
+
+
 //returns whether n is found in key
 bool ifMatch(char n, std::string key) {
 	return (key.find(n) != std::string::npos);

@@ -98,7 +98,7 @@ public:
   //! gets the number of objects
   unsigned getObjNum() const;
 
-  //! Adds passed Object to objectList, as specified type. Deprecated
+  //! Adds passed Object to objectList, as specified type.
   void addObject(const Object& ob, const std::string&);
   //! Removes specified object from object list
   void removeObject(unsigned index);
@@ -111,7 +111,7 @@ public:
   /*!
    *  Updates entity tile positions
    */
-  void handleObjects(sf::Vector2i pos, sf::Vector2i size, SwitchHandler*, Message*);
+  Interface handleObjects(sf::Vector2i pos, sf::Vector2i size, SwitchHandler*);
   //! Resets last pos for objects
   void resetObjDeltas();
   //! Tells whether object is on the correct screen to be displayed

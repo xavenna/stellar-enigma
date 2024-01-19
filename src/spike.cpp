@@ -1,7 +1,6 @@
 #include "spike.h"
 
 Spike::Spike(int uid) : Solid(uid) {}
-Spike::Spike(Object ob) : Solid(ob) {}
 
 Interface Spike::interact(Player* p, Field*, SwitchHandler*) {
   sf::Vector2i pmin{p->getPos()};

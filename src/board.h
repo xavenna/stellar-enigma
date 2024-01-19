@@ -12,7 +12,6 @@ public:
   virtual std::string Name() {return "board";}
   virtual int Type() {return Object::Intangible;} 
   Board(int);
-  Board(Object);
 };
 
 #endif

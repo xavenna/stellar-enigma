@@ -29,8 +29,8 @@ struct msg {
  */
 class Interface {
 public:
-  std::string message;   //!< Message to display
-  std::string cutscene;  //!< Cutscene to play
+  std::vector<std::string> message;   //!< Messages to display
+  std::vector<std::string> cutscene;  //!< Cutscenes to play
   std::vector<std::string> sounds; //!< Sounds to play
   std::vector<std::pair<Object, std::string>> objs; //!< Objects to create, along with type
   std::vector<msg> notifications; //!< Notifications to send.
@@ -45,6 +45,8 @@ public:
   void spawnObject(Object, const std::string& type);
   //! Creates a notification to send to object with specified Link_ID
   void notify(msg);
+  //! Clears the object list
+  void clearObjs();
 
   //! Constructs an empty Interface. Use the API functions to request actions. Eventually, the vars may be private
   Interface();

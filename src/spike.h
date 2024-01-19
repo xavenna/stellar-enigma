@@ -12,7 +12,6 @@ public:
   virtual std::string Name() {return "spike";}
   virtual int priority() {return 0;} //0 is highest, decreases counting up
   Spike(int);
-  Spike(Object);
 };
 
 #endif

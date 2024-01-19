@@ -1,7 +1,6 @@
 #include "solid.h"
 
 Solid::Solid(int uid) : Object(uid) {}
-Solid::Solid(Object ob) : Object(ob) {}
 
 
 Interface Solid::interact(Object* p, Field*, SwitchHandler*) {

@@ -31,6 +31,10 @@ Additionally, an copy of the documentation can be found [here](https://xavenna.g
 
 
 ## Build:
+Build dependencies:
+SFML, json11. Links with install instructions are in the credits section.
+On Linux, just install libsfml-dev and libjson11-1-dev from your package manager
+
 stellar-enigma builds are tested on linux; The makefile may require tweaking to work on
 other operating systems. An option to build stellar as a static/dynamic library will be
 available eventually.
@@ -38,5 +42,8 @@ available eventually.
 ## Credits:
 stellar-enigma was created by xavenna
 
-I used the SFML framework for graphics and audio.
+The SFML Framework was used for Graphics and Audio
 These libraries can be found at https://sfml-dev.org/
+
+The Json11 library was used for json parsing.
+This can be found at https://github.com/dropbox/json11/

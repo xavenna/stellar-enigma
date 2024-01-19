@@ -14,7 +14,6 @@ public:
   virtual int priority() {return 0;}
   virtual int Type() {return Object::Static;} 
   Solid(int);
-  Solid(Object);
 };
 
 

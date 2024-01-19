@@ -4,10 +4,6 @@ Door::Door(int uid) : Solid(uid) {
   vars[0] = true;
   vars[1] = false;
 }
-Door::Door(Object ob) : Solid(ob) {
-  vars[0] = true;
-  vars[1] = false;
-}
 
 
 Interface Door::interact(Object* p, Field*, SwitchHandler*) {

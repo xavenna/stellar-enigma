@@ -5,10 +5,6 @@ ToggleBlock::ToggleBlock(int uid) : Solid(uid) {
   vars[0] = args[0];
   vars[1] = 0;
 }
-ToggleBlock::ToggleBlock(Object ob) : Solid(ob) {
-  vars[0] = args[0];
-  vars[1] = 0;
-}
 
 Interface ToggleBlock::interact(Player* p, Field*, SwitchHandler*) {
   sf::Vector2i pmin{p->getPos()};

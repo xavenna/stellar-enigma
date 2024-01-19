@@ -1,7 +1,6 @@
 #include "board.h"
 
 Board::Board(int uid) : Object(uid) {}
-Board::Board(Object ob) : Object(ob) {}
 
 
 Interface Board::interact(Player*, Field*, SwitchHandler*) {

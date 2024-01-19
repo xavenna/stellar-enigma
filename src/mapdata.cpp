@@ -35,7 +35,14 @@ MapData::MapData(unsigned pCool, unsigned mWid, unsigned mCool, unsigned mElem, 
   message.setPosition(4+levelSlot.getTilesize().x, msgOfY);
   
 
-  cutsceneManager.loadCutscenes("default");
+  cutscenePlayer.man.loadCutscenes("default");
+
+  //load savedata.
+  save.setSlot("0");
+  save.readData();
+
+  save.writeData();
+  //test line
 }
 
 unsigned long MapData::getFrameCount() const {
@@ -290,18 +297,25 @@ void MapData::event1Handle() {
         //call the obj's interact function on the player
 
         Interface res = x.o1->interact(&player, &levelSlot.field, &switchHandler);
-        if(res.message != "") {
-          message.addMessage(res.message);
-        }
-        if(res.cutscene != "") {
-          if(cutsceneManager.cutsceneExists(res.cutscene)) {
-            cutscenePlayer.loadCutscene(cutsceneManager.getCutscene(res.cutscene));
+        for(auto y : res.message) {
+          if(y != "") {
+            message.addMessage(y);
           }
-          modeSwitcher.setMode(2);
+        }
+        for(auto y : res.cutscene) {
+          if(y != "") {
+            if(cutscenePlayer.man.cutsceneExists(y)) {
+              cutscenePlayer.loadCutscene(cutscenePlayer.man.getCutscene(y));
+            }
+            modeSwitcher.setMode(2);
+          }
+        }
+        for(auto y : res.sounds) {
+          musicPlayer.queueSound(y);
         }
 
         for(auto y : res.objs) {
-          //create any requested objects (these won't have a link id)
+          levelSlot.addObject(y.first, y.second);
         }
 
         if(x.o1->getStatus() == Object::Destroy) {
@@ -378,18 +392,26 @@ void MapData::event1Handle() {
 
         if(!ignore) {
           Interface res = (initiator?x.o2:x.o1)->interact((initiator?x.o1:x.o2), &levelSlot.field, &switchHandler);
-          if(res.message != "") {
-            message.addMessage(res.message);
-          }
-          if(res.cutscene != "") {
-            if(cutsceneManager.cutsceneExists(res.cutscene)) {
-              cutscenePlayer.loadCutscene(cutsceneManager.getCutscene(res.cutscene));
+          for(auto y : res.message) {
+            if(y != "") {
+              message.addMessage(y);
             }
-            modeSwitcher.setMode(2);
+          }
+          for(auto y : res.cutscene) {
+            if(y != "") {
+              if(cutscenePlayer.man.cutsceneExists(y)) {
+                cutscenePlayer.loadCutscene(cutscenePlayer.man.getCutscene(y));
+              }
+              modeSwitcher.setMode(2);
+            }
+          }
+          for(auto y : res.sounds) {
+            musicPlayer.queueSound(y);
           }
 
           for(auto y : res.objs) {
             //create any requested objects
+            levelSlot.addObject(y.first, y.second);
           }
 
           if(x.o1->getStatus() == Object::Destroy) {
@@ -438,7 +460,27 @@ void MapData::event1Handle() {
   if(oldps != newps)
     levelSlot.displayUpdate = true;
 
-  levelSlot.handleObjects(player.getPos(), player.getSize(), &switchHandler, &message);
+  Interface res = levelSlot.handleObjects(player.getPos(), player.getSize(), &switchHandler);
+
+  //handle the interfaces
+  for(auto x : res.message) {
+    if(x != "") {
+      message.addMessage(x);
+    }
+  }
+  for(auto x : res.cutscene) {
+    if(x != "") {
+      if(cutscenePlayer.man.cutsceneExists(x)) {
+        cutscenePlayer.loadCutscene(cutscenePlayer.man.getCutscene(x));
+      }
+      modeSwitcher.setMode(2);
+    }
+  }
+  for(auto x : res.sounds) {
+    musicPlayer.queueSound(x);
+  }
+  //objects and notifications are done in the Level, so they don't need to be done here
+
 
   // If player has died, display death screen and switch to mode 0 
   if(player.getHealth() == 0) {
@@ -458,7 +500,7 @@ void MapData::event1Handle() {
 
 
 void MapData::event2Handle() {  //this is the cutscene mode
-  if(cutscenePlayer.updateCutscene(player, message, levelSlot, modeSwitcher, musicPlayer, cutsceneManager)) {
+  if(cutscenePlayer.updateCutscene(player, message, levelSlot, modeSwitcher, musicPlayer)) {
     //I'm not sure if anything needs to go here
   }
   else {

@@ -12,7 +12,6 @@ public:
   virtual int Type() {return Object::Sliding;} 
   virtual int priority() {return 2;}
   Pushable(int);
-  Pushable(Object);
 };
 
 #endif

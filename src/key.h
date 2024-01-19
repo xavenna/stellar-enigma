@@ -11,7 +11,6 @@ public:
   virtual CacheNodeAttributes draw(const TextureCache*);
   virtual std::string Name() {return "key";}
   Key(int uid);
-  Key(Object);
 };
 
 #endif

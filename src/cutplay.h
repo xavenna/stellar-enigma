@@ -11,7 +11,6 @@ public:
   virtual Interface behave(SwitchHandler*);
   virtual std::string Name() {return "cutscene_player";}
   CutPlay(int);
-  CutPlay(Object);
 };
 
 #endif

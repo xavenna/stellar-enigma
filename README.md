@@ -1,5 +1,5 @@
 # stellar-enigma
-A game engine that uses the SFML framework.
+A Top-Down, 2-D game engine
 
 stellar-enigma is a Top-Down, 2-D engine, inspired by games like the original Legend Of
 Zelda. It is currently a Work in Progress

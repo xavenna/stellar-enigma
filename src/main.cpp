@@ -38,7 +38,7 @@ int main() {
   t.args[0] = 8; //change this once the texture base is made
   t.args[1] = 0; //change this once the texture base is made
   t.args[2] = 20; //size, tweak until it looks good
-  t.text = "Stellar Enigma Engine Test\n\nVersion v0-unstable\n\n\nCreated by xavenna";
+  t.text = "Stellar Enigma Engine Test\n\nVersion v0-unstable\n\n\nCreated by xavenna\n\n\nHigh Score: %ihiscore~";
   mapData.mainMenu.tList.push_back(t);
   mapData.mainMenu.onPress = 1;
 

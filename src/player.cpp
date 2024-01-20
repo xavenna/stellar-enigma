@@ -40,7 +40,8 @@ void Player::assignTexture(TextureCache& cache) {
   //apply transformations
   Transform t;
   t.type = Transform::Rotate;
-  t.args[0] = facingDir;
+  int rotationAmount = facingDir;
+  t.args[0] = rotationAmount;
   cna.tList.push_back(t);
 
   try {

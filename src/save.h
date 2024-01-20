@@ -25,6 +25,15 @@ public:
   int readData();
 
 
+  //! Check if string variable exists
+  bool hasStr(const std::string&) const noexcept;
+  //! Check if bool variable exists
+  bool hasBool(const std::string&) const noexcept;
+  //! Check if float variable exists
+  bool hasFloat(const std::string&) const noexcept;
+  //! Check if integer variable exists
+  bool hasInt(const std::string&) const noexcept;
+
   //! get string variable
   std::string getStr(const std::string&, bool&) const noexcept;
   //! get int variable

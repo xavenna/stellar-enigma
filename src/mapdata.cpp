@@ -2,7 +2,7 @@
 
 // This file has functions for the overarching classes
 
-MapData::MapData(unsigned pCool, unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSize) :  message{mWid, mCool, mElem, mCharSize}, cache{"assets/texturemap/default.tm"} {
+MapData::MapData(unsigned pCool, unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSize) :  message{mWid, mCool, mElem, mCharSize}, cache{"assets/texturemap/default.tm", save} {
   //initialize members here
 
   //load level
@@ -77,7 +77,7 @@ void MapData::finishFrame(sf::RenderWindow& window) {
     //assign texture to mainMenu
 
     mainMenu.assignTexture(cache);
-    window.draw(mainMenu.splash);
+    window.draw(mainMenu);
     break;
   case 1:
   case 2:  //cutscene mode works the same as gameplay mode

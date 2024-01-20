@@ -39,7 +39,7 @@ int SaveController::writeData() {
   i=0;
   for(auto x : fvars) {
     data += "\"" + x.first + "\" : " + std::to_string(x.second);
-    if(i == ilen-1 && slen == 0) {
+    if(i == flen-1 && slen == 0) {
       //this is the last entry, no comma
     }
     else {
@@ -51,7 +51,7 @@ int SaveController::writeData() {
   i=0;
   for(auto x : svars) {
     data += "\"" + x.first + "\" : \"" + x.second + "\"";
-    if(i == ilen-1) {
+    if(i == slen-1) {
       //this is the last entry, no comma
     }
     else {
@@ -120,6 +120,20 @@ std::string SaveController::filename() {
   std::string base = "save/save";
   return base + saveSlot + ".sesave";
 }
+
+bool SaveController::hasStr(const std::string& name) const noexcept {
+  return svars.find(name) != svars.end();
+}
+bool SaveController::hasBool(const std::string& name) const noexcept {
+  return bvars.find(name) != bvars.end();
+}
+bool SaveController::hasFloat(const std::string& name) const noexcept {
+  return fvars.find(name) != fvars.end();
+}
+bool SaveController::hasInt(const std::string& name) const noexcept {
+  return ivars.find(name) != ivars.end();
+}
+
 
 //non-excepting versions
 int SaveController::getInt(const std::string& name, bool& s) const noexcept{

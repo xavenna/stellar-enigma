@@ -1,6 +1,4 @@
 #include "texture-cache.h"
-#include "util.h"
-#include <algorithm>
 
 
 bool Transform::operator!=(Transform t) const {
@@ -113,8 +111,7 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
         }
         break;
       case Transform::Rotate: {
-        int rotationAmount = (x.args[0] % 4);
-        rotationAmount = 90 * (rotationAmount==0?2:rotationAmount==2?0:rotationAmount);
+        int rotationAmount = 90*(x.args[0] % 4);
         sf::RenderTexture tex;
         tex.create(finalImage.getSize().x, finalImage.getSize().y);
         sf::Texture p;
@@ -137,6 +134,9 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
         break;
       case Transform::Add_Text:
       {
+
+        // parse text for special escape sequences
+        textEscape(x.text, save);
         //adds text at (arg0, arg1), with size arg2 [ and wrap width arg3, eventually]
         sf::RenderTexture tex;
         tex.create(finalImage.getSize().x, finalImage.getSize().y);
@@ -161,7 +161,13 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
 
         //implement wrapping later
       }
-      break;
+        break;
+      case Transform::SubRect:
+        window.left += x.args[0];
+        window.top += x.args[1];
+        window.width = x.args[2];
+        window.height = x.args[3];
+        break;
       default:
         //invalid transformation
         std::cout << "Error: invalid transformation. Skipped\n";
@@ -200,7 +206,7 @@ bool TextureCache::registerImage(sf::Image img, const std::string& name) {
   return true;
 }
 
-TextureCache::TextureCache(const std::string& name) {
+TextureCache::TextureCache(const std::string& name, SaveController& s) : save{s} {
   std::ifstream get(name);
   std::string line;
   unsigned section = 0;
@@ -300,4 +306,69 @@ std::string getName(std::string line) {
   std::vector<std::string> seg;
   parse(line, seg, "`");
   return seg[0];
+}
+
+
+void textEscape(std::string& str, const SaveController& save) {
+  //go through the text, looking for % characters. If one appears, check is specified
+  //variable exists. If so, substitute it.
+  std::string result;
+  std::string temp;
+  result.reserve(str.size());
+  for(unsigned i=0;i<str.size();i++) {
+    auto x =  str[i];
+    if(x == '%') {
+      //attempt to parse a variable name.
+      unsigned tpos = str.find('~', i+1);
+      if(str.find('%', i+1) == i+1) {
+        //sequence is an escaped percent sign
+        result += '%';
+      }
+      else if(tpos == std::string::npos) {
+        //no terminating tilde found
+        //log an error, don't modify text
+        std::clog << "Error: No terminating tilde found in text transform\n";
+        return;
+      }
+      else {
+        //terminating tilde found, get
+        temp = str.substr(i+1, tpos-i);
+        //attempt to parse temp as a varname
+        if(temp.size() < 2) {
+          //invalid varname
+          //eat everything up until the terminating tilde, log an error
+          std::clog << "Error: Invalid varname in escape sequence\n";
+          i = tpos+1;
+        }
+        else {
+          char t = temp[0];
+          std::string n = temp.substr(1,temp.size()-2);
+          if(t == 'i' && save.hasInt(n)) {
+            result += std::to_string(save.getInt(n));
+          }
+          else if(t == 'f' && save.hasFloat(n)) {
+            result += std::to_string(save.getFloat(n));
+          }
+          else if(t == 's' && save.hasStr(n)) {
+            result += save.getStr(n);
+          }
+          else if(t == 'b' && save.hasBool(n)) {
+            result += std::to_string(save.getBool(n));
+          }
+          else {
+            //invalid vartype or varname
+            std::clog << "Error: Invalid varname '"<<temp<<"' in escape sequence\n";
+          }
+        
+        }
+        i = tpos+1; //advance cursor to be directly after terminating tilde
+      }
+    }
+    else {
+      result += x;
+    }
+
+  }
+  str = result;
+
 }

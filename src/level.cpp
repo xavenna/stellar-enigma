@@ -510,52 +510,6 @@ sf::Vector2i Level::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i 
   
   //make sure to prevent player becoming trapped inside a solid object
   
-  //I'm pretty sure this code is vestigial, as the interaction handler supercedes this.
-  /*
-  sf::Vector2i ts = moveDistance;
-  for(int i=0;i<static_cast<int>(objects.size());i++) {
-    auto x = objects.getObj(i);
-    if(i == ignore) {
-      continue;
-    }
-    if(!x.getSolid()) {
-      continue;
-    }
-    if(speed.y < 0) {
-      if(!(pos.x >= x.getPos().x+x.getSize().x || phx <= x.getPos().x) && pos.y >= x.getPos().y+x.getSize().y
-       && pos.y-ts.y < x.getPos().y+x.getSize().y) {
-    
-        ts.y = -(x.getPos().y+x.getSize().y - pos.y);
-        fullMove = false;
-        moveDistance.y = moveDistance.y > ts.y ? ts.y : moveDistance.y;
-      }
-    }
-    if(speed.x > 0) {
-      if(!(pos.y >= x.getPos().y+x.getSize().y || phy <= x.getPos().y) && (phx <= x.getPos().x && phx+ts.x > x.getPos().x)) {
-        ts.x = x.getPos().x - phx;  //the math checks out
-        fullMove = false;
-        moveDistance.x = moveDistance.x > ts.x ? ts.x : moveDistance.x;
-      }
-    }
-    if(speed.y > 0) {
-      if(!(pos.x >= x.getPos().x+x.getSize().x || phx <= x.getPos().x) && (phy <= x.getPos().y && phy+tempSpeed > x.getPos().y)) {
-        ts.y = x.getPos().y - phy;  //the math checks out
-        fullMove = false;
-        moveDistance.y = moveDistance.y > ts.x ? ts.x : moveDistance.y;
-      }
-    }
-    if(speed.x < 0) {
-      if(!(pos.y >= x.getPos().y+x.getSize().y || phy <= x.getPos().y)
-       && pos.x >= x.getPos().x+x.getSize().x
-       && pos.x-ts.x < x.getPos().x+x.getSize().x) {
-        ts.x = -(x.getPos().x+x.getSize().x - pos.x);
-        fullMove = false;
-        moveDistance.x = moveDistance.x > ts.x ? ts.x : moveDistance.x;
-      }
-      break;
-    }
-  }
-  */
   return fullMove ? speed : moveDistance;
 }
 

@@ -1,4 +1,5 @@
 #include "mode.h"
+#include <iostream>
 
 //this is for the mode switcher, one of the crucial components of stellar enigma
 
@@ -27,6 +28,12 @@ bool ModeSwitcher::getLastKey(sf::Keyboard::Key& sk) {
 void ModeSwitcher::ignoreKeypresses() {
   keyList.clear();
 }
+void ModeSwitcher::cooldown(unsigned i) {
+  if(i > 60) { //prevent from cooling down for too long
+    i = 60;
+  }
+  cool = i;
+}
 
 ModeSwitcher::ModeSwitcher() {
   mode = 0;
@@ -34,6 +41,10 @@ ModeSwitcher::ModeSwitcher() {
 
 
 void ModeSwitcher::updateKeysPressed() {
+  if(cool != 0) {
+    cool--;
+    return;
+  }
   for(int i=0;i<sf::Keyboard::KeyCount;i++) {
     if(sf::Keyboard::isKeyPressed(static_cast<sf::Keyboard::Key>(i))) {
       addKey(static_cast<sf::Keyboard::Key>(i));

@@ -10,6 +10,9 @@ public:
   Utility();
 private:
   //! random_device is broken on Windows MinGW - gcc 9. I think the bug is limited to that version, though
+  /*!
+   *  A workaround needs to be setup for windows
+   */
   std::random_device rd;
   std::mt19937 engine;
 };

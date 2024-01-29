@@ -8,7 +8,7 @@ bool CutsceneManager::loadCutscenes(const std::string& filename) {
   std::string line;
   std::string name;
   std::string compName;
-  std::string nfn = "assets/cutscene/" + filename + ".csl";
+  std::string nfn = "assets/cutscene/" + filename;
   load.open(nfn);
   if(!load.is_open()) {
     //error

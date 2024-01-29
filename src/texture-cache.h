@@ -38,16 +38,17 @@ struct Transform {
      *  args: {height}
      */
     Set_Height,
+    //! Combination Subrectangle transform
+    /*!
+     *  args: {x-offset, y-offset, x-size, y-size}
+     */
+    SubRect,
     //! Rotates the image before rendering
     /*!
      *  args: {How many 90 degree turns to rotate image counterclockwise}
      */
     Rotate,  //!< Rotates the image before rendering
     Tint_Color,  //!< Applies a tint (currently, converts pixels to HSV and alters hue)
-    Tint_Mask, //!< Not implemented
-    And_Mask, //!< Not implemented
-    Displacement_Mask, //!< Not implemented
-    Add_Circle, //!< Not implemented
     //! Superimposes text on image at specified position
     /*!
      *  args: {xpos, ypos, text size}
@@ -57,14 +58,13 @@ struct Transform {
      *  To print a %, use %%. 
      */
     Add_Text,
-    //! Combination Subrectangle transform
-    /*!
-     *  args: {x-offset, y-offset, x-size, y-size}
-     */
-    SubRect
+    Tint_Mask, //!< Not implemented
+    And_Mask, //!< Not implemented
+    Displacement_Mask, //!< Not implemented
+    Add_Circle //!< Not implemented
   };
   Type type; //!< The type of transform to apply
-  std::array<int, 4> args;  //!< Arguments for the transform
+  std::array<int, 8> args;  //!< Arguments for the transform
   std::string text;  //!< Text variable for some transforms
   bool operator!=(Transform) const; //!< Transform inequality operator.
   bool operator==(Transform) const; //!< Transform equality operator.
@@ -78,6 +78,7 @@ struct Transform {
 class CacheNodeAttributes {
 public:
   unsigned srcImg; //!< Which image # is used
+  unsigned src(); //!< Gets srcImg as an unsigned
   std::vector<Transform> tList; //!< List of transforms to apply
   bool operator==(CacheNodeAttributes) const; //!< Checks if two CNAs fully match
 };
@@ -92,22 +93,24 @@ public:
 
 //! Texture manager, serves as an abstraction for textures. Allows transformations
 /*!
- *  Upon initialization, loads specified images from the texturemap and stores them in the image vector
- *  When an object requests a texture, it calls getTexture() with a CNA representing the texture it wants
- *  The CNA specifies the image number and any transforms to be applied to it.
+ *  Upon initialization, loads specified images from the texturemap and stores them in the image vector.\n 
+ *  When an object requests a texture, it calls getTexture() with a CNA representing the texture it wants.\n 
+ *  The CNA specifies the image number and any transforms to be applied to it.\n 
  *  Transforms include drawing additional geometry over the image, shifting the subrectangle used, rotating
- *  the image, etc. More transforms will be added eventually
+ *  the image, etc. More transforms will be added eventually.
  *
  *  To get the image number, use reverseHash(textureName), where textureName is the corresponding texture
  *  defined in the texturemap.
  *
- *  Texturemap format:  (This will be replaced with a cleaner format eventually)
+ *
+ *  Texturemap format:  (This will be replaced with a cleaner format eventually):
+ *
  *  Each line in the texturemap represents a texture. The format is as follows:
- *  tilename`filename`xpos,ypos`wid,hei
- *  tilename is the internal name to register in imgNameHash
- *  filename is the source file to read the image from
- *  xpos,ypos is an ordered pair defining the top-left corner of the subrectangle to use. Defaults to 0,0
- *  wid,hei is an ordered pair defining the size of the subrectangle to use. Defaults to image size
+ *  tilename\`filename\`xpos,ypos`wid,hei\n 
+ *  tilename is the internal name to register in imgNameHash\n 
+ *  filename is the source file to read the image from\n 
+ *  xpos,ypos is an ordered pair defining the top-left corner of the subrectangle to use. Defaults to 0,0\n 
+ *  wid,hei is an ordered pair defining the size of the subrectangle to use. Defaults to image size\n 
  */
 class TextureCache {
 private:
@@ -121,11 +124,13 @@ private:
   int searchCache(CacheNodeAttributes) const; // This is private as it is only used internally
   //! A Const reference to the save controller. Used for text disp transforms
   const SaveController& save;
+  //! determines if image is stored in cache.
+  bool hasImage(const std::string& value) const;
 public:
   //! Returns the name of the nth image stored
   std::string hash(unsigned index) const;
   //! Returns the subcache id generated from the specified texture. Returns -1 if texture isn't registered
-  int reverseHash(const std::string& value) const;
+  unsigned reverseHash(const std::string& value) const;
   //! Searches the cache for a texture matching the passed CNA. Generates and stores it if not found
   sf::Texture& getTexture(CacheNodeAttributes attr);
   //! Registers an image and a name to the texturecache. Probably should be private

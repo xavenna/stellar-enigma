@@ -13,25 +13,31 @@ ObjContainer::~ObjContainer() {
     delete x;
   }
 }
+void ObjContainer::clearObjects() {
+  for(auto x=list.begin();x!=list.end();std::advance(x, 1)) {
+    delete *x;
+  }
+  list.clear();
+}
 
 Object& ObjContainer::getObjRef(unsigned ind) {
   if(ind > list.size()) {
     throw std::out_of_range("Invalid array address");
   }
-  return *(list[ind]);
+  return **(std::next( list.begin(), ind ));
 }
 
 Object* ObjContainer::getObjPtr(unsigned ind) {
   if(ind > list.size()) {
     throw std::out_of_range("Invalid array address");
   }
-  return (list[ind]);
+  return *(std::next( list.begin(), ind ));
 }
 Object ObjContainer::getObj(unsigned ind) const {
   if(ind > list.size()) {
     throw std::out_of_range("Invalid array address");
   }
-  return *(list[ind]);
+  return **(std::next( list.begin(), ind ));
 }
 
 Object* ObjContainer::getObjByID(int lid) {
@@ -46,22 +52,31 @@ Object* ObjContainer::getObjByID(int lid) {
   throw std::invalid_argument("Error: Requested Object could not be found");
 }
 
+// This is inefficient, but should work.
+bool ObjContainer::hasObj(int id) {
+  for(auto* x : list) {
+    if(x->getLinkID() == id) {
+      return true;
+    }
+  }
+  return false;
+}
 
 void ObjContainer::removeObj(unsigned ind) {
   if(ind > list.size()) {
     throw std::out_of_range("Invalid array address");
   }
-  auto p = list.begin() + ind;
-  if(list[ind]->getParentID() != -1) {
+  auto p = std::next(list.begin(), ind);
+  if(getObjPtr(ind)->getParentID() != -1) {
     //object has a parent. Notify
     //find object
     //generate a msg
     msg m;
     m.type = 'd';
     
-    getObjByID(list[ind]->getParentID())->notify(m);
+    getObjByID(getObjPtr(ind)->getParentID())->notify(m);
   }
-  delete list[ind];
+  delete getObjPtr(ind);
   list.erase(p);
 }
 
@@ -85,6 +100,7 @@ void ObjContainer::removeObj(Object* ob) {
     }
     delete ob;
     list.erase(p);
+    return;
   }
   
 }
@@ -138,17 +154,27 @@ bool ObjContainer::storeObj(Object ob, std::string t) {
   list.back()->setLinkID(ob.getLinkID());
   list.back()->setTextureID(ob.getTextureID());
   list.back()->setParentID(ob.getParentID());
-  list.back()->setId(ob.getId());
   list.back()->setPos(ob.getPos());
   list.back()->setSize(ob.getSize());
   list.back()->setSolid(ob.getSolid());
   list.back()->setText(ob.getText());
+  list.back()->resetStatus();
   //list.back()->setActive(ob.getActive());
   //active is set to true in the object constructor, so this isn't needed now.
+  //also, active is deprecated
 
 
   list.back()->setArgs(ob.getArgs());
   list.back()->setSwitches(ob.getSwitches());
+
+  //now that object is set up properly, verify it.
+  if(!list.back()->verify()) {
+    std::clog << "Error: Invalid object configuration in object of type '";
+    std::clog << list.back()->Name() << "'. Object wasn't added\n";
+    removeObj(list.back());   
+    return false;
+    //object isn't added
+  }
   counter++;
   return true;
 }

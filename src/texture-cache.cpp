@@ -19,6 +19,10 @@ bool CacheNodeAttributes::operator==(CacheNodeAttributes attr) const {
   return true;
 }
 
+unsigned CacheNodeAttributes::src() {
+  return static_cast<unsigned>(srcImg);
+}
+
 CacheNode::CacheNode(CacheNodeAttributes attr) {
   srcImg = attr.srcImg;
   tList.resize(attr.tList.size());
@@ -34,13 +38,22 @@ std::string TextureCache::hash(unsigned index) const {
   return "";
 }
 
-int TextureCache::reverseHash(const std::string& value) const {
+unsigned TextureCache::reverseHash(const std::string& value) const {
   for(unsigned long i=0;i<imgNameHash.size();i++) {
     if(value == imgNameHash[i]) {
-      return static_cast<int>(i);
+      return i;
     }
   }
-  return -1;
+  return 0;
+}
+
+bool TextureCache::hasImage(const std::string& value) const {
+  for(unsigned long i=0;i<imgNameHash.size();i++) {
+    if(value == imgNameHash[i]) {
+      return true;
+    }
+  }
+  return false;
 }
 
 int TextureCache::searchCache(CacheNodeAttributes attr) const {
@@ -191,7 +204,7 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
 
 bool TextureCache::registerImage(sf::Image img, const std::string& name) {
   //attempt to check if image has been registered
-  if(reverseHash(name) != -1) {
+  if(hasImage(name)) {
     //image name has already been used
     std::cerr << "Error: duplicate name\n";
     return false;
@@ -207,6 +220,13 @@ bool TextureCache::registerImage(sf::Image img, const std::string& name) {
 }
 
 TextureCache::TextureCache(const std::string& name, SaveController& s) : save{s} {
+
+  //add a dummy image
+  //sf::Image i;
+  //i.create(1, 1, sf::Color::Transparent);
+  //registerImage(i, "nil");
+
+
   std::ifstream get(name);
   std::string line;
   unsigned section = 0;
@@ -235,23 +255,8 @@ TextureCache::TextureCache(const std::string& name, SaveController& s) : save{s}
     std::string srcImg = getFile(line);
     std::string imgName = getName(line);
     std::string fullLine = "assets/texture/" + srcImg;
-    //add line to the appropriate listing
-    /*
-    if(section == 0) {
-      tileListing.push_back(imgName);
-    }
-    else if(section == 1) {
-      objectListing.push_back(imgName);
-    }
-    else if(section == 2) {
-      entityListing.push_back(imgName);
-    }
-    else {
-      std::cerr << "Error: invalid section\n";
-    }
-    */
     //load image, add it to images
-    if(reverseHash(line) >= 0) {
+    if(hasImage(line)) {
       //duplicate image
       //don't add to images
       continue;
@@ -353,7 +358,7 @@ void textEscape(std::string& str, const SaveController& save) {
             result += save.getStr(n);
           }
           else if(t == 'b' && save.hasBool(n)) {
-            result += std::to_string(save.getBool(n));
+            result += (save.getBool(n) ? "1" : "0");
           }
           else {
             //invalid vartype or varname

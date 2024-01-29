@@ -4,14 +4,19 @@
 Key::Key(int uid) : Object(uid) {}
 
 
+bool Key::verify() {
+  // SW::A needs to be in the range [0,255]
+  return (switches[SW::A] >= 0 && switches[SW::A] < 256);
+}
+
 Interface Key::interact(Player*, Field*, SwitchHandler* sh) {
   Interface inter;
   // once keys are a thing that the player can collect, this will increment key count
   // trigger key switch
-  sh->write(switches[SW::Act1], true);
+  sh->write(switches[SW::A], true);
   status = Destroy;
   inter.playCutscene("key");
-  return Interface();
+  return inter;
 }
 
 CacheNodeAttributes Key::draw(const TextureCache* cache) {

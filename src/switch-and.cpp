@@ -1,7 +1,7 @@
 #include "switch-and.h"
 
 Interface SwAnd::behave(SwitchHandler* sh) {
-  sh->write(switches[SW::Act1], (sh->read(switches[SW::Trig1]) && sh->read(switches[SW::Trig2])));
+  sh->write(switches[SW::A], (sh->read(switches[SW::In1]) && sh->read(switches[SW::In2])));
+  return Interface();
 }
 SwAnd::SwAnd(int uid) : Object{uid} {}
-SwAnd::SwAnd(Object ob) : Object{ob} {}

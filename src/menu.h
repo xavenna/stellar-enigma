@@ -2,6 +2,7 @@
 #define MENU_H
 #include <SFML/Graphics.hpp>
 #include "texture-cache.h"
+#include "level.h"
 
 
 //! Defines the attributes of a specific menu
@@ -14,6 +15,14 @@ struct MenuTemplate {
    *  See Menu class documentation for more about exit codes
    */
   std::array<int, 7> exitBehavior;
+  //! Supplemental string arg for certain exit codes.
+  std::array<std::string, 7> exitStrArgs;
+  //! The menu template's name
+  /*! 
+   *  This is shadowed as the string argument in the map within Menu.
+   *  Having it be here first simplifies the initialization process
+   */
+  std::string name;
   //! Specifies which image this menu uses as a base
   std::string baseImage;
   //! Transforms to apply to specified image
@@ -42,24 +51,23 @@ public:
   //! A list of all loaded menu templates
   std::map<std::string, MenuTemplate> menus;
 
-  //! This is superceded by MenuTemplates, I think?
-  std::string baseImage;
-  //! This is superceded by MenuTemplates, I think?
-  std::vector<Transform> tList;
+  //! Which menutemplate is currently in use
+  std::string currentTemplate;
 
-  //! Determines what happens when enter is pressed.
-  /*!
-   *  -1 specifies a program close, 1 specifies switching to mode 1
-   */
-  int onPress=1;
-  //! Auxiliary text for the onPress stuff
-  std::string switchText;
-  //! I don't know what this function was supposed to do
-  void initialize();
+  //! Load menus from list
+  bool initialize();
   //! Uses the specified template to fetch a texture from the cache
   void assignTexture(TextureCache&);
   //! Sets menu to use the specified template, if stored. Returns false if not found
   bool loadTemplate(const std::string&);
+
+  //! Gets press code for specified index
+  int getCode(unsigned) const;
+  //! Gets specified text argument
+  std::string getTextArg(unsigned) const;
 };
+
+//! Parses a string, fixes escape sequences: "\\n" becomes "\n"
+void fixEscape(std::string&);
 
 #endif

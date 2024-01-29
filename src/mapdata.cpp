@@ -2,27 +2,13 @@
 
 // This file has functions for the overarching classes
 
-MapData::MapData(unsigned pCool, unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSize) :  message{mWid, mCool, mElem, mCharSize}, cache{"assets/texturemap/default.tm", save} {
+MapData::MapData(unsigned pCool, unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSize) : musicPlayer{"audiomap.txt"},  message{mWid, mCool, mElem, mCharSize}, cache{"assets/texturemap/default.tm", save} {
   //initialize members here
 
   //load level
-  try {
-    levelSlot.loadLevel("default");
-  }
-  catch (int e) {  //make these error codes better
-    if(e == 0) {
-      std::cout << "Error 0: Level not found\n";
-    }
-    else if(e == -1) {
-      std::cout << "Error -1: Non-integer found in integer parameter\n";
-    }
-    else if(e == -2) {
-      std::cout << "Error: -2\n";
-    }
-    else if(e == -3) {
-      std::cout << "Error: -3\n";
-    }
-    throw e;
+  if(!levelSlot.loadLevel("default")) {
+    std::cerr << "Level load failed. Exiting\n";
+    throw std::invalid_argument("MapData::MapData() : Level Load unsuccessful");
   }
 
   //set windowSize here
@@ -35,7 +21,7 @@ MapData::MapData(unsigned pCool, unsigned mWid, unsigned mCool, unsigned mElem, 
   message.setPosition(4+levelSlot.getTilesize().x, msgOfY);
   
 
-  cutscenePlayer.man.loadCutscenes("default");
+  cutscenePlayer.man.loadCutscenes("cutlist.txt");
 
   //load savedata.
   save.setSlot("0");
@@ -43,6 +29,8 @@ MapData::MapData(unsigned pCool, unsigned mWid, unsigned mCool, unsigned mElem, 
 
   save.writeData();
   //test line
+
+  mainMenu.initialize();
 }
 
 unsigned long MapData::getFrameCount() const {
@@ -156,20 +144,80 @@ int MapData::handleEvents() {
 // Handles events in mode 0 (menus and splash screens)
 int MapData::event0Handle() {
   sf::Keyboard::Key lk;
+  int code=0;
+  unsigned keynum=0;
   while(modeSwitcher.getLastKey(lk)) {
     if(lk == sf::Keyboard::Enter) {
-      switch(mainMenu.onPress) {
-      case 1:
-        modeSwitcher.setMode(1);
-        return 0; 
-      case -1:
-        return -1;
-      default:
-        //if an unrecognized value is returned, print an error and exit
-        std::cout << "Error: Invalid menu return code\n";
-        return -1;
-      }
+      code = mainMenu.getCode(0);
+      keynum = 0;
+      break;
     }
+    else if(lk == sf::Keyboard::Num1) {
+      code = mainMenu.getCode(1);
+      keynum = 1;
+      break;
+    }
+    else if(lk == sf::Keyboard::Num2) {
+      code = mainMenu.getCode(2);
+      keynum = 2;
+      break;
+    }
+    else if(lk == sf::Keyboard::Num3) {
+      code = mainMenu.getCode(3);
+      keynum = 3;
+      break;
+    }
+    else if(lk == sf::Keyboard::Num4) {
+      code = mainMenu.getCode(4);
+      keynum = 4;
+      break;
+    }
+    else if(lk == sf::Keyboard::Escape) {
+      code = mainMenu.getCode(5);
+      keynum = 5;
+      break;
+    }
+    else if(lk == sf::Keyboard::Space) {
+      code = mainMenu.getCode(6);
+      keynum = 6;
+      break;
+    }
+  }
+  switch(code) {
+  case -1:
+    //close program. Passed back to the main loop
+    return -1;
+  case 0:
+    //do nothing
+    break;
+  case 1:
+    //Enter mode 1. Leave map as-is
+    modeSwitcher.setMode(1);
+    modeSwitcher.cooldown(5);
+    return 0; 
+  case 2:
+    //play cutscene, then switch to mode 1 as in code 1
+    std::clog << "Playing cutscenes from menus is not yet supported\n";
+    break;
+  case 3:
+    //load a different menu
+    mainMenu.loadTemplate(mainMenu.getTextArg(keynum));
+
+    //begin a cooldown
+    modeSwitcher.cooldown(15);
+
+    //as engine is already in mode 0, no switch needs to occur
+    break;
+  case 4:
+    //enter mode 1, but load specified map
+    loadLevel(mainMenu.getTextArg(keynum));
+    modeSwitcher.setMode(1);
+    modeSwitcher.cooldown(5);
+    break;
+  default:
+    //if an unrecognized value is returned, print an error and exit
+    std::clog << "Error: Invalid menu return code\n";
+    return -1;
   }
   return 0;
 }
@@ -179,6 +227,7 @@ void MapData::event1Handle() {
   //this is the basic gameplay mode
   sf::Keyboard::Key lk;
   sf::Vector2i moveDir(0,0);
+  bool pause = false;
   while(modeSwitcher.getLastKey(lk)) {
     if(lk == sf::Keyboard::W) {
       if(moveDir.y == 0)
@@ -204,7 +253,17 @@ void MapData::event1Handle() {
       else
         moveDir.x = 0;
     }
+    if(lk == sf::Keyboard::Escape) {
+      pause = true;
+    }
   }
+  if(pause) {
+    //switch to mode 1
+    modeSwitcher.cooldown(15);
+    mainMenu.loadTemplate("pause");
+    modeSwitcher.setMode(0);
+  }
+
   //now that all input has been gathered, handle movement
   sf::Vector2i sp(moveDir.x * player.getSpeed(), moveDir.y * player.getSpeed());
 
@@ -225,11 +284,11 @@ void MapData::event1Handle() {
     //create a list of interactions
     //check each pair of objects (plus player)
     for(unsigned i=0;i<levelSlot.getObjNum();i++) {
-      if(!levelSlot.getObj(i).getActive()) {
+      if(levelSlot.getObj(i).getStatus() == Object::Inactive || levelSlot.getObj(i).getStatus() == Object::Destroy) {
         continue;
       }
       for(unsigned j=i;j<levelSlot.getObjNum();j++) {
-        if(i==j || !levelSlot.getObj(j).getActive()) {
+        if(i==j || levelSlot.getObj(j).getStatus() == Object::Inactive) {
           continue;
         }
         //check interaction between objects
@@ -268,6 +327,7 @@ void MapData::event1Handle() {
         interactions.push_back(Inter(ob, player));
       }
     }
+
     //calculate interaction ranking
     for(auto& x : interactions) {
       x.calculatePriority();
@@ -316,12 +376,6 @@ void MapData::event1Handle() {
 
         for(auto y : res.objs) {
           levelSlot.addObject(y.first, y.second);
-        }
-
-        if(x.o1->getStatus() == Object::Destroy) {
-          //don't destroy the object yet, wait until the end of the process
-          //levelSlot.removeObject(x.o1);
-          //remove = true;
         }
         x.o1->updateDelta();
         player.updateDelta();
@@ -413,26 +467,12 @@ void MapData::event1Handle() {
             //create any requested objects
             levelSlot.addObject(y.first, y.second);
           }
-
-          if(x.o1->getStatus() == Object::Destroy) {
-            levelSlot.removeObject(x.o1);
-          }
-          if(x.o2->getStatus() == Object::Destroy) {
-            levelSlot.removeObject(x.o2);
-          }
           x.o1->updateDelta();
           x.o2->updateDelta();
         }
       }
     }
 
-    for(unsigned i=0;i<levelSlot.getObjNum();i++) {
-      auto p = levelSlot.getObj(i);
-      if(p.getStatus() == Object::Destroy) {
-        levelSlot.removeObject(i);
-        i--;
-      }
-    }
 
     if(interactions.empty() || n >= 6) {
       // the number is a hardcap for iterations, it may change
@@ -479,28 +519,26 @@ void MapData::event1Handle() {
   for(auto x : res.sounds) {
     musicPlayer.queueSound(x);
   }
+  if(res.menu != "") {
+    //open specified menu
+    mainMenu.loadTemplate(res.menu);
+    modeSwitcher.cooldown(15);
+    modeSwitcher.setMode(0);
+  }
   //objects and notifications are done in the Level, so they don't need to be done here
 
 
   // If player has died, display death screen and switch to mode 0 
   if(player.getHealth() == 0) {
     modeSwitcher.setMode(0);
-    mainMenu.baseImage = "blanksplash";
-    mainMenu.tList.clear();
-    Transform t;
-    t.type = Transform::Add_Text;
-    t.text = "You Died :(\nPress Enter to Quit";
-    t.args[0] = 8; //change this once the texture base is made
-    t.args[1] = 0; //change this once the texture base is made
-    t.args[2] = 20; //size, tweak until it looks good
-    mainMenu.tList.push_back(t);
-    mainMenu.onPress = -1;
+    modeSwitcher.cooldown(15);
+    mainMenu.loadTemplate("death");
   }
 }
 
 
 void MapData::event2Handle() {  //this is the cutscene mode
-  if(cutscenePlayer.updateCutscene(player, message, levelSlot, modeSwitcher, musicPlayer)) {
+  if(cutscenePlayer.updateCutscene(player, message, levelSlot, modeSwitcher, musicPlayer, switchHandler)) {
     //I'm not sure if anything needs to go here
   }
   else {
@@ -518,4 +556,17 @@ void MapData::event2Handle() {  //this is the cutscene mode
 
 void MapData::event3Handle() {  //debug mode logic
   return; //no logic occurs
+}
+
+void MapData::loadLevel(const std::string& name) {
+  if(!levelSlot.loadLevel(name)) {
+    //load was unsuccessful. Crash?
+  }
+  player.setHealth(5);
+  player.setPos(32, 32);
+  //reset all switches
+  for(int i=0;i<255;i++) {
+    switchHandler.write(i,false);
+  }
+  //set player position and data
 }

@@ -13,6 +13,7 @@ public:
   virtual std::string Name() {return "door";}
   virtual int priority() {return 0;}
   virtual int Type() {return Object::Static;} 
+  virtual bool verify();
   Door(int);
 };
 

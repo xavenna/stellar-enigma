@@ -3,7 +3,6 @@
 
 CutPlay::CutPlay(int uid) : Object(uid) {
   vars[0] = 0;
-  args[1] = 30;
 }
 
 Interface CutPlay::interact(Player*, Field*, SwitchHandler*) {
@@ -14,11 +13,10 @@ Interface CutPlay::interact(Player*, Field*, SwitchHandler*) {
       status = Destroy;
     }
     else {
-      status = Normal;
+      status = Inactive;
     }
-
+    
     vars[0] = args[1];
-    active = false;
     inter.playCutscene(text);
   }
   return inter;
@@ -29,7 +27,7 @@ Interface CutPlay::behave(SwitchHandler*) {
     vars[0]--;
   }
   if(!vars[0]) {
-    active = true;
+    status = Normal;
   }
   return Interface();
 }

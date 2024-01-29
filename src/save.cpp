@@ -245,16 +245,38 @@ bool SaveController::getBool(const std::string& name) const {
   }
 }
 void SaveController::setStr(const std::string& name, const std::string& v) {
-  svars[name] = v;
+  if(!hasStr(name) && svars.size() == sMax) {
+    std::cerr << "Error: string save limit exceeded\n";
+    return;
+  }
+  if(v.size() > slMax) {
+    //string variable is too long, abridge.
+    svars[name] = v.substr(0, slMax);
+  }
+  else {
+    svars[name] = v;
+  }
 }
 void SaveController::setInt(const std::string& name, int v) {
+  if(!hasInt(name) && ivars.size() == iMax) {
+    std::cerr << "Error: string save limit exceeded\n";
+    return;
+  }
   ivars[name] = v;
 
 }
 void SaveController::setFloat(const std::string& name, float v) {
+  if(!hasFloat(name) && fvars.size() == fMax) {
+    std::cerr << "Error: string save limit exceeded\n";
+    return;
+  }
   fvars[name] = v;
 }
 void SaveController::setBool(const std::string& name, bool v) {
+  if(!hasBool(name) && bvars.size() == bMax) {
+    std::cerr << "Error: string save limit exceeded\n";
+    return;
+  }
   bvars[name] = v;
 }
 

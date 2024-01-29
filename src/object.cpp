@@ -2,43 +2,6 @@
 #include <iostream>
 
 
-
-Interface::Interface() {}
-
-
-
-void Interface::addMessage(const std::string& m) {
-  message.push_back(m);
-}
-void Interface::playCutscene(const std::string& c) {
-  cutscene.push_back(c);
-}
-void Interface::playSound(const std::string& s) {
-  sounds.push_back(s);
-}
-void Interface::spawnObject(Object o, const std::string& s) {
-  objs.push_back(std::pair(o, s));
-}
-
-void Interface::notify(msg m) {
-  notifications.push_back(m);
-}
-
-void Interface::clearObjs() {
-  objs.clear();
-}
-
-bool Object::getActive() const {
-  return active;
-}
-
-int Object::getId() const{
-  return id;
-}
-void Object::setId(int n) {
-  id = n;
-}
-
 int Object::getLinkID() const {
   return link_id;
 }
@@ -86,8 +49,11 @@ std::array<int, 8> Object::getArgs() const {
 std::array<int, 8> Object::getSwitches() const {
   return switches;
 }
-int Object::getStatus() const {
+Object::Status Object::getStatus() const {
   return status;
+}
+void Object::resetStatus() {
+  status = Object::Normal;
 }
 std::string Object::getText() const {
   return text;
@@ -113,14 +79,13 @@ Object::Object() {
   pos.y = 0;
   size.x = 0;
   size.y = 0;
-  id = 0;
+  //id = 0;
   solid = false;
-  active = true;
+  status = Object::Normal;
 }
 
 Object::Object(int uid) : unique_id{uid} {
   Object();
-  active = true;
 }
 
 
@@ -157,15 +122,4 @@ void Object::notify(msg m) {
   //base objects do nothing upon being notified
   //only parents need it at the moment
   return;
-}
-
-
-// Deprecated
-int binCat(std::uint16_t n, std::uint16_t o) {
-  std::clog << "binCat() is deprecated\n";
-  return (n << 16) | o;
-}
-Vector2<std::uint16_t> binDecat(int n) {
-  std::clog << "binDecat() is deprecated\n";
-  return Vector2<std::uint16_t>((n >> 16) & 0xffff, n & 0xffff);
 }

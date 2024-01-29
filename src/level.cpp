@@ -51,6 +51,18 @@ Object* Level::getObjPtr(unsigned ind) {
   return objects.getObjPtr(ind);
 }
 
+Object* Level::getObjLinkPtr(int ind) {
+  return objects.getObjByID(ind);
+}
+
+bool Level::hasObj(int id) {
+  return objects.hasObj(id);
+}
+
+bool Level::notifyObj(msg m) {
+  return objects.notify(m);
+}
+
 void Level::readyWindow(int xscr, int yscr) {
   //determine which screen to view
   int xwid = WINDOW_WIDTH-2;
@@ -100,11 +112,16 @@ void Level::updateWindowPos() {
 
 int Level::loadLevel(const std::string& levelname) {
   // create the levelName
-  field.loadLevel(levelname);
-  loadMutables(levelname);
+  if(field.loadLevel(levelname)) {
+    return -1;
+  }
+  if(loadMutables(levelname)) {
+    return -1;
+  }
   return 0;
 }
-void Level::loadMutables(const std::string& levelname) {
+bool Level::loadMutables(const std::string& levelname) {
+  objects.clearObjects();
   std::string complevel = "assets/level/" + levelname + ".sml";  //stellar mutable list
   std::ifstream get(complevel);
   std::string line;
@@ -112,7 +129,7 @@ void Level::loadMutables(const std::string& levelname) {
   Object o;  //these are defined now so they don't have to be every loop
   std::string type;  //Type of requested object
   if(!get.is_open()) {
-    throw 0;
+    return -1;
   }
   while(get.peek() != EOF) {
     std::getline(get, line);
@@ -123,22 +140,17 @@ void Level::loadMutables(const std::string& levelname) {
 
     if(!str2obj2(line, o, type)) {
       std::clog << "Error: Failed level load\n";
-      return;
+      return false;
     }
-    if(!o.verify()) {
-      std::clog << "Error: Invalid object configuration in object of type '";
-      std::clog << o.Name() << "'. Object wasn't added\n";
-      continue;
-      //object isn't added
-    }
-    else {
-      o.setPosition(static_cast<unsigned>(o.getPos().x)+2*tilesizeX, static_cast<unsigned>(o.getPos().y)+2*tilesizeY);
-      objects.storeObj(o, type);
+    o.setPosition(static_cast<unsigned>(o.getPos().x)+2*tilesizeX, static_cast<unsigned>(o.getPos().y)+2*tilesizeY);
+    if(!objects.storeObj(o, type)) {
+      std::clog << "Error: Failed level load\n";
+      return false;
     }
     
     
   }
-  return;
+  return true;
 }
 int Level::getWidth() const {
   return field.getWidth();
@@ -276,7 +288,7 @@ Interface Level::handleObjects(sf::Vector2i pos, sf::Vector2i size, SwitchHandle
     for(auto y : res.sounds) {
       inter.playSound(y);
     }
-
+    inter.openMenu(res.menu); //this means only one menu can be displayed each frame
     for(auto y : res.objs) {
       //create any requested objects
       objects.storeObj(y.first, y.second);
@@ -298,8 +310,18 @@ Interface Level::handleObjects(sf::Vector2i pos, sf::Vector2i size, SwitchHandle
     x->setPosition(relPos.x,relPos.y);
     
     x->setLastPos(x->getPos());
-    // If you remove an object, make sure to do i--;
   }
+
+  //remove any destroyed objects
+  for(unsigned i=0;i<getObjNum();i++) {
+    auto p = getObjPtr(i);
+    if(p->getStatus() == Object::Destroy) {
+      removeObject(p);
+      i--;
+    }
+  }
+  
+
   return inter;
 }
 bool Level::displayObject(unsigned index, sf::Vector2i ppos, sf::Vector2i size) const {
@@ -311,11 +333,9 @@ bool Level::displayObject(unsigned index, sf::Vector2i ppos, sf::Vector2i size) 
   Object ob{objects.getObj(index)};
 
   //don't display invisible objects
-  switch(ob.getId()) {
-  case 4: //add any other invisible objects here
+  if(ob.Name() == "cutscene_player") {
     return false;
-  default:
-    break;
+    //add any other invisible objects here
   }
   
   sf::Vector2i mid(ppos.x+size.x/2, ppos.y+size.y/2);
@@ -521,6 +541,7 @@ bool str2obj2(const std::string& line, Object& obj, std::string& objType) {
   std::vector<std::string> ids;
   std::vector<ObjAttr> attribs;
   bool inField{false};
+  bool inString{false};
   std::string accum;
   for(auto x : line) {  //parse line into bracketed definitions. IDs and Attribs contain the definitions
     if(x == '{') {
@@ -557,29 +578,41 @@ bool str2obj2(const std::string& line, Object& obj, std::string& objType) {
                       //for each string in ids
     accum.clear();
     inField = false;
+    inString = false;
     std::string name;
     attribs.push_back(ObjAttr());
     x += ','; //this ensures the last argument isn't omitted
     for(auto y : x) {  //for each char of current string...
       if(y == '=') {
         if(inField) {
-          std::cerr << "Error: repeat colon in braces\n";
+          std::cerr << "Error: repeat equal in braces\n";
           return false;
         }
         attribs.back().id = accum;
         accum.clear();
         inField = true;
       }
-      else if(y == ',') {  // check if it's wrapped in a string
-        if(!inField) {
-          //text field
-          //the entire field, except the final char, is placed in id
-          attribs.back().id = x.substr(0, x.size()-1);
+      else if(y == '"') {
+        if(inString) {
+          inString = false;
+          //string is over, parse it
+          attribs.back().textArg = accum;
           break;
+        }
+        else {
+          inString = true;
+        }
+      }
+      else if(y == ',') {  // check if it's wrapped in a string
+        if(inString) {
+          //commas in strings are ignored
+          accum += y;
+          continue;
         }
         if(accum[0] == '"') { //argument is a string
           if(accum.back() != '"') {
             std::cerr << "Error: unterminated string constant in object list\n";
+            std::cerr << "'"<<accum<<"'\n";
             return false;
           }
           accum=accum.substr(1);
@@ -609,7 +642,6 @@ bool str2obj2(const std::string& line, Object& obj, std::string& objType) {
   sf::Vector2i size{0,0};
   std::string text;
   std::string objClass;
-  int type=-1;
   int parent=-1;
   int link=-1;
   int tex=-1;
@@ -658,14 +690,6 @@ bool str2obj2(const std::string& line, Object& obj, std::string& objType) {
       size.y = x.args[1];
 
     }
-    else if(x.id == "t") {
-      if(argNum != 1) {
-        std::clog << "Error: t field requires 1 argument, "<<argNum<<" provided\n";
-        return false;
-      }
-      //select object type
-      type = x.args[0];
-    }
     else if(x.id == "pi") {
       if(argNum != 1) {
         std::clog << "Error: pi field requires 1 argument, "<<argNum<<" provided\n";
@@ -698,28 +722,30 @@ bool str2obj2(const std::string& line, Object& obj, std::string& objType) {
       }
       objClass = x.textArg;
     }
-    else {
-      //invalid, or text
-      if(x.args.size() == 0) {
-        text = x.id;
-      }
-      else {
-        std::clog << "Invalid Identifier '"<<x.id<<"' in object list\n";
+    else if(x.id == "te") {
+      if(x.textArg.size() == 0) {
+        //null id, fail
+        std::clog << "Error: te field requires a non-empty string\n";
         return false;
       }
+      text = x.textArg;
+    }
+    else {
+      //invalid, or text
+      std::clog << "Invalid Identifier '"<<x.id<<"' in object list\n";
+      return false;
     }
   }
   //now that values have been extracted, assign values to object
   obj.setLinkID(link);
   obj.setParentID(parent);
   obj.setTextureID(tex);
-  obj.setId(type);
   obj.setArgs(args);
   obj.setSwitches(switches);
   obj.setPos(pos);
   obj.setSize(size);
   obj.setText(text);
+  obj.resetStatus();
   objType = objClass;
   return true;
 }
-

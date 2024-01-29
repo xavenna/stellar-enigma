@@ -3,10 +3,19 @@
 Solid::Solid(int uid) : Object(uid) {}
 
 
+bool Solid::verify() {
+  //doesn't use any args or switches, those can be ignored
+  //if texture-id is invalid, stone is used.
+  //Thus, no invalid configs exist
+  return true;
+}
+
 Interface Solid::interact(Object* p, Field*, SwitchHandler*) {
+  interacting = false;
   //push back slidings and entities, ignore solids
   switch(p->Type()) {
     case Object::Static:
+    default:
       //solids can't push other solids
       break;
     case Object::Entity:
@@ -35,15 +44,19 @@ Interface Solid::interact(Object* p, Field*, SwitchHandler*) {
 
       if(xInt && pmin.x < omin.x) {
         p->setXPos(pos.x-p->getSize().y);
+        interacting = true;
       }
       if(yInt && pmin.y < omin.y) {
         p->setYPos(pos.y-p->getSize().x);
+        interacting = true;
       }
       if(xInt && pmin.x > omin.x) {
         p->setXPos(pos.x+size.x);
+        interacting = true;
       }
       if(yInt && pmin.y > omin.y) {
         p->setYPos(pos.y+size.y);
+        interacting = true;
       }
   }
 
@@ -52,6 +65,7 @@ Interface Solid::interact(Object* p, Field*, SwitchHandler*) {
 }
 
 Interface Solid::interact(Player* p, Field*, SwitchHandler*) {
+  interacting = false;
   sf::Vector2i pmin{p->getPos()};
   sf::Vector2i pmax{pmin+p->getSize()-sf::Vector2i(1,1)};
   sf::Vector2i plmin{p->getLastPos()};
@@ -76,15 +90,19 @@ Interface Solid::interact(Player* p, Field*, SwitchHandler*) {
 
   if(xInt && pmin.x < omin.x) {
     p->setXPos(pos.x-p->getSize().y);
+    interacting = true;
   }
   if(yInt && pmin.y < omin.y) {
     p->setYPos(pos.y-p->getSize().x);
+    interacting = true;
   }
   if(xInt && pmin.x > omin.x) {
     p->setXPos(pos.x+size.x);
+    interacting = true;
   }
   if(yInt && pmin.y > omin.y) {
     p->setYPos(pos.y+size.y);
+    interacting = true;
   }
 
   return Interface();
@@ -95,7 +113,10 @@ CacheNodeAttributes Solid::draw(const TextureCache* cache) {
   // draw a solid object with no transforms
   // use obj_arg[0] to decide which texture to draw
   CacheNodeAttributes cna;
-  switch(args[0]) {
+  switch(texture_id) {
+  case 7:
+    cna.srcImg = cache->reverseHash("yim");
+    break;
   default:
     cna.srcImg = cache->reverseHash("stone");
   //other textures can be placed here for more design freedom

@@ -7,53 +7,11 @@
 #include "texture-cache.h"
 #include "vect.h"
 #include "switch-handler.h"
+#include "interface.h"
 
 #include <array>
 #include <tuple>
 
-class Object;
-
-
-//! A utility struct representing an inter-object message
-struct msg {
-  unsigned link; //!< Link ID of object to notify.
-  char type; //!< What type of message is being sent? Defined on a per-obj basis
-  std::array<int, 8> data; //!< Data of message use
-};
-
-//! A utility class for object behavior function return values
-/*!
- *  This serves as an API allowing the virtual functions to cause effects, such as playing
- *  cutscenes, displaying messages, etc. Originally, a std::tuple was used, but this
- *  method is more flexible
- */
-class Interface {
-public:
-  std::vector<std::string> message;   //!< Messages to display
-  std::vector<std::string> cutscene;  //!< Cutscenes to play
-  std::vector<std::string> sounds; //!< Sounds to play
-  std::vector<std::pair<Object, std::string>> objs; //!< Objects to create, along with type
-  std::vector<msg> notifications; //!< Notifications to send.
-
-  //! Registers message to be displayed. Overwrites previous message, if any.
-  void addMessage(const std::string&);
-  //! Chooses a cutscene to play. Overwrites previously stored cutscene, if any.
-  void playCutscene(const std::string&);
-  //! Requests selected sound to be played. Does not overwrite previous sounds
-  void playSound(const std::string&);
-  //! Requests to spawn an object. Spawned object will not have a link id, but will be the child of spawning obj.
-  void spawnObject(Object, const std::string& type);
-  //! Creates a notification to send to object with specified Link_ID
-  void notify(msg);
-  //! Clears the object list
-  void clearObjs();
-
-  //! Constructs an empty Interface. Use the API functions to request actions. Eventually, the vars may be private
-  Interface();
-
-  //deprecated
-
-};
 
 
 //! A class for objects, anything with dynamic behavior
@@ -80,6 +38,7 @@ public:
   };
   enum Status {
     Normal, //!< No special conditions
+    Inactive, //!< Temporarily doesn't interact with anything
     Destroy, //!< Object should be destroyed
     Acting,  //!< Currently interacting with something
     Invulnerable  //!< Unable to interact with anything
@@ -87,15 +46,13 @@ public:
   enum SW {  //Correlates switch array positions to names
     Appear = 0, //!< Makes the object appear
     Disappear = 1, //!< Makes the object disappear
-    Act1 = 2, //!< Used for activating other objects
-    Act2 = 3, //!<
-    Trig1 = 4, //!< Other objects trigger these
-    Trig2 = 5, //!<
-    Gen1 = 6, //!< Currently Unused
-    Gen2 = 7  //!< Currently Unused
+    A = 2, //!< Used for activating other objects
+    B = 3, //!< 
+    In1 = 4, //!< Other objects trigger these
+    In2 = 5, //!< These two need better names
+    Gen = 6, //!< Currently Unused
+    Remove = 7 //!< Object activates this upon collection, death, etc.
   };
-  //! I have no idea what this is for
-  static const int Dest = 0x1;
 
   //! Object's motion type
   virtual int Type() {return Object::Intangible;} 
@@ -116,8 +73,6 @@ public:
   //! used for the objcontainer to send complex messages to parents (maybe more later)
   virtual void notify(msg);
 
-  //! get the id of the object 
-  int getId() const;
   //! get the link id of the object
   int getLinkID() const;
   //! get the parent id of the object
@@ -133,7 +88,9 @@ public:
   //! get specified arg
   int getArg(std::size_t) const;
   //! get the obj's status
-  int getStatus() const;
+  Status getStatus() const;
+  //! Resets the obj's status
+  void resetStatus();
   //! get the text
   std::string getText() const;
   //! set all switches at once
@@ -144,8 +101,6 @@ public:
   void setText(const std::string&);
   //! set all args at once. Probably unnecessary
   void setArgs(std::array<int, 8>);
-  //! set the id of the object
-  void setId(int);
   //! set the link id of the object
   void setLinkID(int);
   //! set the parent id of the object
@@ -154,8 +109,6 @@ public:
   void setTextureID(int);
   //! set value of specified arg
   void setArg(std::size_t slot, int v);
-  //! get active status of object
-  bool getActive() const;
   //! empty constructor
   Object();
   //! uid constructor
@@ -166,26 +119,18 @@ protected:
   int link_id; //!< an id used for interactions between objects
   int texture_id; //!< Used to select a texture for the object
   int parent_id; //!< Should contain the Link ID of the parent. Only used for child objs
-  int id; //!< the internal id of the object
   std::array<int, 8> args; //!< Arguments for each object, usage varies by object type
   //yes, I did just borrow SMG's obj_arg system, I couldn't think of a better way
   
   std::array<int, 8> switches;
-  std::string text; //!< A text field that can be used by the object. Deprecated.
+  std::string text; //!< A text field that can be used by the object.
 
   //internal, aren't preset
 
   const int unique_id=-1; //!< Used internally to differentiate objects
   std::array<int, 4> vars; //!< Internal variables, used similarly to args
 
-  //potentially deprecated?
-  int status; //!< Internal status, can be externally read but not written
-  bool active; //!< Whether the object is ready to interact with other objects. Superceded by enhanced status.
+  Status status; //!< Internal status, can be externally read but not written
 };
-
-//utility functions for objects
-//no longer needed, deprecated
-int binCat(std::uint16_t, std::uint16_t);
-Vector2<std::uint16_t> binDecat(int);
 
 #endif

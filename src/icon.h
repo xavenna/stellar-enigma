@@ -49,9 +49,10 @@ public:
 };
 
 
-//! An update function that does nothing`
+//! An update function that does nothing
 void nullAct();
 //! An update function that changes based on the health of the player
 void showHealthAsNumber(const Player*, sf::Texture&, TextureCache*);
+//! An update function that shows how many points the player has
 void showPoints(const Player*, sf::Texture&, TextureCache*);
 #endif

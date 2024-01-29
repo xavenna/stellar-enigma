@@ -102,6 +102,7 @@ Interface Pushable::interact(Object* p, Field* l, SwitchHandler*) {
   switch(p->Type()) {
     //can be pushed by entity and sliding
     case Object::Static:
+    default:
       break;
     case Object::Sliding:
     case Object::Entity:

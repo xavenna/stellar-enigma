@@ -1,5 +1,6 @@
 #ifndef OBJ_CONTAINER_H
 #define OBJ_CONTAINER_H
+#include <list>
 #include "object.h"
 #include "solid.h"
 #include "pushable.h"
@@ -26,6 +27,10 @@ public:
   Object getObj(unsigned) const;
   //! Get pointer to obj by link id
   Object* getObjByID(int);
+
+  //! Specifies if object with specified link id is contained in container
+  bool hasObj(int);
+
   //! Create copy of passed object, as specified type
   bool storeObj(Object ob, std::string);
   
@@ -39,6 +44,9 @@ public:
   //! Send notification to object.
   bool notify(msg);
 
+  //! Clears objects to prepare for level load
+  void clearObjects();
+
   //! Get the number of objects stored
   std::size_t size() const;
   //! Constructs object container
@@ -47,7 +55,7 @@ public:
   ~ObjContainer();
 private:
   //! where pointers are stored internally; ObjContainer owns the objects
-  std::deque<Object*> list;
+  std::list<Object*> list;
   //! Increments whenever an object is created, used to create unique identifiers
   long unsigned counter;
 };

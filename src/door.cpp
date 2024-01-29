@@ -6,100 +6,19 @@ Door::Door(int uid) : Solid(uid) {
 }
 
 
-Interface Door::interact(Object* p, Field*, SwitchHandler*) {
+Interface Door::interact(Object* p, Field* f, SwitchHandler* s) {
   if(!vars[0]) {
     return Interface();
   }
-
-  //push back slidings and entities, ignore solids
-  switch(p->Type()) {
-    case Object::Static:
-      //solids can't push other solids
-      break;
-    case Object::Entity:
-    case Object::Sliding:
-      sf::Vector2i pmin{p->getPos()};
-      sf::Vector2i pmax{pmin+p->getSize()-sf::Vector2i(1,1)};
-      sf::Vector2i plmin{p->getLastPos()};
-      sf::Vector2i plmax{plmin+p->getSize()-sf::Vector2i(1,1)};
-
-      //just incase objects move, so the algorithm doesn't break
-      sf::Vector2i omin{pos};
-      sf::Vector2i omax{omin+size-sf::Vector2i(1,1)};
-      sf::Vector2i olmin{lastPos};
-      sf::Vector2i olmax{olmin+size-sf::Vector2i(1,1)};
-      //determine interaction for each direction:
-      //was player intersecting with object on the x-axis?
-      bool xAfter = !(omax.x < pmin.x || omin.x > pmax.x);
-      bool xBefore = !(olmax.x < plmin.x || olmin.x > plmax.x);
-
-      bool yAfter = !(omax.y < pmin.y || omin.y > pmax.y);
-      bool yBefore = !(olmax.y < plmin.y || olmin.y > plmax.y);
-
-      //x, y interactions
-      bool xInt = xAfter && !xBefore && ((yAfter && yBefore) || (!yBefore && yAfter));
-      bool yInt = yAfter && !yBefore && ((xAfter && xBefore) || (!xBefore && xAfter));
-
-      if(xInt && pmin.x < omin.x) {
-        p->setXPos(pos.x-p->getSize().y);
-      }
-      if(yInt && pmin.y < omin.y) {
-        p->setYPos(pos.y-p->getSize().x);
-      }
-      if(xInt && pmin.x > omin.x) {
-        p->setXPos(pos.x+size.x);
-      }
-      if(yInt && pmin.y > omin.y) {
-        p->setYPos(pos.y+size.y);
-      }
-
-  }
-
-  return Interface();
-  
+  //this prevents having to copy-paste the code from Solid to here
+  return Solid::interact(p, f, s);
 }
 
-Interface Door::interact(Player* p, Field*, SwitchHandler*) {
+Interface Door::interact(Player* p, Field* f, SwitchHandler* s) {
   if(!vars[0]) {
     return Interface();
   }
-
-  sf::Vector2i pmin{p->getPos()};
-  sf::Vector2i pmax{pmin+p->getSize()-sf::Vector2i(1,1)};
-  sf::Vector2i plmin{p->getLastPos()};
-  sf::Vector2i plmax{plmin+p->getSize()-sf::Vector2i(1,1)};
-
-  //just incase objects move, so the algorithm doesn't break
-  sf::Vector2i omin{pos};
-  sf::Vector2i omax{omin+size-sf::Vector2i(1,1)};
-  sf::Vector2i olmin{lastPos};
-  sf::Vector2i olmax{olmin+size-sf::Vector2i(1,1)};
-  //determine interaction for each direction:
-  //was player intersecting with object on the x-axis?
-  bool xAfter = !(omax.x < pmin.x || omin.x > pmax.x);
-  bool xBefore = !(olmax.x < plmin.x || olmin.x > plmax.x);
-
-  bool yAfter = !(omax.y < pmin.y || omin.y > pmax.y);
-  bool yBefore = !(olmax.y < plmin.y || olmin.y > plmax.y);
-
-  //x, y interactions
-  bool xInt = xAfter && !xBefore && ((yAfter && yBefore) || (!yBefore && yAfter));
-  bool yInt = yAfter && !yBefore && ((xAfter && xBefore) || (!xBefore && xAfter));
-
-  if(xInt && pmin.x < omin.x) {
-    p->setXPos(pos.x-p->getSize().y);
-  }
-  if(yInt && pmin.y < omin.y) {
-    p->setYPos(pos.y-p->getSize().x);
-  }
-  if(xInt && pmin.x > omin.x) {
-    p->setXPos(pos.x+size.x);
-  }
-  if(yInt && pmin.y > omin.y) {
-    p->setYPos(pos.y+size.y);
-  }
-
-  return Interface();
+  return Solid::interact(p, f, s);
 }
 
 
@@ -116,14 +35,25 @@ CacheNodeAttributes Door::draw(const TextureCache* cache) {
   return cna;
 }
 
+bool Door::verify() {
+  //SW::In1 should be a valid switch.
+  return (switches[SW::In1] >= 0 && switches[SW::In1] < 256);
+}
 
 Interface Door::behave(SwitchHandler* sh) {
   //poll SW_Trig1
-  bool sw = sh->read(switches[SW::Trig1]);
+  bool sw = sh->read(switches[SW::In1]);
   if(!vars[1]) {
     if(sw) {
       vars[1] = true;
       vars[0] = !vars[0];
+      if(vars[0]) {
+        status = Normal;
+      }
+      else {
+        status = Inactive;
+      }
+
     }
   }
   else {

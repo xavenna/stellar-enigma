@@ -9,7 +9,6 @@ public:
   virtual int Type() {return Object::Intangible;} 
   virtual Interface behave(SwitchHandler*);
   SwAnd(int uid);
-  SwAnd(Object);
 };
 
 #endif

@@ -17,6 +17,8 @@ class ModeSwitcher {  //this may need a cleanup function for switching modes
 private:
   int mode;  //!< Which mode the engine is in
   std::deque<sf::Keyboard::Key> keyList;  //!< The queue of keys pressed
+  //! Remaining ticks until cooldown expires. if nonzero, input is ignored
+  unsigned cool=0;  
 public:
   //! Gets the mode of the engine
   int getMode();
@@ -28,6 +30,7 @@ public:
   sf::Keyboard::Key getLastKey();
   //! Pops a keypress, and assigns it to passed reference. Returns false if no keys left
   bool getLastKey(sf::Keyboard::Key&);
+  //! Updates the list of keys pressed from the keyboard
   void updateKeysPressed();
   //! Clears the list of keypresses
   /*!
@@ -36,6 +39,8 @@ public:
    *  using it elsewhere can cause problems.
    */
   void ignoreKeypresses();
+  //! Ignore input for specified number of frames.
+  void cooldown(unsigned);
   //! Basic constructor: sets mode to 0
   ModeSwitcher();
 };

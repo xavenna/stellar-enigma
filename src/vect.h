@@ -2,10 +2,11 @@
 #define VECT_H
 #include <cmath>
 
+//! A Two-dimensional vector
 template <typename T> class Vector2 {
 public:
-  T x;
-  T y;
+  T x; //!< x component of vector
+  T y; //!< y component of vector
   Vector2<T> operator+(Vector2); //!< Adds two vectors
   Vector2<T> operator+=(Vector2); //!< Adds and assigns two vectors
   Vector2<T> operator-(Vector2); //!< Subtracts two vectors
@@ -104,11 +105,12 @@ template <typename T> Vector2<T>::Vector2() {
 }
 
 
+//! Three-dimensional version of Vector
 template <typename T> class Vector3 {
 public:
-  T x;
-  T y;
-  T z;
+  T x; //!< First component of vector
+  T y; //!< Second component of vector
+  T z; //!< Third component of vector
   Vector3<T>operator+(Vector3<T>); //!< Adds two vectors
   Vector3<T>operator+=(Vector3<T>); //!< Adds and assigns two vectors
   Vector3<T>operator-(Vector3<T>); //!< Subtracts two vectors
@@ -129,11 +131,11 @@ public:
 
   void scale(T); //!< Scales vector to have a given length
 
-  Vector3<T>(T, T, T);
-  Vector3<T>();
+  Vector3<T>(T, T, T); //!< Value Constructor
+  Vector3<T>(); //!< Empty constructor
 private:
-  T mag();
-  Vector3<T> norm();
+  T mag(); //!< Magnitude of vector
+  Vector3<T> norm(); //!< Normalized vector
 };
 
 template <typename T> Vector3<T> Vector3<T>::operator+(Vector3<T> v) {

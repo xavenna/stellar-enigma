@@ -16,8 +16,9 @@
  */
 class Event {
 public:
-  //! A enum of types of events.
+  //! Types of events that can be part of a cutscene
   enum Type {
+    /*
     PlayerUpdate = 0,  //!< Updates the player
     EntityMove = 1,    //!< Moves an entity
     ObjectPlace = 2,   //!< Places an object
@@ -29,6 +30,24 @@ public:
     SoundPlay = 8,     //!< Plays a sound
     MusicPlay = 9,     //!< Plays specified music
     MapLoad = 10,      //!< Load a new Map
+    */
+    // New Event list
+
+    UpdateNode = 0,     //!< Updates a map node
+    WriteSwitch = 1,    //!< Writes a value to a switch
+    DisplayMessage = 2, //!< Prints a message in the messagebox
+    GetInput = 3,       //!< Waits for player input
+    PlaySound = 4,      //!< Plays a sound effect
+    SwitchMusic = 5,    //!< Switches music to specified file
+    MovePlayer = 6,     //!< Moves player
+    MoveObject = 7,     //!< Moves an object
+    NotifyObject = 8,   //!< Sends message to object
+    /*
+     * Events to implement eventually:
+    DisplayImage,
+
+    */
+
     Invalid = -1       //!< Invalid Type
   };
   //! Returns event type
@@ -49,8 +68,8 @@ private:
   Type type;  //!< Type of event
   int duration; //!< Duration in frames of the event
   std::array<int, 8> arguments;  //!< arguments for the event
-  std::string text;  //!< text argument
   //The 8 here is purely arbitrary, and may change
+  std::string text;  //!< text argument
 };
 
 //! Sets attributes of passed event using passed textual event representation

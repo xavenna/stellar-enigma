@@ -63,14 +63,27 @@ public:
 
   void setSlot(const std::string&);
 protected:
+  //! Internal function to get the filename of selected slot
   std::string filename();
+
+  //! Maximum numbers of int variables that can be stored
+  const unsigned iMax=65536;
+  //! Maximum numbers of float variables that can be stored
+  const unsigned fMax=65536;
+  //! Maximum numbers of bool variables that can be stored
+  const unsigned bMax=262144;
+  //! Maximum numbers of string variables that can be stored
+  const unsigned sMax=512;
+
+  //! Maximum length of each string variable
+  const unsigned slMax=128;
 
   //! String specifying which save slot to use - appended to filename
   std::string saveSlot; 
-  //! The actual save data
-  std::map<std::string, int> ivars;
-  std::map<std::string, float> fvars;
-  std::map<std::string, bool> bvars;
-  std::map<std::string, std::string> svars;
+  // The actual save data:
+  std::map<std::string, int> ivars; //!< Saved int variables
+  std::map<std::string, float> fvars; //!< Saved float variables
+  std::map<std::string, bool> bvars; //!< Saved bool variables
+  std::map<std::string, std::string> svars; //!< Saved string variables
 };
 #endif

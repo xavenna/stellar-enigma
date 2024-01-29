@@ -5,12 +5,49 @@
 // Audio Module:
 // This contains the audio player, as well as the functions used to control it
 
-void SoundRegistry::registerSound(const std::string& name, const sf::SoundBuffer& soundBuf) {
-  registry.insert(std::pair<std::string, sf::SoundBuffer>(name, soundBuf));
+SoundRegistry::SoundRegistry(const std::string& name) {
+  std::string path = "assets/audio/";
+  std::string fname = path + name;
+  std::ifstream load(fname);
+  std::string line;
+  std::string regname;
+  std::string file;
+  if(!load.is_open()) {
+    std::cerr << fname << '\n';
+    throw std::invalid_argument("SoundRegistry::SoundRegistry() : File not found\n");
+  }
+  while(load.peek() != EOF) {
+    std::getline(load, line);
+    if(line.size() == 0 || line[0] == '#') {
+      continue;
+    }
+    //parse this as string`filename
+    unsigned pos = line.find('`');
+    if(pos == std::string::npos) {
+      throw std::invalid_argument("SoundRegistry::SoundRegistry() : Malformed entry\n");
+    }
+    regname = line.substr(0, pos);
+    file = line.substr(pos+1);
+    
+    sf::SoundBuffer sound;
+    sound.loadFromFile(path + file);
+
+    registerSound(regname, sound);
+
+  }
+}
+
+
+void SoundRegistry::registerSound(const std::string& name, sf::SoundBuffer soundBuf) {
+  registry.emplace(name, soundBuf);
 }
 
 
 sf::SoundBuffer& SoundRegistry::getSound(std::string name) {
+  if(registry.find(name) == registry.end()) {
+    std::cerr << "Error: request to get unregistered sound '" << name << "' failed\n";
+    return registry.begin()->second;
+  }
   return registry[name];
 }
 
@@ -110,6 +147,6 @@ void MusicPlayer::manageSounds() {
     }
   }
 }
-MusicPlayer::MusicPlayer() : soundStatus{Ready, Ready, Ready, Ready, Ready, Ready, Ready, Ready} {
+MusicPlayer::MusicPlayer(const std::string& name) : soundStatus{Ready, Ready, Ready, Ready, Ready, Ready, Ready, Ready}, SR{name} {
 
 }

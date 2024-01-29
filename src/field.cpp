@@ -190,11 +190,11 @@ sf::Vector2i Field::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i 
   return fullMove ? speed : moveDistance;
 }
 
-sf::Vector2i Field::loadLevel(const std::string& levelname) {
+int Field::loadLevel(const std::string& levelname) {
   std::string complevel = "assets/level/" + levelname + ".sel";
   std::ifstream load(complevel);
   if(!load.is_open())
-    throw 0;
+    return -2;
   std::string line;
   int section = 0;
   unsigned column = 0;
@@ -208,20 +208,21 @@ sf::Vector2i Field::loadLevel(const std::string& levelname) {
           if(isNum(line)) {
             if((std::stoi(line)-2)%(WINDOW_WIDTH-2) != 0) {
               std::cerr << "Error: invalid width ("<<line<<")\n";
-              throw -1;
+              return -1;
             }
             mapBase.resize(std::stoul(line));
             section++;
           }
           else {
-            throw -1;  //invalid level: non-integer found in integer parameter;
+            std::cerr << line << '\n';
+            return -1;  //invalid level: non-integer found in integer parameter;
           }
         }
         else if(section == 1) {
           if(isNum(line)) {
             if((std::stoi(line)-2)%(WINDOW_HEIGHT-2) != 0) {
               std::cerr << "Error: invalid height ("<<line<<")\n";
-              throw -1;
+              return -1;
             }
             for(auto& m : mapBase) {
               m.resize(std::stoul(line));
@@ -229,7 +230,7 @@ sf::Vector2i Field::loadLevel(const std::string& levelname) {
             section++;
           }
           else {
-            throw -1; //invalid level: non-integer found in integer parameter;
+            return -1; //invalid level: non-integer found in integer parameter;
           }
         }
         else if(section == 2) {
@@ -238,7 +239,7 @@ sf::Vector2i Field::loadLevel(const std::string& levelname) {
             section++;
           }
           else {
-            throw -1; //invalid level: non-integer found in integer parameter;
+            return -1; //invalid level: non-integer found in integer parameter;
           }
         }
         else if(section == 3) {
@@ -247,7 +248,7 @@ sf::Vector2i Field::loadLevel(const std::string& levelname) {
             section++;
           }
           else {
-        throw -1; //invalid level: non-integer found in integer parameter;
+        return -1; //invalid level: non-integer found in integer parameter;
       }
     }
     else if(section == 4) {
@@ -264,7 +265,7 @@ sf::Vector2i Field::loadLevel(const std::string& levelname) {
     }
     
   }
-  return sf::Vector2i{static_cast<int>(mapBase.size()),static_cast<int>(mapBase.at(0).size())};
+  return 0;
 }
 
 Field::Field(size_t x, size_t y) : mapBase{x, std::vector<NodeBase>(y)} {
@@ -303,28 +304,25 @@ bool strToNode(const std::string& line, MapNode& node) {
       switch(field) {
       case 0:
         if(!isNum(accum)) {
-        return false;
-    }
-    else {
-      node.setId(std::stoul(accum));
-    }
-    break;
+          return false;
+        }
+        else {
+          node.setId(std::stoul(accum));
+        }
+        break;
       case 1:
-    if(!isNum(accum) || std::stoi(accum) < 0 || std::stoi(accum) > 15) {
-      return false;
-    }
-    node.setSolid(Up, std::stoi(accum) & 1);
-    node.setSolid(Right, !!((std::stoi(accum) & 2) >> 1));
-    node.setSolid(Down, !!((std::stoi(accum) & 4) >> 2));
-    node.setSolid(Left, !!((std::stoi(accum) & 8) >> 3));
-    break;
-      case 2:
-    node.setCutname(accum);
-    break;
+        if(!isNum(accum) || std::stoi(accum) < 0 || std::stoi(accum) > 15) {
+          return false;
+        }
+        node.setSolid(Up, std::stoi(accum) & 1);
+        node.setSolid(Right, !!((std::stoi(accum) & 2) >> 1));
+        node.setSolid(Down, !!((std::stoi(accum) & 4) >> 2));
+        node.setSolid(Left, !!((std::stoi(accum) & 8) >> 3));
+        break;
       default:
-    //invalid field
-    throw -2;  //error: nonexistent field
-    break;
+        //invalid field
+        throw -2;  //error: nonexistent field
+        break;
       }
       field++;
       accum.clear();

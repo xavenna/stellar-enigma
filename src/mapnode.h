@@ -9,7 +9,6 @@
 class NodeBase {
 private:
   unsigned id;  //!< The identifier of which tile exists here
-  std::string cutname;  //!< The name of a cutscene to trigger. \0 if no cutscene
   DirectionalBool solid; //!< whether the node is solid from each direction
 public:
   //! Gets the id of the node
@@ -18,16 +17,12 @@ public:
   void setId(unsigned);
   //! sets solidity in one direction
   bool getSolid(Direction) const;
-  //! Get the cutname
-  std::string getCutname() const;
   //! Gets solidity in one direction
   void setSolid(Direction, bool);
-  //! Set the cutname
-  void setCutname(const std::string&);
   //! The basic constructor. Sets id to 0 and area position to (0,0)
   NodeBase();
   //! Constructs the MapNode with passed attributes
-  NodeBase(unsigned n, DirectionalBool b, const std::string& cutn);
+  NodeBase(unsigned n, DirectionalBool b);
 
 };
 //! A drawable MapNode
@@ -39,7 +34,7 @@ private:
   
 public:
   //! Constructs the MapNode with passed attributes
-  MapNode(unsigned n, DirectionalBool b, const std::string& cutn);
+  MapNode(unsigned n, DirectionalBool b);
   MapNode();
 };
 

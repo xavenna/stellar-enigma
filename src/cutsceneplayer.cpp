@@ -1,14 +1,10 @@
 #include "cutsceneplayer.h"
-#include <iostream>
-#include <fstream>
-
-// there should probably be a cutscene registry, similar to texturemap
 
 void CutscenePlayer::playCutscene() {//this may be completely useless
   //actually, this could be used when switching to mode 2
 }
 
-bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwitcher& ms, MusicPlayer& mp) {
+bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwitcher& ms, MusicPlayer& mp, SwitchHandler& sh) {
   //make this start the next event, that would be pretty cool
   //okay, I think it does now. Yay
   Event e = cutscene.getEvent(pos);
@@ -31,7 +27,7 @@ bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwit
           if(cutscene.getListLen()-1 == static_cast<int>(pos)) {
             return false;
           }
-          if(!playEvent(pl, me, le, mp)) {
+          if(!playEvent(pl, me, le, mp, sh)) {
             //error: invalid event
             std::cout << "Error: invalid event in cutscene. Event skipped.\n";
           }
@@ -51,7 +47,7 @@ bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwit
       else {
         pos++;
         //start next event?
-        if(!playEvent(pl, me, le, mp)) {
+        if(!playEvent(pl, me, le, mp, sh)) {
           //error: invalid event
           std::cout << "Error: invalid event in cutscene. Event skipped.\n";
           //set timer to 0?
@@ -66,10 +62,135 @@ bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwit
   return true;
 }
 
-bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le, MusicPlayer& mp) {
-  //add bounds checking to this
+bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le, MusicPlayer& mp, SwitchHandler& sh) {
+  //add bounds checking whenever an arg is used as an index, or similar use.
   Event e = cutscene.getEvent(pos);
   switch(e.getType()) {
+  case Event::UpdateNode:
+    //update a node on the map
+    //e[0] - xpos
+    //e[1] - ypos
+    //e[2] - id
+    //e[3] - solidity: represented as a directional Bool
+    
+    //somehow check for invalid args
+    std::clog << "Note: UpdateNode event has no bounds checking yet. Use at your own risk\n";
+
+    le.updateNode(e[0], e[1], MapNode(static_cast<unsigned>(e[2]), DirectionalBool(e[3])));
+    timer = e.getDuration();
+    le.displayUpdate = true;
+    break;
+  case Event::WriteSwitch:
+    //write value of e[1] to switch e[0]
+    //validate args
+    if(e[0] > 255 || e[0] < 0) {
+      //invalid index
+      std::cerr << "Error: invalid argument in WriteSwitch event in cutscene. Skipped\n";
+    }
+    else {
+      //e[0] is guaranteed to be between 0 and 255
+      sh.write(e[0], static_cast<bool>(e[1])); 
+    }
+    timer = e.getDuration();
+    break;
+  case Event::DisplayMessage:
+    //display message
+    me.addMessage(e.getText());
+    timer = e.getDuration();
+    break;
+  case Event::GetInput:
+    //wait for input
+    //nothing needs to happen here
+    break;
+  case Event::PlaySound:
+    //plays a sound
+    mp.queueSound(e.getText());
+    timer = e.getDuration();
+    break;
+  case Event::SwitchMusic:
+    //plays music
+    mp.playMusic(e.getText());
+    timer = e.getDuration();
+    break;
+  case Event::MovePlayer:
+    //e[0] - is motion relative?
+    //e[1] - should collision and interaction be ignored?
+    //e[2] - x distance/position
+    //e[3] - y distance/position
+
+    if(e[0]) {
+      //relative coords for pos
+      if(e[1]) {
+        //ignore collision
+        pl.setPos((pl.getPos().x + e[2]), (pl.getPos().y + e[3]));
+      }
+      else {
+        //don't ignore collision
+        //use e[2], e[3] as vector, call le.validMove()
+        //do later
+        std::cerr << "Not implemented\n";
+      }
+    }
+    else {
+      //absolute coords for pos
+      //collision is always ignored for absolute motion.
+      pl.setPos(e[2], e[3]);
+    }
+
+    timer = e.getDuration();
+    break;
+  case Event::MoveObject:
+    //e[0] - is motion relative?
+    //e[1] - should collision and interaction be ignored?
+    //e[2] - x distance/position
+    //e[3] - y distance/position
+    //e[4] - link id of object to move
+    if(!le.hasObj(e[4])) {
+      //object doesn't exist, fail
+      std::cerr << "Specified Object wasn't found in cutscene, Skipping event.\n";
+    }
+    else {
+      Object* obj = le.getObjLinkPtr(e[4]);
+      if(e[0]) {
+        //relative coords for pos
+        if(e[1]) {
+          //ignore collision
+          obj->setPos((pl.getPos().x + e[2]), (pl.getPos().y + e[3]));
+        }
+        else {
+          //don't ignore collision
+          //use e[2], e[3] as vector, call le.validMove()
+          //do later
+          std::cerr << "Not implemented\n";
+        }
+      }
+      else {
+        //absolute coords for pos
+        //collision is always ignored for absolute motion.
+        obj->setPos(e[2], e[3]);
+      }
+    }
+
+    timer = e.getDuration();
+    break;
+  case Event::NotifyObject:
+    //send message: e[0] is linkid, e[1] is type, e[2]-e[7] are data.
+    //create msg
+    if(!le.hasObj(e[0])) {
+      std::cerr << "Error: Specified object not found in cutscene event, skipped.\n"; 
+    }
+    else {
+      msg m;
+      m.link = static_cast<unsigned>(e[0]);
+      m.type = static_cast<char>(e[1]);
+      for(unsigned i=0;i<6;i++) {
+        //copy data to msg
+        m.data[i] = e[i+2];
+      }
+      le.notifyObj(m);
+    }
+    break;
+  /*
   case Event::PlayerUpdate:
     //move player
     pl.setPos(e[0], e[1]);
@@ -100,11 +221,6 @@ bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le, MusicPlayer& 
     //le.addObject(Object(e[0], e[1], e[2], e[3], e[4], e[5], e[6], e.getText()));
     //timer = e.getDuration();
     break;
-  case Event::MessageDisplay:
-    //display message
-    me.addMessage(e.getText());
-    timer = e.getDuration();
-    break;
   case Event::ImageDisplay:
     //display image
     //this is currently unimplemented
@@ -115,17 +231,8 @@ bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le, MusicPlayer& 
     break;
   case Event::NodeUpdate:
     //update a node on the map
-    //std::cout << "updating node\n";
-    le.updateNode(e[0], e[1], MapNode(static_cast<unsigned>(e[2]), DirectionalBool(e[3]), e.getText()));
+    le.updateNode(e[0], e[1], MapNode(static_cast<unsigned>(e[2]), DirectionalBool(e[3])));
     le.displayUpdate = true;
-    break;
-  case Event::SoundPlay:
-    //plays a sound
-    mp.queueSound(e.getText());
-    break;
-  case Event::MusicPlay:
-    //plays music
-    mp.playMusic(e.getText());
     break;
   case Event::MapLoad:
     //load a new map
@@ -133,6 +240,7 @@ bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le, MusicPlayer& 
     man.loadCutscenes(e.getText());
     pl.setPos(e[0],e[1]);
     break;
+  */
   case Event::Invalid:
   default:
     //error: invalid event

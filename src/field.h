@@ -6,7 +6,9 @@
 #include "util.h"
 
 
+//! Width of the drawn window, in nodes
 #define WINDOW_WIDTH 16
+//! Height of the drawn window, in nodes
 #define WINDOW_HEIGHT 12
 
 
@@ -31,13 +33,15 @@ public:
   //! gets tilesize as a sf::Vector2i
   sf::Vector2i getTilesize() const;
 
+  //! Constructs a field with specified size
   Field(size_t, size_t);
 
   //! Loads mapBase from file, specified by argument.
   /*! 
    *  Searches for file in /levels/
    */
-  sf::Vector2i loadLevel(const std::string&);
+  int loadLevel(const std::string&);
+  //! Determines how far object with specified size, pos, speed, can move without hitting something
   sf::Vector2i validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i speed) const;
 
 };

@@ -22,25 +22,11 @@ int main() {
   mapData.player.setMaxCooldown(15);
 
   //initialize some sound things
-  sf::SoundBuffer step;
-  step.loadFromFile("assets/audio/thud.wav");
-  mapData.musicPlayer.registerSound("step", step);
   mapData.musicPlayer.playMusic("axolotl.ogg");
-  //initialize cutscene file
 
   mapData.modeSwitcher.setMode(0);
 
-  //this could probably be encapsulated into a Menu:: function.
-  mapData.mainMenu.baseImage = "blanksplash";
-  mapData.mainMenu.tList.clear();
-  Transform t;
-  t.type = Transform::Add_Text;
-  t.args[0] = 8; //change this once the texture base is made
-  t.args[1] = 0; //change this once the texture base is made
-  t.args[2] = 20; //size, tweak until it looks good
-  t.text = "Stellar Enigma Engine Test\n\nVersion v0-unstable\n\n\nCreated by xavenna\n\n\nHigh Score: %ihiscore~";
-  mapData.mainMenu.tList.push_back(t);
-  mapData.mainMenu.onPress = 1;
+  mapData.mainMenu.loadTemplate("main");
 
   // END Example initialization behavior
 

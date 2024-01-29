@@ -20,6 +20,7 @@
  */
 class MapData {
 public:
+  //core components
   Player player; //!< The player - the user-game interface
   ModeSwitcher modeSwitcher; //!< The component that handles input, gamemode
   Level levelSlot; //!< Contains the Level data, manages interaction & collision
@@ -28,12 +29,12 @@ public:
   Message message; //!< Displays textual information to the player
   CutscenePlayer cutscenePlayer; //!< Plays cutscenes to the player
   SwitchHandler switchHandler;  //!< Handles Switches
-  Utility utility; //!< A utility provider, contains miscellaneous useful functions
   SaveController save; //!< Savedata manager
 
   //helper components
   TextureCache cache; //!< Manages textures & transforms
   InterfaceManager interface; //!< Controls the UI (Border & Panel
+  Utility utility; //!< A utility provider, contains miscellaneous useful functions
   
 
   //! Required size of the RenderWindow
@@ -59,6 +60,8 @@ public:
   void pollEvents(sf::RenderWindow&);
   //! Gets the current frame number
   unsigned long getFrameCount() const;
+  //! load a level from file
+  void loadLevel(const std::string&);
   //! The contructor takes several parameters for the members
   MapData(unsigned pCool, unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSize);
 private:

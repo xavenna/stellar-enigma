@@ -10,6 +10,7 @@ public:
   virtual Interface interact(Player*, Field*, SwitchHandler*);
   virtual CacheNodeAttributes draw(const TextureCache*);
   virtual std::string Name() {return "key";}
+  virtual bool verify();
   Key(int uid);
 };
 

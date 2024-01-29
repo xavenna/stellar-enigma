@@ -2,6 +2,8 @@
 #define CUTSCENEPLAYER_H
 
 #include <vector>
+#include <fstream>
+#include <iostream>
 #include <SFML/Graphics.hpp>
 
 #include "util.h"
@@ -14,6 +16,8 @@
 
 #include "cutscene.h"
 #include "cutscene-manager.h"
+#include "interface.h"
+#include "switch-handler.h"
 
 
 //! A class that handles the playing of cutscenes
@@ -36,12 +40,12 @@ public:
    *  event in the list. Otherwise, decrements cooldown timer.
    *  Returns false if the cutscene is over, Otherwise returns true
    */
-  bool updateCutscene(Player&, Message&, Level&, ModeSwitcher&, MusicPlayer&);
+  bool updateCutscene(Player&, Message&, Level&, ModeSwitcher&, MusicPlayer&, SwitchHandler& sh);
   //! Plays next event; called by updateCutscene if current event is finished
   /*!
    *  This function executes the current event in the cutscene
    */
-  bool playEvent(Player&, Message&, Level&, MusicPlayer&);
+  bool playEvent(Player&, Message&, Level&, MusicPlayer&, SwitchHandler&);
   //! Basic constructor
   CutscenePlayer();
 

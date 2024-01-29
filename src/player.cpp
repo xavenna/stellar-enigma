@@ -30,13 +30,7 @@ void Player::update(sf::Vector2i tilesize) {
 //make this match the format of Object::Draw
 void Player::assignTexture(TextureCache& cache) {
   CacheNodeAttributes cna;
-  int s = cache.reverseHash("star");
-  if(s < 0) {
-    std::clog << "Error: player sprite not found\n";
-    return;
-  }
-  cna.srcImg = static_cast<unsigned>(s);
-
+  cna.srcImg = cache.reverseHash("star");
   //apply transformations
   Transform t;
   t.type = Transform::Rotate;

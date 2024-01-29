@@ -7,6 +7,7 @@
 #include <deque>
 #include <string>
 #include <map>
+#include <fstream>
 
 // The Audio Module of Stellar Enigma
 
@@ -33,7 +34,7 @@ public:
   //! Gets the number of sounds in registry
   int getNumSounds();
   //! Adds a pair of a string and a soundbuffer to the registry
-  void registerSound(const std::string&, const sf::SoundBuffer&);
+  void registerSound(const std::string&, sf::SoundBuffer);
   //! Get a reference to the sound corresponding to the name supplied
   /*!
    *  If the sound with the requested name is found in the registry, a
@@ -41,6 +42,11 @@ public:
    *  Otherwise, an out_of_range exception is thrown
    */
   sf::SoundBuffer& getSound(std::string name);
+  //! Passed string is the name of the audiomap
+  /*!
+   *  Searches for audiomap at assets/audio/
+   */
+  SoundRegistry(const std::string&);
 };
 
 //! The class that handles sound and music playing
@@ -108,7 +114,7 @@ public:
    */
   sf::SoundBuffer& getSound(std::string name);
   //! constructs the Music player
-  MusicPlayer();
+  MusicPlayer(const std::string&);
 };
 
 

@@ -13,10 +13,6 @@
 #include "switch-handler.h"
 #include "message.h"
 
-//! A utility class that represents an interaction
-/*!
- *  Used during the interaction handling process
- */
 
 //! An internal utility struct for parsing object lists
 struct ObjAttr {
@@ -25,7 +21,10 @@ struct ObjAttr {
   std::string textArg;
 };
 
-//! A utility class representing an object. Should probably be improveed later.
+//! A utility class that represents an interaction
+/*!
+ *  Used during the interaction handling process
+ */
 class Inter {
 public:
   Inter(Object*, const Player&); //!< Use for player-object interactions
@@ -43,7 +42,8 @@ public:
 
 //! A class that manages the level field and objects
 /*!
- *  Contains all tiles, as well as objects and entities.
+ *  Contains all tiles and objects
+ *  Handles tile collision
  */
 class Level {
 private:
@@ -63,6 +63,12 @@ public:
   Object& getObjRef(unsigned);
   //! returns a pointer to specified object
   Object* getObjPtr(unsigned);
+  //! returns pointer to object with specified link id
+  Object* getObjLinkPtr(int);
+  //! determines if obj-container has specified object
+  bool hasObj(int);
+  //! sends notification to object
+  bool notifyObj(msg);
   //! a fixed-size map that is actually drawn to the screen
   std::array<std::array<MapNode, WINDOW_HEIGHT>, WINDOW_WIDTH> window;
   //! overwrites the mapnode at position x,y with node
@@ -77,14 +83,14 @@ public:
   void assignTextureToObject(unsigned, TextureCache&);
   //! Loads mapBase from file, specified by argument.
   /*! 
-   *  Searches for file in /levels/
+   *  Searches for file in assets/level/
    */
   int loadLevel(const std::string&);
   //! Loads mutables from file, specified by argument.
   /*! 
-   *  Searches for file in /levels/
+   *  Searches for file in /assets/level/
    */
-  void loadMutables(const std::string&);
+  bool loadMutables(const std::string&);
   //! Gets map height
   int getHeight() const;
   //! Gets map width

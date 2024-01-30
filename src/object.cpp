@@ -99,7 +99,7 @@ Interface Object::interact(Object*, Field*, SwitchHandler*) {
   return Interface();
 }
 
-Interface Object::behave(SwitchHandler*) {
+Interface Object::behave(SwitchHandler*, Utility*) {
   // do absolutely nothing by default
   return Interface();
 }

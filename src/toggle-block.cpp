@@ -34,7 +34,7 @@ CacheNodeAttributes ToggleBlock::draw(const TextureCache* cache) {
   return cna;
 }
 
-Interface ToggleBlock::behave(SwitchHandler*) {
+Interface ToggleBlock::behave(SwitchHandler*, Utility*) {
   if(vars[1] > 0) {
     vars[1]--;
   }

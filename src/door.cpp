@@ -40,7 +40,7 @@ bool Door::verify() {
   return (switches[SW::In1] >= 0 && switches[SW::In1] < 256);
 }
 
-Interface Door::behave(SwitchHandler* sh) {
+Interface Door::behave(SwitchHandler* sh, Utility*) {
   //poll SW_Trig1
   bool sw = sh->read(switches[SW::In1]);
   if(!vars[1]) {

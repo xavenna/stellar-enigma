@@ -1,6 +1,6 @@
 #include "switch-and.h"
 
-Interface SwAnd::behave(SwitchHandler* sh) {
+Interface SwAnd::behave(SwitchHandler* sh, Utility*) {
   sh->write(switches[SW::A], (sh->read(switches[SW::In1]) && sh->read(switches[SW::In2])));
   return Interface();
 }

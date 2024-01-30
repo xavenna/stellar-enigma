@@ -22,7 +22,7 @@ Interface CutPlay::interact(Player*, Field*, SwitchHandler*) {
   return inter;
 }
 
-Interface CutPlay::behave(SwitchHandler*) {
+Interface CutPlay::behave(SwitchHandler*, Utility*) {
   if(vars[0] > 0) {
     vars[0]--;
   }

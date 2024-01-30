@@ -18,7 +18,7 @@
 #
 #  For a release build, run make with REL=1 as an argument
 
-DYNAMIC = 1
+DYNAMIC = 0
 
 SDK = 0
 

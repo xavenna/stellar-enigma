@@ -221,34 +221,14 @@ bool TextureCache::registerImage(sf::Image img, const std::string& name) {
 
 TextureCache::TextureCache(const std::string& name, SaveController& s) : save{s} {
 
-  //add a dummy image
-  //sf::Image i;
-  //i.create(1, 1, sf::Color::Transparent);
-  //registerImage(i, "nil");
-
-
   std::ifstream get(name);
   std::string line;
-  unsigned section = 0;
   if(!get.is_open()) {
     throw std::invalid_argument("TextureCache::TextureCache() : File not found\n");
   }
   while(get.peek() != EOF) {
     std::getline(get, line);
     if(line.size() == 0 || line[0] == '#') {
-      continue;
-    }
-    if(line == "***") { //offset happening
-      if(section == 0) {
-        //switch to object
-      }
-      else if(section == 1) {
-        //switch to entity
-      }
-      else {
-        throw std::invalid_argument("TextureCache::TextureCache() : Extra separator found\n");
-      }
-      section++;
       continue;
     }
     sf::IntRect box = getRect(line);
@@ -274,6 +254,10 @@ TextureCache::TextureCache(const std::string& name, SaveController& s) : save{s}
     registerImage(im, imgName);
 
   }
+  //add a dummy image
+  //sf::Image i;
+  //i.create(1, 1, sf::Color::Transparent);
+  //registerImage(i, "nil");
 }
 
 

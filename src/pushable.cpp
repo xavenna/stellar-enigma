@@ -25,6 +25,20 @@ Interface Pushable::interact(Player* p, Field* l, SwitchHandler*) {
     pInit = false;
   }
 
+  //std::cerr << getLastPos().x << ',' << p->getLastPos().y << '\n';
+  //std::cerr << getPos().x << ',' << p->getPos().y << "\n\n";
+
+
+  int tDist = pmax.y - omin.y;
+  int rDist = omax.x - pmin.x;
+  int bDist = omax.y - pmin.y;
+  int lDist = pmax.x - omin.x;
+
+  bool tMove = (tDist > 0 && tDist < rDist && tDist < bDist && tDist < lDist);
+  bool rMove = (rDist > 0 && rDist < tDist && rDist < bDist && rDist < lDist);
+  bool bMove = (bDist > 0 && bDist < rDist && bDist < tDist && bDist < lDist);
+  bool lMove = (lDist > 0 && lDist < rDist && lDist < bDist && lDist < tDist);
+
   //determine interaction for each direction:
   //was player intersecting with object on the x-axis?
   bool xAfter = !(omax.x < pmin.x || omin.x > pmax.x);
@@ -37,26 +51,18 @@ Interface Pushable::interact(Player* p, Field* l, SwitchHandler*) {
   bool xInt = xAfter && !xBefore && ((yAfter && yBefore) || (!yBefore && yAfter));
   bool yInt = yAfter && !yBefore && ((xAfter && xBefore) || (!xBefore && xAfter));
 
-  /*
-  if(xInt && yInt) {
-    return Interface(pos, "", ""); //For now, diagonal interactions are ignored
-    //so, this means the player can clip into pushables by moving diagonally
-    //which is bad, fix this
-  }
-  */
-
   if(pInit) {
     sf::Vector2i residSpeed;
-    if(xInt && pmin.x < omin.x) {
+    if(lMove) {
       residSpeed.x = p->getPos().x+p->getSize().x-pos.x;
     }
-    else if(xInt && pmin.x > omin.x) {
+    else if(rMove) {
       residSpeed.x = p->getPos().x - (pos.x+size.x);
     }
-    if(yInt && pmin.y < omin.y) {
+    if(tMove) {
       residSpeed.y = p->getPos().y+p->getSize().y-pos.y;
     }
-    else if(yInt && pmin.y > omin.y) {
+    else if(bMove) {
       residSpeed.y = p->getPos().y - (pos.y+size.y);
     }
     sf::Vector2i moveDistance;
@@ -69,22 +75,20 @@ Interface Pushable::interact(Player* p, Field* l, SwitchHandler*) {
   }
   else {
     sf::Vector2i residSpeed;
-    if(xInt && omin.x < pmin.x) {
-      //residSpeed.x = p->getPos().x+p->getSize().x-pos.x;
+    if(rMove) {
       residSpeed.x = pos.x + size.x - p->getPos().x;
     }  //moving right
-    if(yInt && omin.y < pmin.y) {
-      //residSpeed.y = p->getPos().y+p->getSize().y-pos.y;
-      residSpeed.y = pos.y + size.y - p->getPos().y;
-    }
-    if(xInt && omin.x > pmin.x) {
-      //residSpeed.x = p->getPos().x - (pos.x+size.x);
+    else if(lMove) {
       residSpeed.x = pos.x - (p->getPos().x + p->getSize().x);
     }
-    if(yInt && omin.y > pmin.y) {
-      //residSpeed.y = p->getPos().y - (pos.y+size.y);
+    if(bMove) {
+      residSpeed.y = pos.y + size.y - p->getPos().y;
+    }
+    else if(tMove) {
       residSpeed.y = pos.y - (p->getPos().y + p->getSize().y);
     }
+
+
     sf::Vector2i moveDistance;
 
     moveDistance = l->validMove(p->getPos(), p->getSize(), residSpeed);
@@ -117,6 +121,17 @@ Interface Pushable::interact(Object* p, Field* l, SwitchHandler*) {
       sf::Vector2i olmin{lastPos};
       sf::Vector2i olmax{olmin+size-sf::Vector2i(1,1)};
 
+
+      int tDist = pmax.y - omin.y;
+      int rDist = omax.x - pmin.x;
+      int bDist = omax.y - pmin.y;
+      int lDist = pmax.x - omin.x;
+
+      bool tMove = (tDist > 0 && tDist < rDist && tDist < bDist && tDist < lDist);
+      bool rMove = (rDist > 0 && rDist < tDist && rDist < bDist && rDist < lDist);
+      bool bMove = (bDist > 0 && bDist < rDist && bDist < tDist && bDist < lDist);
+      bool lMove = (lDist > 0 && lDist < rDist && lDist < bDist && lDist < tDist);
+
       //determine interaction for each direction:
       //was player intersecting with object on the x-axis?
       bool xAfter = !(omax.x < pmin.x || omin.x > pmax.x);
@@ -134,6 +149,19 @@ Interface Pushable::interact(Object* p, Field* l, SwitchHandler*) {
       }
 
       sf::Vector2i residSpeed;
+      if(lMove) {
+        residSpeed.x = p->getPos().x+p->getSize().x-pos.x;
+      }
+      else if(rMove) {
+        residSpeed.x = p->getPos().x - (pos.x+size.x);
+      }
+      if(tMove) {
+        residSpeed.y = p->getPos().y+p->getSize().y-pos.y;
+      }
+      else if(bMove) {
+        residSpeed.y = p->getPos().y - (pos.y+size.y);
+      }
+      /*
       if(xInt && pmin.x < omin.x) {
         residSpeed.x = p->getPos().x+p->getSize().x-pos.x;
       }  //moving right
@@ -146,6 +174,7 @@ Interface Pushable::interact(Object* p, Field* l, SwitchHandler*) {
       if(yInt && pmin.y > omin.y) {
         residSpeed.y = p->getPos().y - (pos.y+size.y);
       }
+      */
       sf::Vector2i moveDistance;
 
       moveDistance = l->validMove(pos, size, residSpeed);

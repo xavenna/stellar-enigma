@@ -8,6 +8,7 @@
 #include "vect.h"
 #include "switch-handler.h"
 #include "interface.h"
+#include "utility.h"
 
 #include <array>
 #include <tuple>
@@ -67,7 +68,7 @@ public:
   //! produces the proper CacheNodeAttributes for the state of the object
   virtual CacheNodeAttributes draw(const TextureCache*);
   //! base version of behave();
-  virtual Interface behave(SwitchHandler*);
+  virtual Interface behave(SwitchHandler*, Utility*);
   //! base version of verify, which ensures object config is valid
   virtual bool verify();
   //! used for the objcontainer to send complex messages to parents (maybe more later)

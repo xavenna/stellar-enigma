@@ -273,12 +273,12 @@ void Level::resetObjDeltas() {
   }
 }
 
-Interface Level::handleObjects(sf::Vector2i pos, sf::Vector2i size, SwitchHandler* sh) {
+Interface Level::handleObjects(sf::Vector2i pos, sf::Vector2i size, SwitchHandler* sh, Utility* u) {
   Interface inter;
   for(unsigned i=0;i<objects.size();i++) {
     Object* x = objects.getObjPtr(i);
     //do things for x.
-    Interface res = x->behave(sh);
+    Interface res = x->behave(sh, u);
     for(auto y : res.message) {
       inter.addMessage(y);
     }

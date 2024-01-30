@@ -8,7 +8,7 @@ public:
   using Object::interact;
   virtual int Type() {return Object::Intangible;} 
   virtual Interface interact(Player*, Field*, SwitchHandler*);
-  virtual Interface behave(SwitchHandler*);
+  virtual Interface behave(SwitchHandler*, Utility*);
   virtual std::string Name() {return "cutscene_player";}
   CutPlay(int);
 };

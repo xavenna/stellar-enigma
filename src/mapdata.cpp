@@ -356,6 +356,17 @@ void MapData::event1Handle() {
         //obj-player interaction
         //call the obj's interact function on the player
 
+        //check if the interaction was already resolved
+        sf::Vector2i pmin{player.getPos()};
+        sf::Vector2i pmax{pmin+player.getSize()-sf::Vector2i(1,1)};
+
+        sf::Vector2i omin{x.o1->getPos()};
+        sf::Vector2i omax{omin+x.o1->getSize()-sf::Vector2i(1,1)};
+
+        if(pmin.x > omax.x || omin.x > pmax.x || pmin.y > omax.y || omin.y > pmax.y) {
+          continue;
+        }
+
         Interface res = x.o1->interact(&player, &levelSlot.field, &switchHandler);
         for(auto y : res.message) {
           if(y != "") {
@@ -381,8 +392,19 @@ void MapData::event1Handle() {
         player.updateDelta();
       }
       else {
-        x.o1->savePos();
-        x.o2->savePos();
+
+        //check if interaction was already resolved
+        sf::Vector2i pmin{x.o1->getPos()};
+        sf::Vector2i pmax{pmin+x.o1->getSize()-sf::Vector2i(1,1)};
+
+        sf::Vector2i omin{x.o2->getPos()};
+        sf::Vector2i omax{omin+x.o2->getSize()-sf::Vector2i(1,1)};
+
+        if(pmin.x > omax.x || omin.x > pmax.x || pmin.y > omax.y || omin.y > pmax.y) {
+          continue;
+        }
+
+
         bool initiator = true; //if true, o1 initiates
         bool ignore = false; //if true, ignore interaction
         //obj-obj interaction
@@ -445,6 +467,8 @@ void MapData::event1Handle() {
         }
 
         if(!ignore) {
+          x.o1->savePos();
+          x.o2->savePos();
           Interface res = (initiator?x.o2:x.o1)->interact((initiator?x.o1:x.o2), &levelSlot.field, &switchHandler);
           for(auto y : res.message) {
             if(y != "") {
@@ -500,7 +524,7 @@ void MapData::event1Handle() {
   if(oldps != newps)
     levelSlot.displayUpdate = true;
 
-  Interface res = levelSlot.handleObjects(player.getPos(), player.getSize(), &switchHandler);
+  Interface res = levelSlot.handleObjects(player.getPos(), player.getSize(), &switchHandler, &utility);
 
   //handle the interfaces
   for(auto x : res.message) {

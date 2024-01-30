@@ -12,6 +12,7 @@
 #include "obj-container.h"
 #include "switch-handler.h"
 #include "message.h"
+#include "utility.h"
 
 
 //! An internal utility struct for parsing object lists
@@ -117,7 +118,7 @@ public:
   /*!
    *  Updates entity tile positions
    */
-  Interface handleObjects(sf::Vector2i pos, sf::Vector2i size, SwitchHandler*);
+  Interface handleObjects(sf::Vector2i pos, sf::Vector2i size, SwitchHandler*, Utility*);
   //! Resets last pos for objects
   void resetObjDeltas();
   //! Tells whether object is on the correct screen to be displayed

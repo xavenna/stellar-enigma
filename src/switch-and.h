@@ -7,7 +7,7 @@ class SwAnd : public Object {
 public:
   using Object::interact;
   virtual int Type() {return Object::Intangible;} 
-  virtual Interface behave(SwitchHandler*);
+  virtual Interface behave(SwitchHandler*, Utility*);
   SwAnd(int uid);
 };
 

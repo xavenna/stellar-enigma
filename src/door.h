@@ -9,7 +9,7 @@ public:
   virtual Interface interact(Player*, Field*, SwitchHandler*);
   virtual Interface interact(Object*, Field*, SwitchHandler*);
   virtual CacheNodeAttributes draw(const TextureCache*);
-  virtual Interface behave(SwitchHandler*);
+  virtual Interface behave(SwitchHandler*, Utility*);
   virtual std::string Name() {return "door";}
   virtual int priority() {return 0;}
   virtual int Type() {return Object::Static;} 

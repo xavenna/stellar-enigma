@@ -32,6 +32,107 @@ Interface Solid::interact(Object* p, Field*, SwitchHandler*) {
       sf::Vector2i olmax{olmin+size-sf::Vector2i(1,1)};
       //determine interaction for each direction:
       //was player intersecting with object on the x-axis?
+
+      int tDist = pmax.y - omin.y;
+      int rDist = omax.x - pmin.x;
+      int bDist = omax.y - pmin.y;
+      int lDist = pmax.x - omin.x;
+
+      sf::Vector2i pDelta{pmin.x - plmin.x, pmin.y-plmin.y};
+
+      /*
+      if(p->Name() == "pushable") {
+        std::cerr << getLastPos().x << ',' << p->getLastPos().y << '\n';
+        std::cerr << getPos().x << ',' << p->getPos().y << "\n\n";
+      }
+      */
+
+      if(tDist > 0 && tDist < rDist && tDist < bDist && tDist < lDist) {
+        interacting = true;
+        p->setYPos(omin.y - p->getSize().y);
+      }
+      else if(rDist > 0 && rDist < tDist && rDist < bDist && rDist < lDist) {
+        interacting = true;
+        p->setXPos(omax.x+1);
+      }
+      else if(bDist > 0 && bDist < rDist && bDist < tDist && bDist < lDist) {
+        interacting = true;
+        p->setYPos(omax.y+1);
+      }
+      else if(lDist > 0 && lDist < rDist && lDist < bDist && lDist < tDist) {
+        interacting = true;
+        p->setXPos(omin.x - p->getSize().x);
+      }
+      else if(lDist > 0 && lDist == tDist && lDist < rDist && lDist < bDist) {
+        //top left
+        if(pDelta.x < pDelta.y) {
+          //push up
+          p->setYPos(omin.y - p->getSize().y);
+        }
+        else if(pDelta.x > pDelta.y) {
+          //push left
+          p->setXPos(omin.x - p->getSize().x);
+        }
+        else {
+          //push diagonally
+          p->setXPos(omin.x - p->getSize().x);
+          p->setYPos(omin.y - p->getSize().y);
+        }
+        interacting = true;
+      }
+      else if(lDist > 0 && lDist == bDist && lDist < rDist && lDist < tDist) {
+        //bottom left
+        if(pDelta.x > -pDelta.y) {
+          //push down
+          p->setYPos(omax.y + 1);
+        }
+        else if(pDelta.x < -pDelta.y) {
+          //push left
+          p->setXPos(omin.x - p->getSize().x);
+        }
+        else {
+          //push diagonally
+          p->setXPos(omin.x - p->getSize().x);
+          p->setYPos(omax.y + 1);
+        }
+        interacting = true;
+      }
+      else if(rDist > 0 && rDist == tDist && rDist < lDist && rDist < bDist) {
+        //top right
+        if(-pDelta.x > pDelta.y) {
+          //push up
+          p->setYPos(omin.y - p->getSize().y);
+        }
+        else if(-pDelta.x < pDelta.y) {
+          //push right
+          p->setXPos(omax.x + 1);
+        }
+        else {
+          //push diagonally
+          p->setXPos(omax.x + 1);
+          p->setYPos(omin.y - p->getSize().y);
+        }
+        interacting = true;
+      }
+      else if(rDist > 0 && rDist == bDist && rDist < lDist && rDist < tDist) {
+        //bottom right
+        if(pDelta.x > pDelta.y) {
+          //push down
+          p->setYPos(omax.y + 1);
+        }
+        else if(pDelta.x < pDelta.y) {
+          //push right
+          p->setXPos(omax.x + 1);
+        }
+        else {
+          //push diagonally
+          p->setXPos(omax.x + 1);
+          p->setYPos(omax.y + 1);
+        }
+        interacting = true;
+      }
+
+      /*
       bool xAfter = !(omax.x < pmin.x || omin.x > pmax.x);
       bool xBefore = !(olmax.x < plmin.x || olmin.x > plmax.x);
 
@@ -58,6 +159,7 @@ Interface Solid::interact(Object* p, Field*, SwitchHandler*) {
         p->setYPos(pos.y+size.y);
         interacting = true;
       }
+      */
   }
 
   return Interface();
@@ -66,6 +168,7 @@ Interface Solid::interact(Object* p, Field*, SwitchHandler*) {
 
 Interface Solid::interact(Player* p, Field*, SwitchHandler*) {
   interacting = false;
+
   sf::Vector2i pmin{p->getPos()};
   sf::Vector2i pmax{pmin+p->getSize()-sf::Vector2i(1,1)};
   sf::Vector2i plmin{p->getLastPos()};
@@ -76,6 +179,101 @@ Interface Solid::interact(Player* p, Field*, SwitchHandler*) {
   sf::Vector2i omax{omin+size-sf::Vector2i(1,1)};
   sf::Vector2i olmin{lastPos};
   sf::Vector2i olmax{olmin+size-sf::Vector2i(1,1)};
+
+  sf::Vector2i pDelta = pmin - plmin;
+
+  int tDist = pmax.y - omin.y;
+  int rDist = omax.x - pmin.x;
+  int bDist = omax.y - pmin.y;
+  int lDist = pmax.x - omin.x;
+
+  if(tDist > 0 && tDist < rDist && tDist < bDist && tDist < lDist) {
+    interacting = true;
+    p->setYPos(omin.y - p->getSize().y);
+  }
+  else if(rDist > 0 && rDist < tDist && rDist < bDist && rDist < lDist) {
+    interacting = true;
+    p->setXPos(omax.x + 1);
+  }
+  else if(bDist > 0 && bDist < rDist && bDist < tDist && bDist < lDist) {
+    interacting = true;
+    p->setYPos(omax.y + 1);
+  }
+  else if(lDist > 0 && lDist < rDist && lDist < bDist && lDist < tDist) {
+    interacting = true;
+    p->setXPos(omin.x - p->getSize().x);
+  }
+  else if(lDist > 0 && lDist == tDist && lDist < rDist && lDist < bDist) {
+    //top left
+    if(pDelta.x < pDelta.y) {
+      //push up
+      p->setYPos(omin.y - p->getSize().y);
+    }
+    else if(pDelta.x > pDelta.y) {
+      //push left
+      p->setXPos(omin.x - p->getSize().x);
+    }
+    else {
+      //push diagonally
+      p->setXPos(omin.x - p->getSize().x);
+      p->setYPos(omin.y - p->getSize().y);
+    }
+    interacting = true;
+  }
+  else if(lDist > 0 && lDist == bDist && lDist < rDist && lDist < tDist) {
+    //bottom left
+    if(pDelta.x > -pDelta.y) {
+      //push down
+      p->setYPos(omax.y + 1);
+    }
+    else if(pDelta.x < -pDelta.y) {
+      //push left
+      p->setXPos(omin.x - p->getSize().x);
+    }
+    else {
+      //push diagonally
+      p->setXPos(omin.x - p->getSize().x);
+      p->setYPos(omax.y + 1);
+    }
+    interacting = true;
+  }
+  else if(rDist > 0 && rDist == tDist && rDist < lDist && rDist < bDist) {
+    //top right
+    if(-pDelta.x > pDelta.y) {
+      //push up
+      p->setYPos(omin.y - p->getSize().y);
+    }
+    else if(-pDelta.x < pDelta.y) {
+      //push right
+      p->setXPos(omax.x + 1);
+    }
+    else {
+      //push diagonally
+      p->setXPos(omax.x + 1);
+      p->setYPos(omin.y - p->getSize().y);
+    }
+    interacting = true;
+  }
+  else if(rDist > 0 && rDist == bDist && rDist < lDist && rDist < tDist) {
+    //bottom right
+    if(pDelta.x > pDelta.y) {
+      //push down
+      p->setYPos(omax.y + 1);
+    }
+    else if(pDelta.x < pDelta.y) {
+      //push right
+      p->setXPos(omax.x + 1);
+    }
+    else {
+      //push diagonally
+      p->setXPos(omax.x + 1);
+      p->setYPos(omax.y + 1);
+    }
+    interacting = true;
+  }
+  //check for diagonal movements
+
+  /*
   //determine interaction for each direction:
   //was player intersecting with object on the x-axis?
   bool xAfter = !(omax.x < pmin.x || omin.x > pmax.x);
@@ -104,6 +302,7 @@ Interface Solid::interact(Player* p, Field*, SwitchHandler*) {
     p->setYPos(pos.y+size.y);
     interacting = true;
   }
+  */
 
   return Interface();
 }
@@ -126,7 +325,7 @@ CacheNodeAttributes Solid::draw(const TextureCache* cache) {
 }
 
 
-Interface Solid::behave(SwitchHandler*) {
+Interface Solid::behave(SwitchHandler*, Utility*) {
   //no special behaviors
   return Interface();
 }

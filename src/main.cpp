@@ -22,7 +22,7 @@ int main() {
   mapData.player.setMaxCooldown(15);
 
   //initialize some sound things
-  mapData.musicPlayer.playMusic("axolotl.ogg");
+  mapData.musicPlayer.playMusic("untitled-song-6.ogg");
 
   mapData.modeSwitcher.setMode(0);
 

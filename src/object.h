@@ -9,6 +9,8 @@
 #include "switch-handler.h"
 #include "interface.h"
 #include "utility.h"
+#include "save.h"
+#include "util.h"
 
 #include <array>
 #include <tuple>

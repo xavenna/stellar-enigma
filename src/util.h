@@ -19,5 +19,10 @@ bool isEmpty(char c);
 //! breaks n into a vector, starting a new element wherever a component of key is found
 void parse(const std::string& n, std::vector<std::string>& th, std::string key = "./\\-");
 
+//this function was taken from stackoverflow
+template <typename T> int sign(T val) {
+    return (T(0) < val) - (val < T(0));
+}
+
 bool getEntireFile(std::ifstream& in, std::string& out);
 #endif

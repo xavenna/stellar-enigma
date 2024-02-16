@@ -2,7 +2,7 @@
 
 // This file has functions for the overarching classes
 
-MapData::MapData(unsigned pCool, unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSize) : musicPlayer{"audiomap.txt"},  message{mWid, mCool, mElem, mCharSize}, cache{"assets/texturemap/default.tm", save} {
+MapData::MapData(unsigned pCool, unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSize) : musicPlayer{"audiomap.txt"},  message{mWid, mCool, mElem, mCharSize}, cache{"assets/texturemap/default.tm", utility.save} {
   //initialize members here
 
   //load level
@@ -24,10 +24,10 @@ MapData::MapData(unsigned pCool, unsigned mWid, unsigned mCool, unsigned mElem, 
   cutscenePlayer.man.loadCutscenes("cutlist.txt");
 
   //load savedata.
-  save.setSlot("0");
-  save.readData();
+  utility.save.setSlot("0");
+  utility.save.readData();
 
-  save.writeData();
+  utility.save.writeData();
   //test line
 
   mainMenu.initialize();
@@ -288,7 +288,7 @@ void MapData::event1Handle() {
         continue;
       }
       for(unsigned j=i;j<levelSlot.getObjNum();j++) {
-        if(i==j || levelSlot.getObj(j).getStatus() == Object::Inactive) {
+        if(i==j || levelSlot.getObj(j).getStatus() == Object::Inactive || levelSlot.getObj(j).getStatus() == Object::Destroy) {
           continue;
         }
         //check interaction between objects
@@ -351,8 +351,6 @@ void MapData::event1Handle() {
       bool remove = false;
       auto& x = interactions[i];
       if(x.player1 || x.player2) {
-        x.o1->savePos();
-        player.savePos();
         //obj-player interaction
         //call the obj's interact function on the player
 
@@ -366,6 +364,8 @@ void MapData::event1Handle() {
         if(pmin.x > omax.x || omin.x > pmax.x || pmin.y > omax.y || omin.y > pmax.y) {
           continue;
         }
+        x.o1->savePos();
+        player.savePos();
 
         Interface res = x.o1->interact(&player, &levelSlot.field, &switchHandler);
         for(auto y : res.message) {
@@ -404,7 +404,6 @@ void MapData::event1Handle() {
           continue;
         }
 
-
         bool initiator = true; //if true, o1 initiates
         bool ignore = false; //if true, ignore interaction
         //obj-obj interaction
@@ -440,25 +439,36 @@ void MapData::event1Handle() {
           }
           break;
         case Object::Sliding:
-          if(x.o2->Type() == Object::Static) {
-            initiator = true;
-          }
-          else if(x.o2->Type() == Object::Entity) {
-            initiator = false;
-          }
-          else {
-            //complicated things
-          }
-          break;
         case Object::Entity:
           if(x.o2->Type() == Object::Static) {
             initiator = true;
           }
-          else if(x.o2->Type() == Object::Sliding) {
-            initiator = true;
+          else if(x.o2->Type() == Object::Entity || x.o2->Type() == Object::Sliding) {
+            bool o1Moved = (delta1.x || delta1.y);
+            bool o2Moved = (delta2.x || delta2.y);
+            //std::cerr<<delta1.x<<','<<delta1.y<<';'<<delta2.x<<','<<delta2.y<<' ';
+            //initiator = false; //this isn't always true. This should be lumped in with
+                               //the sliding case and calculate based on deltas
+            if(o1Moved && !o2Moved) {
+              //o1 didn't move, o2 is initiator
+              initiator = true;
+            }
+            else if(!o1Moved && o2Moved) {
+              //o1 is initiator
+              initiator = false;
+            }
+            else if(o1Moved && o2Moved) {
+              //both objects moved. Obj with bigger delta wins
+              continue;
+            }
+            else {
+              //neither obj moved.
+              //ignore interaction? i don't know what to do here ;-;
+              continue; //this is a temporary fix...
+            }
           }
           else {
-            //complicated things
+            //...
           }
           break;
         }

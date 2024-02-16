@@ -29,7 +29,6 @@ public:
   Message message; //!< Displays textual information to the player
   CutscenePlayer cutscenePlayer; //!< Plays cutscenes to the player
   SwitchHandler switchHandler;  //!< Handles Switches
-  SaveController save; //!< Savedata manager
 
   //helper components
   TextureCache cache; //!< Manages textures & transforms

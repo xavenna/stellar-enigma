@@ -1,7 +1,6 @@
 #include <iostream>
 #include <tuple>
 #include "level.h"
-#include "util.h"
 
 Inter::Inter(Object* o, const Player& pl) : p{pl} {
   o1 = o;

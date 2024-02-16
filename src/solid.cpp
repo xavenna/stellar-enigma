@@ -272,38 +272,6 @@ Interface Solid::interact(Player* p, Field*, SwitchHandler*) {
     interacting = true;
   }
   //check for diagonal movements
-
-  /*
-  //determine interaction for each direction:
-  //was player intersecting with object on the x-axis?
-  bool xAfter = !(omax.x < pmin.x || omin.x > pmax.x);
-  bool xBefore = !(olmax.x < plmin.x || olmin.x > plmax.x);
-
-  bool yAfter = !(omax.y < pmin.y || omin.y > pmax.y);
-  bool yBefore = !(olmax.y < plmin.y || olmin.y > plmax.y);
-
-  //x, y interactions
-  bool xInt = xAfter && !xBefore && ((yAfter && yBefore) || (!yBefore && yAfter));
-  bool yInt = yAfter && !yBefore && ((xAfter && xBefore) || (!xBefore && xAfter));
-
-  if(xInt && pmin.x < omin.x) {
-    p->setXPos(pos.x-p->getSize().y);
-    interacting = true;
-  }
-  if(yInt && pmin.y < omin.y) {
-    p->setYPos(pos.y-p->getSize().x);
-    interacting = true;
-  }
-  if(xInt && pmin.x > omin.x) {
-    p->setXPos(pos.x+size.x);
-    interacting = true;
-  }
-  if(yInt && pmin.y > omin.y) {
-    p->setYPos(pos.y+size.y);
-    interacting = true;
-  }
-  */
-
   return Interface();
 }
 
@@ -322,10 +290,4 @@ CacheNodeAttributes Solid::draw(const TextureCache* cache) {
   }
   //no transforms, so tlist is left blank
   return cna;
-}
-
-
-Interface Solid::behave(SwitchHandler*, Utility*) {
-  //no special behaviors
-  return Interface();
 }

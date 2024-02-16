@@ -13,6 +13,8 @@
 #include "switch-handler.h"
 #include "message.h"
 #include "utility.h"
+#include "util.h"
+#include "save.h"
 
 
 //! An internal utility struct for parsing object lists
@@ -116,7 +118,7 @@ public:
 
   //! Handles objects
   /*!
-   *  Updates entity tile positions
+   *  Updates entity tile positions, handles object behavior, etc.
    */
   Interface handleObjects(sf::Vector2i pos, sf::Vector2i size, SwitchHandler*, Utility*);
   //! Resets last pos for objects

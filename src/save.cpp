@@ -1,7 +1,42 @@
 #include "save.h"
+#include "object.h"
 #include <cmath>
 
 
+void VarPool::write(const Object* o, unsigned index, int data) {
+  if(o == nullptr || o->getUID() < 0 || index > 15) {
+    std::cerr << "VarPool invalid write\n";
+    return;
+  }
+  registry[static_cast<unsigned>(o->getUID())][index] = data;
+}
+
+void VarPool::write(const Player* p, unsigned index, int data) {
+  if(p == nullptr || index > 15) {
+    std::cerr << "VarPool invalid write\n";
+    return;
+  }
+  playerVars[index] = data;
+  
+}
+int VarPool::read(unsigned id, unsigned index) const {
+  //if present, 
+  if(index > 16 || registry.find(id) == registry.end()) {
+    std::cerr << "VarPool invalid read\n";
+    return 0;
+  }
+  // uses at instead of [] because the compiler doesn't like []
+  return registry.at(id).at(index);
+}
+
+
+int VarPool::playerRead(unsigned index) const {
+  if(index > 16) {
+    std::cerr << "VarPool invalid read\n";
+    return 0;
+  }
+  return playerVars[index];
+}
 
 
 int SaveController::writeData() {

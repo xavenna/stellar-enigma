@@ -4,11 +4,11 @@
 
 
 void VarPool::write(const Object* o, unsigned index, int data) {
-  if(o == nullptr || o->getUID() < 0 || index > 15) {
+  if(o == nullptr || o->getLinkID() < 0 || index > 15) {
     std::cerr << "VarPool invalid write\n";
     return;
   }
-  registry[static_cast<unsigned>(o->getUID())][index] = data;
+  registry[static_cast<unsigned>(o->getLinkID())][index] = data;
 }
 
 void VarPool::write(const Player* p, unsigned index, int data) {

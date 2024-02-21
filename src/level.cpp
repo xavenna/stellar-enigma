@@ -137,6 +137,7 @@ bool Level::loadMutables(const std::string& levelname) {
     }
     //parse `line' as a mutable
 
+    //switch to using: parseSEObjFormat and generateObjFromObjAttrList here
     if(!str2obj2(line, o, type)) {
       std::clog << "Error: Failed level load\n";
       return false;
@@ -360,7 +361,8 @@ bool Level::displayObject(unsigned index, sf::Vector2i ppos, sf::Vector2i size) 
   
 }
 
-sf::Vector2i Level::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i speed, int ignore) const {
+//this needs to be reworked at some point
+sf::Vector2i Level::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i speed) const {
   //sorry about how awful this code is
   
   //convert player coordinates to level coordinates
@@ -530,6 +532,125 @@ sf::Vector2i Level::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i 
   //make sure to prevent player becoming trapped inside a solid object
   
   return fullMove ? speed : moveDistance;
+}
+
+//! Populate an Object's fields from a list of ObjAttr's.
+bool generateObjFromObjAttrList(const std::list<ObjAttr>& attribs, Object& obj, std::string& objType) {
+  //now that data is extracted from bracketed parts, check for validity
+  //if it's valid, assign the appropriate attribute
+  //TODO: add a way to avoid duplicates
+  std::array<int, 8> args;
+  std::array<int, 8> switches;
+  sf::Vector2i pos{0,0};
+  sf::Vector2i size{0,0};
+  std::string text;
+  std::string objClass;
+  int parent=-1;
+  int link=-1;
+  int tex=-1;
+  int argNum;
+  for(auto x : attribs) {
+    argNum = x.args.size();
+    if(x.id == "oa") {
+      //assign obj args
+      if(argNum > 8) {
+        std::clog << "Error: oa field accepts at most 8 arguments, "<<argNum<<" provided\n";
+        return false;
+      }
+      unsigned i=0;
+      for(auto y : x.args) {
+        args[i++] = y;
+      }
+    }
+    else if(x.id == "sw") {
+      //assign switches
+      if(argNum > 8) {
+        std::clog << "Error: sw field accepts at most 8 arguments, "<<argNum<<" provided\n";
+        return false;
+      }
+      unsigned i=0;
+      for(auto y : x.args) {
+        switches[i++] = y;
+      }
+    }
+    else if(x.id == "p") {
+      //assign position
+      if(argNum != 2) {
+        std::clog << "Error: p field requires 2 arguments, "<<argNum<<" provided\n";
+        return false;
+      }
+      pos.x = x.args[0];
+      pos.y = x.args[1];
+    }
+    else if(x.id == "s") {
+      //assign size
+      //are there two int args?
+      if(argNum != 2) {
+        std::clog << "Error: s field requires 2 argument, "<<argNum<<" provided\n";
+        return false;
+      }
+      size.x = x.args[0];
+      size.y = x.args[1];
+
+    }
+    else if(x.id == "pi") {
+      if(argNum != 1) {
+        std::clog << "Error: pi field requires 1 argument, "<<argNum<<" provided\n";
+        return false;
+      }
+      //select object type
+      parent = x.args[0];
+    }
+    else if(x.id == "li") {
+      if(argNum != 1) {
+        std::clog << "Error: li field requires 1 argument, "<<argNum<<" provided\n";
+        return false;
+      }
+      //select object type
+      link = x.args[0];
+    }
+    else if(x.id == "ti") {
+      if(argNum != 1) {
+        std::clog << "Error: ti field requires 1 argument, "<<argNum<<" provided\n";
+        return false;
+      }
+      //select object type
+      tex = x.args[0];
+    }
+    else if(x.id == "c") {
+      if(x.textArg.size() == 0) {
+        //null id, fail
+        std::clog << "Error: c field requires a non-empty string\n";
+        return false;
+      }
+      objClass = x.textArg;
+    }
+    else if(x.id == "te") {
+      if(x.textArg.size() == 0) {
+        //null id, fail
+        std::clog << "Error: te field requires a non-empty string\n";
+        return false;
+      }
+      text = x.textArg;
+    }
+    else {
+      //invalid, or text
+      std::clog << "Invalid Identifier '"<<x.id<<"' in object list\n";
+      return false;
+    }
+  }
+  //now that values have been extracted, assign values to object
+  obj.setLinkID(link);
+  obj.setParentID(parent);
+  obj.setTextureID(tex);
+  obj.setArgs(args);
+  obj.setSwitches(switches);
+  obj.setPos(pos);
+  obj.setSize(size);
+  obj.setText(text);
+  obj.resetStatus();
+  objType = objClass;
+  return true;
 }
 
 bool str2obj2(const std::string& line, Object& obj, std::string& objType) {

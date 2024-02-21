@@ -4,7 +4,7 @@
 For a basic project, either obtain a build of the library for your system, or download
 the source and build it yourself.
 
-Open or create src/main.cpp, and add any custom initialization behavior in the marked
+Open src/main-template.cpp, and add any custom initialization behavior in the marked
 spot.
 
 Now, follow the build instructions to build the executable.
@@ -44,15 +44,17 @@ Here's a description of how to initialize each folder.
 The stellar object format stores data in key-value pairs. key is a string, value can be
 an int, string, or comma-delimited list of integers.\
 Example pairs:\
-    {oa:2,1,3,4} - field "oa" contains a comma-delimited list of integers
-    {txt:"hello"} - field "txt" contains the string "hello"
+* {oa:2,1,3,4} - field "oa" contains a comma-delimited list of integers
+* {txt:"hello"} - field "txt" contains the string "hello"
+* {p:3} - field "p" contains the number 3
 
 Each line corresponds to an entry, and all attributes for that entry are concatenated.
 
 ### Explor Format
 The explor format is a legacy format from stellar-enigma's predecessor, explor-v2. Data
 is stored in a backtick (`) delimited list with no field names.\
-A backtick is not required after the final element
+A backtick is not required after the final element.\
+Lines prefixed with '#' are ignored.
 
 
 
@@ -71,9 +73,28 @@ This loads coin.wav and assigns it the internal name of 'coin'.
 Cutlist.txt contains a list of all cutscenes to load. Each cutscene is on its own line.
 
 ### icons.txt
+Uses the explor format
 
 
 ### levels (.sel files)
+A .sel file contains the level tile data. It is stored in a modified explor format:\
+The first four lines define some attributes of the level: 
+* Level Width (in tiles)
+* Level Height (in tiles)
+* Tile width
+* Tile height
+
+After that comes the tile data. Each line describes a row of the map. A row contains a 
+comma-delimited list of node descriptors.\
+A node descriptor is as follows: tile-id`solidity`\
+Tile ID specifies which texture to assign the tile. Picks the nth entry from the
+texturecache.\
+Solidity: The four least significant bits determine the solidity of each side:
+0x1 - Up\
+0x2 - Right\
+0x4 - Down\
+0x8 - Left\
+
 
 ### object lists (.sml files)
 A .sml file contains all preloaded objects, and uses the stellar object format. Each line
@@ -98,9 +119,3 @@ default.tm is the texturemap. This specifies each texture used, and assigns it a
 internal name. Uses the explor format.\
 Each entry contains the internal name, image to source from, and the size and offset of 
 the subrectangle to use
-
-
-
-
-
-## cut

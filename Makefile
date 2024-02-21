@@ -22,6 +22,21 @@ DYNAMIC = 0
 
 SDK = 0
 
+#if 1, use time to seed rng, else use random_device
+RAND_TIME = 0
+
+# controls if raw keyboard state or os-provided events are used for input.
+RAW_IN = 1
+
+# Initially defined up here so the following lines work properly
+CPPFLAGS = -fexceptions -std=c++17
+
+# Play window size, in nodes
+CPPFLAGS += -DWINDOW_WIDTH=16 -DWINDOW_HEIGHT=12
+
+# Framerate definition
+CPPFLAGS += -DFRAMERATE=30
+
 
 ifeq ($(SDK), 1)
 BASE_LIB := libstellar-sdk
@@ -34,10 +49,20 @@ endif
 EXE := stellar
 LIBS = libstellar.a libstellar-sdk.a libstellar.so libstellar-sdk.so
 CXX = g++
-CPPFLAGS = -fexceptions -std=c++17
 
-CPPFLAGS += -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wnoexcept -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-null-sentinel -Wstrict-overflow=5 -Wswitch-default -Wundef -Wno-unused -Wpedantic # -Werror
+
+ifeq ($(RAW_IN), 1)
+CPPFLAGS += -DSE_RAW_IN
+endif
+
+ifeq ($(RAND_TIME), 1)
+CPPFLAGS += -DRAND_USE_TIME
+endif
+
 # Warning flags
+
+CPPFLAGS += -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wnoexcept -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-null-sentinel -Wstrict-overflow=5 -Wswitch-default -Wundef  -Wpedantic # -Werror -Wno-unused
+
 
 LFLAGS = -L.
 

@@ -254,10 +254,6 @@ TextureCache::TextureCache(const std::string& name, SaveController& s) : save{s}
     registerImage(im, imgName);
 
   }
-  //add a dummy image
-  //sf::Image i;
-  //i.create(1, 1, sf::Color::Transparent);
-  //registerImage(i, "nil");
 }
 
 

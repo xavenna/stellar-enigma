@@ -114,7 +114,5 @@ protected:
   std::map<std::string, float> fvars; //!< Saved float variables
   std::map<std::string, bool> bvars; //!< Saved bool variables
   std::map<std::string, std::string> svars; //!< Saved string variables
-
-  VarPool vars;  
 };
 #endif

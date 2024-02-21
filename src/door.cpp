@@ -36,13 +36,13 @@ CacheNodeAttributes Door::draw(const TextureCache* cache) {
 }
 
 bool Door::verify() {
-  //SW::In1 should be a valid switch.
-  return (switches[SW::In1] >= 0 && switches[SW::In1] < 256);
+  //SW::A should be a valid switch.
+  return (switches[SW::A] >= 0 && switches[SW::A] < 256);
 }
 
 Interface Door::behave(SwitchHandler* sh, Utility*) {
   //poll SW_Trig1
-  bool sw = sh->read(switches[SW::In1]);
+  bool sw = sh->read(switches[SW::A]);
   if(!vars[1]) {
     if(sw) {
       vars[1] = true;

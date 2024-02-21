@@ -11,5 +11,10 @@ float Utility::getRandFloat(float m, float n) {
   return dist(engine);
 }
 
+#ifndef RAND_USE_TIME
 Utility::Utility() : engine{rd()} {
 }
+#else
+Utility::Utility() : engine(std::chrono::system_clock::now().time_since_epoch().count()) {
+}
+#endif

@@ -5,13 +5,6 @@
 #include "mapnode.h"
 #include "util.h"
 
-
-//! Width of the drawn window, in nodes
-#define WINDOW_WIDTH 16
-//! Height of the drawn window, in nodes
-#define WINDOW_HEIGHT 12
-
-
 class Field {
 private:
   std::vector<std::vector<NodeBase>> mapBase; //!< The level data of the map

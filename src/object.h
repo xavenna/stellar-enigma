@@ -49,11 +49,11 @@ public:
   enum SW {  //Correlates switch array positions to names
     Appear = 0, //!< Makes the object appear
     Disappear = 1, //!< Makes the object disappear
-    A = 2, //!< Used for activating other objects
-    B = 3, //!< 
-    In1 = 4, //!< Other objects trigger these
-    In2 = 5, //!< These two need better names
-    Gen = 6, //!< Currently Unused
+    A = 2, //!< Generic Switch
+    B = 3, //!< Generic Switch
+    C = 4, //!< Generic Switch
+    D = 5, //!< Generic Switch
+    Stat = 6, //!< Causes object to enter a different behavior mode (eg. slow time)
     Remove = 7 //!< Object activates this upon collection, death, etc.
   };
 

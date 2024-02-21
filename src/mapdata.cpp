@@ -2,7 +2,7 @@
 
 // This file has functions for the overarching classes
 
-MapData::MapData(unsigned pCool, unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSize) : musicPlayer{"audiomap.txt"},  message{mWid, mCool, mElem, mCharSize}, cache{"assets/texturemap/default.tm", utility.save} {
+MapData::MapData(unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSize) : musicPlayer{"audiomap.txt"},  message{mWid, mCool, mElem, mCharSize}, cache{"assets/texturemap/default.tm", utility.save} {
   //initialize members here
 
   //load level
@@ -43,13 +43,20 @@ void MapData::pollEvents(sf::RenderWindow& window) {
       switch(event.type) {
       case sf::Event::Closed:
 	      window.close();
-	      break;
+	      break; 
+#ifndef SE_RAW_IN
+      case sf::Event::KeyPressed:
+        modeSwitcher.addKey(event.key.code);
+        break;
+#endif
       default:
 	      break;
       }
     }
 
+#ifdef SE_RAW_IN
     modeSwitcher.updateKeysPressed();
+#endif
 }
 void MapData::finishFrame(sf::RenderWindow& window) {
   //tasks that are common to all modes
@@ -348,7 +355,6 @@ void MapData::event1Handle() {
 
     //handle in priority rank
     for(size_t i=0;i<interactions.size();i++) {
-      bool remove = false;
       auto& x = interactions[i];
       if(x.player1 || x.player2) {
         //obj-player interaction

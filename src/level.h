@@ -1,6 +1,7 @@
 #ifndef LEVEL_H
 #define LEVEL_H
 
+#include "format.h"
 #include "mapnode.h"
 #include "object.h"
 #include "texture-cache.h"
@@ -17,12 +18,7 @@
 #include "save.h"
 
 
-//! An internal utility struct for parsing object lists
-struct ObjAttr {
-  std::string id;
-  std::vector<int> args;
-  std::string textArg;
-};
+
 
 //! A utility class that represents an interaction
 /*!
@@ -127,7 +123,7 @@ public:
   bool displayObject(unsigned index, sf::Vector2i ppos, sf::Vector2i size) const;
 
   //! Determines how far the player can move before running into an obstacle
-  sf::Vector2i validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i speed, int ignore=-1) const;
+  sf::Vector2i validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i speed) const;
   //! A constructor that sets the size of mapBase to (arg1, arg2)
   /*!
    *  Doesn't set tilesize
@@ -148,6 +144,8 @@ public:
 bool str2obj(const std::string& line, Object& node);
 //! new version of str2obj2, for new object format.
 bool str2obj2(const std::string& line, Object& node, std::string&);
+
+bool generateObjFromObjAttrList(const std::list<ObjAttr>& attribs, Object& obj, std::string& objType);
 
 bool checkInteraction(Object*, Object*);
 #endif

@@ -119,3 +119,7 @@ default.tm is the texturemap. This specifies each texture used, and assigns it a
 internal name. Uses the explor format.\
 Each entry contains the internal name, image to source from, and the size and offset of 
 the subrectangle to use
+
+It follows the form:\
+string-name`source-file`subrect-width`subrect-height`subrect-x-offset`subrect-y-offset
+

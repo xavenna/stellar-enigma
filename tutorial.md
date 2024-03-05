@@ -26,6 +26,8 @@ Here's a description of how to initialize each folder.
 * Interface
 
 * Level
+  * All level files
+  * All Object list files
 
 * Menu
   * menus.txt
@@ -57,6 +59,9 @@ A backtick is not required after the final element.\
 Lines prefixed with '#' are ignored.
 
 
+### JSON
+Some files are stored in JSON, in order to be more compatible with other software
+
 
 ## Files
 
@@ -77,23 +82,12 @@ Uses the explor format
 
 
 ### levels (.sel files)
-A .sel file contains the level tile data. It is stored in a modified explor format:\
-The first four lines define some attributes of the level: 
-* Level Width (in tiles)
-* Level Height (in tiles)
-* Tile width
-* Tile height
+Levels are now stored in json, and produced by OGMO editor
 
-After that comes the tile data. Each line describes a row of the map. A row contains a 
-comma-delimited list of node descriptors.\
-A node descriptor is as follows: tile-id`solidity`\
-Tile ID specifies which texture to assign the tile. Picks the nth entry from the
-texturecache.\
-Solidity: The four least significant bits determine the solidity of each side:
-0x1 - Up\
-0x2 - Right\
-0x4 - Down\
-0x8 - Left\
+The level consists of Five (for now) layers:
+* "Base Layer" : The tile layer
+* "[Direction] Solidity" : Direction replaced with Top, Bottom, Left, or Right
+  * A grid layer, whether the tile is solid on specified side
 
 
 ### object lists (.sml files)

@@ -82,10 +82,13 @@ the main executable or installed systemwide.
 ## Credits:
 stellar-enigma was created by xavenna
 
-The SFML Framework was used for Graphics and Audio
+The SFML Framework was used for Graphics and Audio\
 These libraries can be found at https://sfml-dev.org/
 
-The Json11 library was used for json parsing.
+The Json11 library was used for json parsing.\
 This can be found at https://github.com/dropbox/json11/
+
+OGMO editor was used for level creation.\
+This tool can be found at https://ogmo-editor-3.github.io/
 
 stellar-enigma was released under the MIT License. see LICENSE for details.

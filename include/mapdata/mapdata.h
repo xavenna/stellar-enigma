@@ -54,8 +54,13 @@ public:
   void event3Handle();
   //! Handles events if the engine is in mode 4
   void event4Handle();
+  //! Handles events if the engine is in mode 5
+  void event5Handle();
   //! Event handler wrapper function
   int handleEvents();
+
+  //! Handles interactions between objects and player
+  void handleInteractions();
   //! Wraps up the frame, executed once at the end. Handles drawing
   void finishFrame(sf::RenderWindow&);
   //! Polls events

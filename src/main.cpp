@@ -15,6 +15,7 @@ int main() {
 
   //BEGIN Example initialization behavior
   //initialize player
+  //player pos should be determined by level file
   mapData.player.setPos(32,32);
   mapData.player.setSize(sf::Vector2i(16,16));
   mapData.player.setSpeed(4);

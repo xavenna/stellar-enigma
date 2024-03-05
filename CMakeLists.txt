@@ -65,6 +65,7 @@ if(RAW_IN)
   target_compile_definitions(stellar PRIVATE SE_RAW_IN)
 endif()
 
+target_compile_options(stellar PRIVATE -Wall -Wextra -Wpedantic)
 
 # Doxygen
 

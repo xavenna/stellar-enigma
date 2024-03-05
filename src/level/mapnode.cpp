@@ -3,17 +3,23 @@
 NodeBase::NodeBase(unsigned n, DirectionalBool b) : id{n}, solid{b} {
 }
 
-unsigned NodeBase::getId() const{
-  return id;
+unsigned NodeBase::getTileset() const{
+  return tileset;
 }
 bool NodeBase::getSolid(Direction d) const {
   return solid[d];
 }
-void NodeBase::setId(unsigned n) {
-  id = n;
+sf::Vector2i NodeBase::getTile() const {
+  return tile;
+}
+void NodeBase::setTileset(unsigned n) {
+  tileset = n;
 }
 void NodeBase::setSolid(Direction d, bool b) {
   solid.set(d, b);
+}
+void NodeBase::setTile(sf::Vector2i n) {
+  tile = n;
 }
 NodeBase::NodeBase() {
   id = 0;

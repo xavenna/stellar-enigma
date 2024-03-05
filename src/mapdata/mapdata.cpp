@@ -83,6 +83,8 @@ void MapData::finishFrame(sf::RenderWindow& window) {
     }
     for(unsigned i=0;i<WINDOW_WIDTH;i++) {
       for(unsigned j=0;j<WINDOW_HEIGHT;j++) {
+        //this needs to be overhauled: add a new api for getting texture from spritesheet
+
         levelSlot.assignTextureToWinNode(sf::Vector2i(static_cast<int>(i),static_cast<int>(j)), cache);
         window.draw(levelSlot.window[i][j]);
       }
@@ -137,7 +139,10 @@ int MapData::handleEvents() {
     event3Handle();
     break;
   case 4:
-    //event4Handle();
+    event4Handle();
+    break;
+  case 5:
+    event5Handle();
     break;
   default:
     //don't handle any events... in an unrecognised mode
@@ -279,13 +284,79 @@ void MapData::event1Handle() {
   player.setPos(player.getPos() + sp);
   //check for interaction between player and objects/entities
 
+  //this whole thing is getting a restructuring, as the flickering player bug revealed
+  //some serious problems with the algorithm used.
 
   //set up interaction handler
 
+  handleInteractions();
+
+
+
+  //various player updates
+  if(player.damaged) {
+    player.damaged = false;
+    player.resetCooldown();
+  }
+  else if(player.getCooldown() != 0) {
+    player.decrementCooldown();
+  }
+  sf::Vector2i oldps(player.getScreen().x, player.getScreen().y);
+  player.update(levelSlot.getTilesize());
+  sf::Vector2i newps(player.getScreen().x, player.getScreen().y);
+
+  //various updates
+  if(oldps != newps)
+    levelSlot.displayUpdate = true;
+
+  Interface res = levelSlot.handleObjects(player.getPos(), player.getSize(), &switchHandler, &utility);
+
+  //handle the interfaces
+  for(auto x : res.message) {
+    if(x != "") {
+      message.addMessage(x);
+    }
+  }
+  for(auto x : res.cutscene) {
+    if(x != "") {
+      if(cutscenePlayer.man.cutsceneExists(x)) {
+        cutscenePlayer.loadCutscene(cutscenePlayer.man.getCutscene(x));
+      }
+      modeSwitcher.setMode(2);
+    }
+  }
+  for(auto x : res.sounds) {
+    musicPlayer.queueSound(x);
+  }
+  if(res.menu != "") {
+    //open specified menu
+    mainMenu.loadTemplate(res.menu);
+    modeSwitcher.cooldown(15);
+    modeSwitcher.setMode(0);
+  }
+  //objects and notifications are done in the Level, so they don't need to be done here
+
+
+  // If player has died, display death screen and switch to mode 0 
+  if(player.getHealth() == 0) {
+    modeSwitcher.setMode(0);
+    modeSwitcher.cooldown(15);
+    mainMenu.loadTemplate("death");
+  }
+}
+
+bool rectangle_collide(Object* o1, Object* o2, bool static1=false) {
+  // pushes objects apart from a collision. If o1 is static, set static1 to true
+  //find normal, depth
+  sf::Vector2f normal;
+  //determine which side the interaction is happening on
+}
+
+/*
+//in progress better version of interaction handler
+void MapData::handleInteractions2() {
   std::deque<Inter> interactions;
 
-
-  //iterator
   for(unsigned n=0;;n++) {
     interactions.clear();
     //create a list of interactions
@@ -313,8 +384,7 @@ void MapData::event1Handle() {
           //no interaction
         }
         else {
-          //interaction;
-          //create and populate an Inter object
+          //interaction, create and populate an Inter object
           interactions.push_back(Inter(o1, o2));
         }
       }
@@ -334,6 +404,56 @@ void MapData::event1Handle() {
         interactions.push_back(Inter(ob, player));
       }
     }
+
+
+    // do things here. Determine which objects appear in the interactions list.
+    // Rank those objects by priority. Starting from the highest priority object,
+    // handle all the object's interactions.
+    // For each pair, use the types and states to determine which resolution needs to
+    // occur.
+    //
+    // 
+    // For each object with interactions (in priority order)
+    // * find interaction type for each interaction.
+    // * for each interaction where object is pushed, get a normal vector for the 
+    //   pushing object's surface.
+    // * based on these normals, determine squishing ( and other state changes)
+    // * 
+    // 
+    // for actual collisions:
+    // determine the penetration depth and collision normal.
+    // Push each object back along this normal to a position based on its size
+    // If one object is static, only push the other one.
+    //
+    // Check for squishes, etc., before handling the rest of the collision step
+
+    //determine which function to use for handling interaction:
+
+    //methods:
+    // * rectangle push - pushes two rectangular objects away from each other
+    // * rectangle uni push - pushes one rectangular object away from the other
+    //    other remains static
+    // * rectangular
+    //
+    //
+    // player + static : rectangle uni push [static is stationary]
+    // player + crate : rectangle uni push [player is stationary]
+
+    //add an Object::getNormalVect function - returns a normalized normal vector for
+    //any angle around the circumference
+
+    for(auto& x : interactions) {
+      if(x.player2) {
+        if(x.o1->Type() == Object::Static) {
+          
+        }
+      }
+      else {
+        //check if either 
+      }
+
+    }
+
 
     //calculate interaction ranking
     for(auto& x : interactions) {
@@ -523,59 +643,301 @@ void MapData::event1Handle() {
 
   }
 
-
-  //various player updates
-  if(player.damaged) {
-    player.damaged = false;
-    player.resetCooldown();
-  }
-  else if(player.getCooldown() != 0) {
-    player.decrementCooldown();
-  }
-  sf::Vector2i oldps(player.getScreen().x, player.getScreen().y);
-  player.update(levelSlot.getTilesize());
-  sf::Vector2i newps(player.getScreen().x, player.getScreen().y);
-
-  //various updates
-  if(oldps != newps)
-    levelSlot.displayUpdate = true;
-
-  Interface res = levelSlot.handleObjects(player.getPos(), player.getSize(), &switchHandler, &utility);
-
-  //handle the interfaces
-  for(auto x : res.message) {
-    if(x != "") {
-      message.addMessage(x);
-    }
-  }
-  for(auto x : res.cutscene) {
-    if(x != "") {
-      if(cutscenePlayer.man.cutsceneExists(x)) {
-        cutscenePlayer.loadCutscene(cutscenePlayer.man.getCutscene(x));
-      }
-      modeSwitcher.setMode(2);
-    }
-  }
-  for(auto x : res.sounds) {
-    musicPlayer.queueSound(x);
-  }
-  if(res.menu != "") {
-    //open specified menu
-    mainMenu.loadTemplate(res.menu);
-    modeSwitcher.cooldown(15);
-    modeSwitcher.setMode(0);
-  }
-  //objects and notifications are done in the Level, so they don't need to be done here
-
-
-  // If player has died, display death screen and switch to mode 0 
-  if(player.getHealth() == 0) {
-    modeSwitcher.setMode(0);
-    modeSwitcher.cooldown(15);
-    mainMenu.loadTemplate("death");
-  }
 }
+*/
 
+
+
+//This was moved into its own function
+void MapData::handleInteractions() {
+  std::deque<Inter> interactions;
+
+
+  //iterator
+  for(unsigned n=0;;n++) {
+    interactions.clear();
+    //create a list of interactions
+    //check each pair of objects (plus player)
+    for(unsigned i=0;i<levelSlot.getObjNum();i++) {
+      if(levelSlot.getObj(i).getStatus() == Object::Inactive || levelSlot.getObj(i).getStatus() == Object::Destroy) {
+        continue;
+      }
+      for(unsigned j=i;j<levelSlot.getObjNum();j++) {
+        if(i==j || levelSlot.getObj(j).getStatus() == Object::Inactive || levelSlot.getObj(j).getStatus() == Object::Destroy) {
+          continue;
+        }
+        //check interaction between objects
+        Object* o1 = (levelSlot.getObjPtr(i));
+        Object* o2 = (levelSlot.getObjPtr(j));
+
+        sf::Vector2i omin{o1->getPos()};
+        sf::Vector2i omax{omin+o1->getSize()-sf::Vector2i(1,1)};
+
+        sf::Vector2i bmin{o2->getPos()};
+        sf::Vector2i bmax{bmin+o2->getSize()-sf::Vector2i(1,1)};
+
+
+        if(bmin.x > omax.x || omin.x > bmax.x || bmin.y > omax.y || omin.y > bmax.y) {
+          //no interaction
+        }
+        else {
+          //interaction;
+          //create and populate an Inter object
+          interactions.push_back(Inter(o1, o2));
+        }
+      }
+      //check interaction with player and object[i];
+      Object* ob = (levelSlot.getObjPtr(i));
+      sf::Vector2i pmin{player.getPos()};
+      sf::Vector2i pmax{pmin+player.getSize()-sf::Vector2i(1,1)};
+
+      sf::Vector2i omin{ob->getPos()};
+      sf::Vector2i omax{omin+ob->getSize()-sf::Vector2i(1,1)};
+
+      if(pmin.x > omax.x || omin.x > pmax.x || pmin.y > omax.y || omin.y > pmax.y) {
+        //no interaction
+      }
+      else {
+        //interaction
+        interactions.push_back(Inter(ob, player));
+      }
+    }
+
+
+    //check for squish states?
+    //for player and each entity, do the following:
+    //
+    //check for all interactions with solids. If there are multiple, enter squish state before entering interact handler proper. Determine squish axis.
+
+    //for now, only check player
+    std::deque<sf::Vector2f> vects;
+    std::deque<int> directs;
+    for(unsigned i=0;i<levelSlot.getObjNum();i++) {
+      Object* ob = levelSlot.getObjPtr(i);
+      if(ob->getStatus() == Object::Inactive || ob->getStatus() == Object::Destroy) {
+        continue;
+      }
+      if(ob->Type() == Object::Intangible) {
+        continue;
+      }
+      //count number of solids interacting with player
+      //how to determine which direction it wants to push player?
+      if(ob->Type() == Object::Static) {
+        sf::Vector2i pmin{player.getPos()};
+        sf::Vector2i pmax{pmin+player.getSize()-sf::Vector2i(1,1)};
+
+        sf::Vector2i omin{ob->getPos()};
+        sf::Vector2i omax{omin+ob->getSize()-sf::Vector2i(1,1)};
+
+        sf::Vector2f pm{static_cast<float>(player.getPos().x), static_cast<float>(player.getPos().y)};
+        sf::Vector2f om{static_cast<float>(ob->getPos().x), static_cast<float>(ob->getPos().y)};
+        if(pmin.x > omax.x || omin.x > pmax.x || pmin.y > omax.y || omin.y > pmax.y) {
+          //no interaction
+        }
+        else {
+          //find the distance vector between the two:
+          vects.push_back(norm(om - pm));
+          //directs.push_back();
+          // determine which general direction each vector is pointing
+        }
+      }
+    }
+    //determine if a squish is occurring
+    //for each pair of interactions with player, calculate normal(a - b). This is the
+    //squish axis here
+
+    //
+    //For each squish, 
+
+    //calculate interaction ranking
+    for(auto& x : interactions) {
+      x.calculatePriority();
+    }
+
+    //reorder interaction vector
+
+    //sorting by subpriority then priority with a stable sort ensures that the vector
+    //is lexicographically sorted
+
+    std::stable_sort(interactions.begin(), interactions.end(), [](Inter o, Inter p) {
+        return o.subpriority < p.subpriority;
+    });
+
+    std::stable_sort(interactions.begin(), interactions.end(), [](Inter o, Inter p) {
+        return o.priority < p.priority;
+    });
+
+    //handle in priority rank
+    for(size_t i=0;i<interactions.size();i++) {
+      auto& x = interactions[i];
+      if(x.player1 || x.player2) {
+        //obj-player interaction
+        //call the obj's interact function on the player
+
+        //check if the interaction was already resolved
+        sf::Vector2i pmin{player.getPos()};
+        sf::Vector2i pmax{pmin+player.getSize()-sf::Vector2i(1,1)};
+
+        sf::Vector2i omin{x.o1->getPos()};
+        sf::Vector2i omax{omin+x.o1->getSize()-sf::Vector2i(1,1)};
+
+        if(pmin.x > omax.x || omin.x > pmax.x || pmin.y > omax.y || omin.y > pmax.y) {
+          continue;
+        }
+        x.o1->savePos();
+        player.savePos();
+
+        Interface res = x.o1->interact(&player, &levelSlot.field, &switchHandler);
+        for(auto y : res.message) {
+          if(y != "") {
+            message.addMessage(y);
+          }
+        }
+        for(auto y : res.cutscene) {
+          if(y != "") {
+            if(cutscenePlayer.man.cutsceneExists(y)) {
+              cutscenePlayer.loadCutscene(cutscenePlayer.man.getCutscene(y));
+            }
+            modeSwitcher.setMode(2);
+          }
+        }
+        for(auto y : res.sounds) {
+          musicPlayer.queueSound(y);
+        }
+
+        for(auto y : res.objs) {
+          levelSlot.addObject(y.first, y.second);
+        }
+        x.o1->updateDelta();
+        player.updateDelta();
+      }
+      else {
+
+        //check if interaction was already resolved
+        sf::Vector2i pmin{x.o1->getPos()};
+        sf::Vector2i pmax{pmin+x.o1->getSize()-sf::Vector2i(1,1)};
+
+        sf::Vector2i omin{x.o2->getPos()};
+        sf::Vector2i omax{omin+x.o2->getSize()-sf::Vector2i(1,1)};
+
+        if(pmin.x > omax.x || omin.x > pmax.x || pmin.y > omax.y || omin.y > pmax.y) {
+          continue;
+        }
+
+        bool initiator = true; //if true, o1 initiates
+        bool ignore = false; //if true, ignore interaction
+        //obj-obj interaction
+        sf::Vector2i delta1 = x.o1->getPos() - x.o1->getLastPos();
+        sf::Vector2i delta2 = x.o2->getPos() - x.o2->getLastPos();
+
+        //call target's interact function on initiator object
+        //if one is a static, it is the target
+        //if both are static, ignore interaction
+        //if one is an entity, it is the initiator
+        //if one is a sliding, it is the initiator
+        //if one is entity and one is sliding, entity initiates
+        //if both are entity or sliding, figure something out;
+        //check deltas. If one has a delta but the other doesn't, one with delta is
+          //initiator
+        //if both have deltas... i have no ideas
+        switch(x.o1->Type()) {
+        default:
+          //treat as intangible
+        case Object::Intangible:
+          ignore = true;
+          break;
+        case Object::Static:
+          if(x.o2->Type() == Object::Static) {
+            //ignore interaction
+            ignore = true;
+          }
+          else if(x.o2->Type() == Object::Sliding) {
+            initiator = false;
+          }
+          else {
+            initiator = false;
+          }
+          break;
+        case Object::Sliding:
+        case Object::Entity:
+          if(x.o2->Type() == Object::Static) {
+            initiator = true;
+          }
+          else if(x.o2->Type() == Object::Entity || x.o2->Type() == Object::Sliding) {
+            bool o1Moved = (delta1.x || delta1.y);
+            bool o2Moved = (delta2.x || delta2.y);
+            //std::cerr<<delta1.x<<','<<delta1.y<<';'<<delta2.x<<','<<delta2.y<<' ';
+            //initiator = false; //this isn't always true. This should be lumped in with
+                               //the sliding case and calculate based on deltas
+            if(o1Moved && !o2Moved) {
+              //o1 didn't move, o2 is initiator
+              initiator = true;
+            }
+            else if(!o1Moved && o2Moved) {
+              //o1 is initiator
+              initiator = false;
+            }
+            else if(o1Moved && o2Moved) {
+              //both objects moved. Obj with bigger delta wins
+              continue;
+            }
+            else {
+              //neither obj moved.
+              //ignore interaction? i don't know what to do here ;-;
+              continue; //this is a temporary fix...
+            }
+          }
+          else {
+            //...
+          }
+          break;
+        }
+        if(x.o2->Type() == Object::Intangible) {
+          ignore = true;
+        }
+
+        if(!ignore) {
+          x.o1->savePos();
+          x.o2->savePos();
+          Interface res = (initiator?x.o2:x.o1)->interact((initiator?x.o1:x.o2), &levelSlot.field, &switchHandler);
+          for(auto y : res.message) {
+            if(y != "") {
+              message.addMessage(y);
+            }
+          }
+          for(auto y : res.cutscene) {
+            if(y != "") {
+              if(cutscenePlayer.man.cutsceneExists(y)) {
+                cutscenePlayer.loadCutscene(cutscenePlayer.man.getCutscene(y));
+              }
+              modeSwitcher.setMode(2);
+            }
+          }
+          for(auto y : res.sounds) {
+            musicPlayer.queueSound(y);
+          }
+
+          for(auto y : res.objs) {
+            //create any requested objects
+            levelSlot.addObject(y.first, y.second);
+          }
+          x.o1->updateDelta();
+          x.o2->updateDelta();
+        }
+      }
+    }
+
+
+    if(interactions.empty() || n >= 6) {
+      // the number is a hardcap for iterations, it may change
+      // also break if the list remains identical for several iterations in a row
+      // i'm not sure what the best way to do this is...
+      break;
+    }
+
+  }
+
+}
 
 void MapData::event2Handle() {  //this is the cutscene mode
   if(cutscenePlayer.updateCutscene(player, message, levelSlot, modeSwitcher, musicPlayer, switchHandler)) {
@@ -595,6 +957,13 @@ void MapData::event2Handle() {  //this is the cutscene mode
 
 
 void MapData::event3Handle() {  //debug mode logic
+  return; //no logic occurs
+}
+void MapData::event4Handle() {  //level select mode logic
+  return; //no logic occurs
+}
+
+void MapData::event5Handle() {  //world map mode logic
   return; //no logic occurs
 }
 

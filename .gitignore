@@ -41,6 +41,11 @@ src/ytg-objects/
 # Unused files
 unused/
 
+# Build Dir
+build/
+
 # Backup files
 *~
 *.swp
+*.swo
+*.swn

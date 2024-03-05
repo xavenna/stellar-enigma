@@ -54,7 +54,7 @@ This folder contains save files, stored in the json format, with the extension .
 
 ## Documentation:
 Documentaion can be generated using Doxygen. The documentation is currently incomplete.
-Additionally, an copy of the documentation can be found [here](https://xavenna.github.io/projects/stellar-docs). This is likely out-of-date, though.
+Additionally, an copy of the documentation can be found [here](http://xavenna.net/projects/stellar-docs). This is likely out-of-date, though.
 
 
 ## Build:
@@ -67,10 +67,12 @@ other operating systems.
 
 ### Build process:
 
-For a standard build, just run make.\
-To use a dynamic library, add DYNAMIC=1 to the make command.\
-To build in SDK Mode (see the SDK Mode section for more details), add SDK=1.\
-To build in release (should be done by end users), add REL=1.\
+stellar-enigma can be build using CMake:\
+create a build directory build/.\
+From there, run 'cmake ..'\
+Finally, run the build command for whichever build system you used (eg. make)
+
+The variables in CMakeCache can be edited for different behavior
 
 If the dynamic build was chosen. libstellar.so must be placed in the same directory as
 the main executable or installed systemwide.

@@ -19,7 +19,8 @@ public:
     Acting,  //!< Entered when action button is pressed
     Invulnerable, //!< Immune to Damage
     Damaged,  //!< Currently recovering from damage
-    Normal   //!< Not in any special state
+    Normal,   //!< Not in any special state
+    Pushed   //!< The player just finished being pushed back by a solid object
   };
   bool damaged=false; //!< Has the player been damaged this frame?
   //! Updates the player's sprite based on position

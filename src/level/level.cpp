@@ -70,7 +70,8 @@ void Level::readyWindow(int xscr, int yscr) {
   int yOff = yscr * (ywid);
   for(unsigned i=0;i<WINDOW_WIDTH;i++) {
     for(unsigned j=0;j<WINDOW_HEIGHT;j++) {
-      window[i][j].setId(getNode(static_cast<int>(i)+xOff,static_cast<int>(j)+yOff).getId());
+      window[i][j].setTileset(getNode(static_cast<int>(i)+xOff,static_cast<int>(j)+yOff).getTileset());
+      window[i][j].setTile(getNode(static_cast<int>(i)+xOff,static_cast<int>(j)+yOff).getTile());
     }
   }
   winOffY = yOff;
@@ -111,7 +112,7 @@ void Level::updateWindowPos() {
 
 int Level::loadLevel(const std::string& levelname) {
   // create the levelName
-  if(field.loadLevel(levelname)) {
+  if(field.loadJsonLevel(levelname)) {
     return -1;
   }
   if(loadMutables(levelname)) {
@@ -178,9 +179,20 @@ void Level::assignTextureToWinNode(sf::Vector2i pos, TextureCache& cache) {
   }
   sf::Vector2u p{static_cast<unsigned>(pos.x),static_cast<unsigned>(pos.y)};
   CacheNodeAttributes cna;
-  cna.srcImg = window[p.x][p.y].getId();
+  MapNode x = window[p.x][p.y];
+  cna.srcImg = x.getTileset();
   
   //generate cna.tList
+  Transform t;
+  t.type = Transform::SubRect;
+  t.args[0] = x.getTile().x * 16;
+  t.args[1] = x.getTile().y * 16;
+  t.args[2] = 16;
+  t.args[3] = 16;
+
+  cna.tList.push_back(t);
+
+  /*
   switch(window[p.x][p.y].getId()) {
   case 8: {
     //water: add a xShift transformation
@@ -195,20 +207,11 @@ void Level::assignTextureToWinNode(sf::Vector2i pos, TextureCache& cache) {
     cna.tList.push_back(t2);
   }
     break;
-    /*
-  case 8: {
-    //barrier: add a color Tint
-    Transform t;
-    t.type = Transform::Tint_Color;
-    t.args[0] = (frameCount)%360;
-    cna.tList.push_back(t);
-    }
-    break;
-    */
   default:
     //no transformations
     break;
   }
+  */
   try {
     window[p.x][p.y].setTexture(cache.getTexture(cna));
   }
@@ -391,7 +394,7 @@ sf::Vector2i Level::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i 
     int cxP = pos.x + i * getTilesizeX();
     if(cxP > phx)
       cxP = phx;
-    if(getNode(int(cxP/getTilesizeX()), int(pos.y/getTilesizeY())-1).getSolid(Up)) {
+    if(getNode(int(cxP/getTilesizeX()), int(pos.y/getTilesizeY())-1).getSolid(Down)) {
       tempSpeed = pos.y - playY * getTilesizeY();
       moveDistance.y = abs(moveDistance.y) > abs(tempSpeed) ? tempSpeed : moveDistance.y;
     }
@@ -411,7 +414,7 @@ sf::Vector2i Level::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i 
     int cxP = pos.x + i * getTilesizeX();
     if(cxP > phx)
       cxP = phx;
-    if(getNode(int(cxP/getTilesizeX()), int((phy)/getTilesizeY())).getSolid(Down)) {
+    if(getNode(int(cxP/getTilesizeX()), int((phy)/getTilesizeY())).getSolid(Up)) {
       tempSpeed = int(phy / getTilesizeY()) * getTilesizeY() - phy;
       moveDistance.y = moveDistance.y > tempSpeed ? tempSpeed : moveDistance.y;
     }
@@ -431,7 +434,7 @@ sf::Vector2i Level::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i 
     int cyP = pos.y + i * getTilesizeY();
     if(cyP > phy)
       cyP = phy;
-    if(getNode(int(pos.x/getTilesizeX())-1, int(cyP/getTilesizeY())).getSolid(Left)) {
+    if(getNode(int(pos.x/getTilesizeX())-1, int(cyP/getTilesizeY())).getSolid(Right)) {
       tempSpeed = pos.x - playX * getTilesizeX();
       moveDistance.x = abs(moveDistance.x) > abs(tempSpeed) ? tempSpeed : moveDistance.x;
     }
@@ -450,7 +453,7 @@ sf::Vector2i Level::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i 
     int cyP = pos.y + i * getTilesizeY();
     if(cyP > phy)
       cyP = phy;
-    if(getNode(int((phx)/getTilesizeX()), int(cyP/getTilesizeY())).getSolid(Right)) {
+    if(getNode(int((phx)/getTilesizeX()), int(cyP/getTilesizeY())).getSolid(Left)) {
       tempSpeed = int(phx / getTilesizeX()) * getTilesizeX() - phx;
       moveDistance.x = moveDistance.x > tempSpeed ? tempSpeed : moveDistance.x;
     }

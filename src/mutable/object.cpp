@@ -118,7 +118,7 @@ bool Object::verify() {
 }
 
 
-void Object::notify(msg m) {
+void Object::notify(msg) {
   //base objects do nothing upon being notified
   //only parents need it at the moment
   return;

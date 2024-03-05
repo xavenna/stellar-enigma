@@ -71,6 +71,7 @@ Interface Pushable::interact(Player* p, Field* l, SwitchHandler*) {
 
   //determine interaction for each direction:
   //was player intersecting with object on the x-axis?
+  /*
   bool xAfter = !(omax.x < pmin.x || omin.x > pmax.x);
   bool xBefore = !(olmax.x < plmin.x || olmin.x > plmax.x);
 
@@ -80,6 +81,7 @@ Interface Pushable::interact(Player* p, Field* l, SwitchHandler*) {
   //x, y interactions
   bool xInt = xAfter && !xBefore && ((yAfter && yBefore) || (!yBefore && yAfter));
   bool yInt = yAfter && !yBefore && ((xAfter && xBefore) || (!xBefore && xAfter));
+  */
 
   if(pInit) {
     sf::Vector2i residSpeed;
@@ -226,6 +228,7 @@ Interface Pushable::interact(Object* p, Field* l, SwitchHandler*) {
 
       //determine interaction for each direction:
       //was player intersecting with object on the x-axis?
+      /*
       bool xAfter = !(omax.x < pmin.x || omin.x > pmax.x);
       bool xBefore = !(olmax.x < plmin.x || olmin.x > plmax.x);
 
@@ -235,6 +238,7 @@ Interface Pushable::interact(Object* p, Field* l, SwitchHandler*) {
       //x, y interactions
       bool xInt = xAfter && !xBefore && ((yAfter && yBefore) || (!yBefore && yAfter));
       bool yInt = yAfter && !yBefore && ((xAfter && xBefore) || (!xBefore && xAfter));
+      */
 
 
       sf::Vector2i residSpeed;

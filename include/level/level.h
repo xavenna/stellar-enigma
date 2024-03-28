@@ -25,7 +25,6 @@
  */
 class Inter {
 public:
-  Inter(Object*, const Player&); //!< Use for player-object interactions
   Inter(Object*, Object*);  //!< Use for object-object interactions
   void calculatePriority();  //!< Calculates the priority based on the interaction
   int priority;   //!< Used for ranking interactions, priority of higher ranked actor
@@ -35,7 +34,6 @@ public:
   bool player2; //is the player object 2?
   Object* o1;  //!< The first object involved, always should be populated
   Object* o2;  //if player is object1, should be nullptr 
-  Player p;  //!< If player is involved in interaction, 
 };
 
 //! A class that manages the level field and objects
@@ -115,14 +113,14 @@ public:
   /*!
    *  Updates entity tile positions, handles object behavior, etc.
    */
-  Interface handleObjects(sf::Vector2i pos, sf::Vector2i size, SwitchHandler*, Utility*);
+  Interface handleObjects(sf::Vector2f pos, sf::Vector2f size, SwitchHandler*, Utility*);
   //! Resets last pos for objects
   void resetObjDeltas();
   //! Tells whether object is on the correct screen to be displayed
-  bool displayObject(unsigned index, sf::Vector2i ppos, sf::Vector2i size) const;
+  bool displayObject(unsigned index, sf::Vector2f ppos, sf::Vector2f size) const;
 
   //! Determines how far the player can move before running into an obstacle
-  sf::Vector2i validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i speed) const;
+  sf::Vector2f validMove(sf::Vector2f pos, sf::Vector2f size, sf::Vector2f speed) const;
   //! A constructor that sets the size of mapBase to (arg1, arg2)
   /*!
    *  Doesn't set tilesize

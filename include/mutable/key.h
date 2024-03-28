@@ -6,10 +6,10 @@
 class Key : public Object {
 public:
   using Object::interact;
-  virtual int Type() {return Object::Intangible;} 
-  virtual Interface interact(Player*, Field*, SwitchHandler*);
+  virtual Object::MotionType Type() const {return Object::Intangible;} 
+  virtual Interface interact(Object*, Field*, SwitchHandler*);
   virtual CacheNodeAttributes draw(const TextureCache*);
-  virtual std::string Name() {return "key";}
+  virtual std::string Name() const {return "key";}
   virtual bool verify();
   Key(int uid);
 };

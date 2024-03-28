@@ -14,6 +14,9 @@
 #include "interface/interface-manager.h"
 #include "utility/texture-cache.h"
 #include "utility/save.h"
+#include "physics/physics.h"
+
+
 //! Mapdata is the class that encapsulates all level components
 /*!
  * Provides a convenient encapsulation of all level components.
@@ -74,4 +77,11 @@ public:
 private:
   unsigned long frameCount=0;
 };
+
+struct Update {
+  sf::Vector2f offset;
+  Object::MotionType type;
+};
+
+
 #endif

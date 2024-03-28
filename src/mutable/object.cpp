@@ -79,7 +79,6 @@ Object::Object() {
   pos.y = 0;
   size.x = 0;
   size.y = 0;
-  //id = 0;
   solid = false;
   status = Object::Normal;
 }
@@ -88,11 +87,6 @@ Object::Object(int uid) : unique_id{uid} {
   Object();
 }
 
-
-Interface Object::interact(Player*, Field*, SwitchHandler*) {
-  // do absolutely nothing by default
-  return Interface();
-}
 
 Interface Object::interact(Object*, Field*, SwitchHandler*) {
   //do absolutely nothing by default

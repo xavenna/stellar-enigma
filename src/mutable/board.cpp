@@ -3,9 +3,11 @@
 Board::Board(int uid) : Object(uid) {}
 
 
-Interface Board::interact(Player*, Field*, SwitchHandler*) {
+Interface Board::interact(Object* o, Field*, SwitchHandler*) {
   Interface inter;
-  inter.addMessage(text);
+  if(o->Type() == Object::Play) {
+    inter.addMessage(text);
+  }
   return inter;
 
 }

@@ -6,13 +6,13 @@
 class ToggleBlock : public Solid {
 public:
 
-  virtual Interface interact(Player*, Field*, SwitchHandler*);
+  virtual Interface interact(Object*, Field*, SwitchHandler*);
   using Solid::interact;
   virtual CacheNodeAttributes draw(const TextureCache*);
   virtual Interface behave(SwitchHandler*, Utility*);
-  virtual std::string Name() {return "toggle_block";}
-  virtual int Type() {return Object::Static;} 
-  virtual int priority() {return 0;}
+  virtual std::string Name() const {return "toggle_block";}
+  virtual Object::MotionType Type() const {return Object::Static;} 
+  virtual int priority() const {return 0;}
   ToggleBlock(int);
 };
 

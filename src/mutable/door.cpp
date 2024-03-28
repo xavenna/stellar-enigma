@@ -14,14 +14,6 @@ Interface Door::interact(Object* p, Field* f, SwitchHandler* s) {
   return Solid::interact(p, f, s);
 }
 
-Interface Door::interact(Player* p, Field* f, SwitchHandler* s) {
-  if(!vars[0]) {
-    return Interface();
-  }
-  return Solid::interact(p, f, s);
-}
-
-
 CacheNodeAttributes Door::draw(const TextureCache* cache) {
   // draw a solid object with no transforms
   // use obj_arg[0] to decide which texture to draw

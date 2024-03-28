@@ -2,7 +2,6 @@
 #define OBJECT_H
 
 #include "mutable/mutable.h"
-#include "mutable/player.h"
 #include "level/field.h"
 #include "utility/texture-cache.h"
 #include "misc/vect.h"
@@ -33,18 +32,34 @@
  */
 class Object : public Mutable {
 public:
-  enum Type {
+  //! Constant for infinite mass
+  //static const int infinite=-1;
+  //! Constant for intangible object's mass
+  //static const int intangible=-2;
+  //! Object's motion type
+  enum MotionType {
     Static, //!< Objects that can't be moved
     Sliding, //!< Can be moved by others
     Intangible, //!< Doesn't interact with other objects
-    Entity //!< Something that moves by itself
+    Entity, //!< Something that moves by itself
+    Play //!< Reserved for the player
+  };
+  //! Object's hitbox shape.
+  enum Shape {
+    Rect, //!< Standard rectangular.
+    Circle //!< Circular - pos represents center, size.x is radius, size.y is unused
   };
   enum Status {
     Normal, //!< No special conditions
     Inactive, //!< Temporarily doesn't interact with anything
     Destroy, //!< Object should be destroyed
     Acting,  //!< Currently interacting with something
-    Invulnerable  //!< Unable to interact with anything
+    Invulnerable,  //!< Unable to interact with anything
+    Moving,  //!< The object is moving by itself
+    Pushed,  //!< The object is being pushed by something else
+    Squished,  //!< The object is being squished
+    Damaged,  //!< The object is being damaged by another object
+    PushBack   //!< The object is being pushed back by a solid object
   };
   enum SW {  //Correlates switch array positions to names
     Appear = 0, //!< Makes the object appear
@@ -58,13 +73,15 @@ public:
   };
 
   //! Object's motion type
-  virtual int Type() {return Object::Intangible;} 
+  virtual Object::MotionType Type() const {return Object::Intangible;} 
+  //! Object's shape
+  virtual int Shape() const {return Object::Rect;}
   //! Object's string identifier -- replaces the ObjContainer::Type system
-  virtual std::string Name() {return "obj";}
+  virtual std::string Name() const {return "obj";}
   //! object interaction priority
-  virtual int priority() {return 32;} //0 is highest, decreases counting up
+  virtual int priority() const {return 32;} //0 is highest, decreases counting up
   //! base version of interact();
-  virtual Interface interact(Player*, Field*, SwitchHandler*);
+  //virtual Interface interact(Player*, Field*, SwitchHandler*);
   //! version of interact for object-object interactions
   virtual Interface interact(Object*, Field*, SwitchHandler*);
   //! produces the proper CacheNodeAttributes for the state of the object

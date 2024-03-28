@@ -9,13 +9,16 @@ bool Key::verify() {
   return (switches[SW::A] >= 0 && switches[SW::A] < 256);
 }
 
-Interface Key::interact(Player*, Field*, SwitchHandler* sh) {
+Interface Key::interact(Object* o, Field*, SwitchHandler* sh) {
   Interface inter;
-  // once keys are a thing that the player can collect, this will increment key count
-  // trigger key switch
-  sh->write(switches[SW::A], true);
-  status = Destroy;
-  inter.playCutscene("key");
+
+  if(o->Type() == Object::Play) {
+    // once keys are a thing that the player can collect, this will increment key count
+    // trigger key switch
+    sh->write(switches[SW::A], true);
+    status = Destroy;
+    inter.playCutscene("key");
+  }
   return inter;
 }
 

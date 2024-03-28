@@ -11,28 +11,31 @@
  */
 class Mutable : public sf::Sprite {
 protected:
-  sf::Vector2i pos; //!< Current pos of the mutable
-  sf::Vector2i lastPos; //!< Where the mutable was before its most recent move
-  sf::Vector2i savedPos; //!< Used for properly resolving lastPos
+  sf::Vector2f pos; //!< Current pos of the mutable
+  sf::Vector2f lastPos; //!< Where the mutable was before its most recent move
+  sf::Vector2f savedPos; //!< Used for properly resolving lastPos
   sf::Vector2i screen; //!< Which screen the mutable is on
-  sf::Vector2i size; //!< Size of the mutable in pixels
-  bool solid; //!< Whether other mutables can pass through the mutable
+  sf::Vector2f size; //!< Size of the mutable in pixels
+  bool solid; //!< Whether other mutables can pass through the mutable. Deprecated
+
 public:
 
   //! Deprecated
   int behaviorType;
 	
 
-  //! get the position of the mutable as a sf::Vector2i
-  sf::Vector2i getPos() const;
+  //! get the position of the mutable
+  sf::Vector2f getPos() const;
+  //! get the center of the mutable
+  sf::Vector2f getCenter() const;
   //! get the last position of the mutable as a sf::Vector2i
-  sf::Vector2i getLastPos() const;
+  sf::Vector2f getLastPos() const;
   //! get the size of the mutable as a sf::Vector2i
-  sf::Vector2i getSize() const;
+  sf::Vector2f getSize() const;
   //! get the screen-pos of the mutable as a sf::Vector2i
   sf::Vector2i getScreen() const;
   //! Returns position delta (pos - lastpos)
-  sf::Vector2i getDelta() const;
+  sf::Vector2f getDelta() const;
 
   //! Save current position
   void savePos();
@@ -40,32 +43,38 @@ public:
   void updateDelta();
 
   //! set the position of the mutable as a sf::Vector2i
-  void setPos(sf::Vector2i);
+  void setPos(sf::Vector2f);
   //! set the last position of the mutable as a sf::Vector2i
-  void setLastPos(sf::Vector2i);
+  void setLastPos(sf::Vector2f);
   //! set the size of the mutable as a sf::Vector2i
-  void setSize(sf::Vector2i);
+  void setSize(sf::Vector2f);
   //! set the screen-pos of the mutable as a sf::Vector2i
   void setScreen(sf::Vector2i);
 
 
   //! set both x and y position of the mutable
-  void setPos(const int&, const int&);
+  void setPos(float, float);
   //! set the x position of the mutable
-  void setXPos(const int&);
+  void setXPos(float);
   //! set the y position of the mutable
-  void setYPos(const int&);
+  void setYPos(float);
   //! set the width of the mutable
-  void setWidth(const int&);
+  void setWidth(float);
   //! set the height of the mutable
-  void setHeight(const int&);
+  void setHeight(float);
   //! set the x screen of the mutable
-  void setXScreen(const int&);
+  void setXScreen(int);
   //! set the y screen of the mutable
-  void setYScreen(const int&);
+  void setYScreen(int);
+
+  //! sets mass
+  void getMass(float);
+  //! sets selfpush. Maybe unnecessary
+  void getSelfPush(sf::Vector2f);
+
 
   //! set the solidity of the mutable
-  void setSolid(const bool&);
+  void setSolid(bool);
   //! Get the solidity of the mutable
   bool getSolid() const;
 };

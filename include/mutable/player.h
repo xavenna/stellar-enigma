@@ -2,7 +2,7 @@
 #define PLAYER_H
 
 #include "misc/effect.h"
-#include "mutable/mutable.h"
+#include "mutable/object.h"
 #include "misc/direction.h"
 #include "utility/texture-cache.h"
 
@@ -11,7 +11,7 @@
  *  A special extension of mutable that works specifically for player.
  *  Can directly respond to keyboard inputs
  */
-class Player : public Mutable {
+class Player : public Object {
 public:
   //! Contains values for player's interaction status
   enum Status {
@@ -22,6 +22,8 @@ public:
     Normal,   //!< Not in any special state
     Pushed   //!< The player just finished being pushed back by a solid object
   };
+  virtual std::string Name() const {return "player";}
+  virtual Object::MotionType Type() const {return Object::Play;} 
   bool damaged=false; //!< Has the player been damaged this frame?
   //! Updates the player's sprite based on position
   /*!

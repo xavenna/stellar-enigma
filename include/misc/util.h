@@ -5,6 +5,7 @@
 #include <vector>
 #include <sstream>
 #include <fstream>
+#include <cmath>
 
 //! Takes a string and turns it into lowercase
 std::string lowercase(const std::string&);
@@ -21,7 +22,11 @@ void parse(const std::string& n, std::vector<std::string>& th, std::string key =
 
 //this function was taken from stackoverflow
 template <typename T> int sign(T val) {
-    return (T(0) < val) - (val < T(0));
+  return (T(0) < val) - (val < T(0));
+}
+
+template <typename T> T dist(T u, T v) {
+  return std::sqrt(std::pow(u, 2) + std::pow(v, 2));
 }
 
 bool getEntireFile(std::ifstream& in, std::string& out);

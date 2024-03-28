@@ -246,6 +246,9 @@ template <typename T> float magnitude(sf::Vector3<T> v) {
 
 //! returns the input vector, normalized
 template <typename T> sf::Vector2<T> norm(sf::Vector2<T> v) {
+  if(magnitude(v) == 0) {
+    return v;
+  }
   return v / magnitude(v);
 }
 
@@ -335,4 +338,16 @@ template <typename T> sf::Vector3<T> proj(sf::Vector3<T> source, sf::Vector3<T> 
 template <typename T> sf::Vector2<T> normal(sf::Vector2<T> v) {
   return sf::Vector2<T>(-v.y, v.x);
 }
+
+//! Calculates the abs of each element separately
+template <typename T> sf::Vector2<T> vabs(sf::Vector2<T> v) {
+  return sf::Vector2<T>(std::abs(v.x), std::abs(v.y));
+}
+template <typename T> sf::Vector2<T> zero2() {
+  return sf::Vector2<T>{0,0};
+}
+template <typename T> sf::Vector3<T> zero3() {
+  return sf::Vector3<T>{0,0,0};
+}
+
 #endif 

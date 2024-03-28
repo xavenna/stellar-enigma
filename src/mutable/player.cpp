@@ -20,12 +20,16 @@ void Player::update(sf::Vector2i tilesize) {
     facingDir = Down;
   }
   lastPos = pos;
-  sf::Vector2i mid(pos.x+size.x/2, pos.y+size.y/2);
+  sf::Vector2f mid(pos.x+size.x/2, pos.y+size.y/2);
   screen.x = (mid.x-tilesize.x) / (tilesize.x*(WINDOW_WIDTH-2));
   screen.y = (mid.y-tilesize.y) / (tilesize.y*(WINDOW_HEIGHT-2));
-  setPosition((mid.x-tilesize.x)%(tilesize.x*(WINDOW_WIDTH-2))+tilesize.x*2-(size.x/2), (mid.y-tilesize.y)%(tilesize.y*(WINDOW_HEIGHT-2))+tilesize.y*2-(size.y/2));
+  setPosition(
+      std::fmod(mid.x-tilesize.x,tilesize.x*(WINDOW_WIDTH-2)) + tilesize.x*2-(size.x/2),
+      std::fmod(mid.y-tilesize.y,tilesize.y*(WINDOW_HEIGHT-2))+tilesize.y*2-(size.y/2));
 
 } // I know this is kind of spaghetti, but it works
+  // at least, it used to. Now it doesn't and it causes a segfault later
+  // :(
 
 //make this match the format of Object::Draw
 void Player::assignTexture(TextureCache& cache) {

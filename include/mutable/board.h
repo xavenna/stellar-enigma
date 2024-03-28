@@ -7,10 +7,10 @@
 class Board : public Object {
 public:
   using Object::interact;
-  virtual Interface interact(Player*, Field*, SwitchHandler*);
+  virtual Interface interact(Object*, Field*, SwitchHandler*);
   virtual CacheNodeAttributes draw(const TextureCache*);
-  virtual std::string Name() {return "board";}
-  virtual int Type() {return Object::Intangible;} 
+  virtual std::string Name() const {return "board";}
+  virtual Object::MotionType Type() const {return Object::Intangible;} 
   Board(int);
 };
 

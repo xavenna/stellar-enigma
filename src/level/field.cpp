@@ -26,7 +26,12 @@ sf::Vector2i Field::getTilesize() const {
   return tilesize;
 }
 
-sf::Vector2i Field::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i speed) const {
+/*
+sf::Vector2f Field::wallPush(const Object* o, sf::Vector2f move) {
+  return validMove(o->getPos(), o->getSize(), move) - move;
+}
+*/
+sf::Vector2f Field::validMove(sf::Vector2f pos, sf::Vector2f size, sf::Vector2f speed) const {
   //convert player coordinates to level coordinates
   int playX = int(pos.x / getTilesizeX());
   int playY = int(pos.y / getTilesizeY());
@@ -35,8 +40,8 @@ sf::Vector2i Field::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i 
   int phx = pos.x + size.x;
   int phy = pos.y + size.y;
   bool fullMove = true;
-  sf::Vector2i moveDistance = speed;
-  sf::Vector2i deltaR;
+  sf::Vector2f moveDistance = speed;
+  sf::Vector2f deltaR;
   int tempSpeed = 0;
 
   //find destination square
@@ -125,7 +130,7 @@ sf::Vector2i Field::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i 
 
 
 
-  sf::Vector2i p = pos + moveDistance;
+  sf::Vector2f p = pos + moveDistance;
 
   int playXn = int(p.x / getTilesizeX());
   int playYn = int(p.y / getTilesizeY());

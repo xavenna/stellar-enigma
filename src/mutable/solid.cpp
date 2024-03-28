@@ -11,6 +11,7 @@ bool Solid::verify() {
 }
 
 Interface Solid::interact(Object* p, Field* f, SwitchHandler*) {
+  return Interface();
   interacting = false;
   //push back slidings and entities, ignore solids
   switch(p->Type()) {
@@ -20,27 +21,28 @@ Interface Solid::interact(Object* p, Field* f, SwitchHandler*) {
       break;
     case Object::Entity:
     case Object::Sliding:
-      sf::Vector2i pmin{p->getPos()};
-      sf::Vector2i pmax{pmin+p->getSize()-sf::Vector2i(1,1)};
-      sf::Vector2i plmin{p->getLastPos()};
-      sf::Vector2i plmax{plmin+p->getSize()-sf::Vector2i(1,1)};
+    case Object::Play:
+      sf::Vector2f pmin{p->getPos()};
+      sf::Vector2f pmax{pmin+p->getSize()-sf::Vector2f(1,1)};
+      sf::Vector2f plmin{p->getLastPos()};
+      sf::Vector2f plmax{plmin+p->getSize()-sf::Vector2f(1,1)};
 
       //just incase objects move, so the algorithm doesn't break
-      sf::Vector2i omin{pos};
-      sf::Vector2i omax{omin+size-sf::Vector2i(1,1)};
-      sf::Vector2i olmin{lastPos};
-      sf::Vector2i olmax{olmin+size-sf::Vector2i(1,1)};
+      sf::Vector2f omin{pos};
+      sf::Vector2f omax{omin+size-sf::Vector2f(1,1)};
+      sf::Vector2f olmin{lastPos};
+      sf::Vector2f olmax{olmin+size-sf::Vector2f(1,1)};
       //determine interaction for each direction:
       //was player intersecting with object on the x-axis?
 
-      int tDist = pmax.y - omin.y;
-      int rDist = omax.x - pmin.x;
-      int bDist = omax.y - pmin.y;
-      int lDist = pmax.x - omin.x;
+      float tDist = pmax.y - omin.y;
+      float rDist = omax.x - pmin.x;
+      float bDist = omax.y - pmin.y;
+      float lDist = pmax.x - omin.x;
 
-      sf::Vector2i pDelta{pmin.x - plmin.x, pmin.y-plmin.y};
+      sf::Vector2f pDelta{pmin.x - plmin.x, pmin.y-plmin.y};
 
-      sf::Vector2i pMove(pmin);
+      sf::Vector2f pMove(pmin);
 
       if(tDist > 0 && tDist < rDist && tDist < bDist && tDist < lDist) {
         interacting = true;
@@ -127,7 +129,7 @@ Interface Solid::interact(Object* p, Field* f, SwitchHandler*) {
         interacting = true;
       }
       pMove = pMove - p->getPos();
-      sf::Vector2i resid = f->validMove(p->getPos(), p->getSize(), pMove);
+      sf::Vector2f resid = f->validMove(p->getPos(), p->getSize(), pMove);
       p->setPos(p->getPos()+resid);
   }
 
@@ -135,123 +137,6 @@ Interface Solid::interact(Object* p, Field* f, SwitchHandler*) {
   
 }
 
-Interface Solid::interact(Player* p, Field* f, SwitchHandler*) {
-  interacting = false;
-
-  sf::Vector2i pmin{p->getPos()};
-  sf::Vector2i pmax{pmin+p->getSize()-sf::Vector2i(1,1)};
-  sf::Vector2i plmin{p->getLastPos()};
-  sf::Vector2i plmax{plmin+p->getSize()-sf::Vector2i(1,1)};
-
-  //just incase objects move, so the algorithm doesn't break
-  sf::Vector2i omin{pos};
-  sf::Vector2i omax{omin+size-sf::Vector2i(1,1)};
-  sf::Vector2i olmin{lastPos};
-  sf::Vector2i olmax{olmin+size-sf::Vector2i(1,1)};
-
-  sf::Vector2i pDelta = pmin - plmin;
-
-  int tDist = pmax.y - omin.y;
-  int rDist = omax.x - pmin.x;
-  int bDist = omax.y - pmin.y;
-  int lDist = pmax.x - omin.x;
-
-  sf::Vector2i pMove(pmin);
-
-  if(tDist > 0 && tDist < rDist && tDist < bDist && tDist < lDist) {
-    interacting = true;
-    pMove.y = (omin.y - p->getSize().y);
-  }
-  else if(rDist > 0 && rDist < tDist && rDist < bDist && rDist < lDist) {
-    interacting = true;
-    pMove.x = (omax.x + 1);
-  }
-  else if(bDist > 0 && bDist < rDist && bDist < tDist && bDist < lDist) {
-    interacting = true;
-    pMove.y = (omax.y + 1);
-  }
-  else if(lDist > 0 && lDist < rDist && lDist < bDist && lDist < tDist) {
-    interacting = true;
-    pMove.x = (omin.x - p->getSize().x);
-  }
-  else if(lDist > 0 && lDist == tDist && lDist < rDist && lDist < bDist) {
-    //top left
-    if(pDelta.x < pDelta.y) {
-      //push up
-      pMove.y = (omin.y - p->getSize().y);
-    }
-    else if(pDelta.x > pDelta.y) {
-      //push left
-      pMove.x = (omin.x - p->getSize().x);
-    }
-    else {
-      //push diagonally
-      pMove.x = (omin.x - p->getSize().x);
-      pMove.y = (omin.y - p->getSize().y);
-    }
-    interacting = true;
-  }
-  else if(lDist > 0 && lDist == bDist && lDist < rDist && lDist < tDist) {
-    //bottom left
-    if(pDelta.x > -pDelta.y) {
-      //push down
-      pMove.y = (omax.y + 1);
-    }
-    else if(pDelta.x < -pDelta.y) {
-      //push left
-      pMove.x = (omin.x - p->getSize().x);
-    }
-    else {
-      //push diagonally
-      pMove.x = (omin.x - p->getSize().x);
-      pMove.y = (omax.y + 1);
-    }
-    interacting = true;
-  }
-  else if(rDist > 0 && rDist == tDist && rDist < lDist && rDist < bDist) {
-    //top right
-    if(-pDelta.x > pDelta.y) {
-      //push up
-      pMove.y = (omin.y - p->getSize().y);
-    }
-    else if(-pDelta.x < pDelta.y) {
-      //push right
-      pMove.x = (omax.x + 1);
-    }
-    else {
-      //push diagonally
-      pMove.x = (omax.x + 1);
-      pMove.y = (omin.y - p->getSize().y);
-    }
-    interacting = true;
-  }
-  else if(rDist > 0 && rDist == bDist && rDist < lDist && rDist < tDist) {
-    //bottom right
-    if(pDelta.x > pDelta.y) {
-      //push down
-      pMove.y = (omax.y + 1);
-    }
-    else if(pDelta.x < pDelta.y) {
-      //push right
-      pMove.x = (omax.x + 1);
-    }
-    else {
-      //push diagonally
-      pMove.x = (omax.x + 1);
-      pMove.y = (omax.y + 1);
-    }
-    interacting = true;
-  }
-  //std::cerr << p->getPos().x << ',' << p->getPos().y << "; ";
-  //std::cerr << pMove.x << ',' << pMove.y << "; ";
-  pMove = pMove - p->getPos();
-  //std::cerr << pMove.x << ',' << pMove.y << "; ";
-  sf::Vector2i resid = f->validMove(p->getPos(), p->getSize(), pMove);
-  //std::cerr << resid.x << ',' << resid.y << '\n';
-  p->setPos(p->getPos()+resid);
-  //check for diagonal movements
-  return Interface();
-}
 
 
 CacheNodeAttributes Solid::draw(const TextureCache* cache) {

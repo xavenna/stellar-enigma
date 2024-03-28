@@ -2,15 +2,6 @@
 #include <tuple>
 #include "level/level.h"
 
-Inter::Inter(Object* o, const Player& pl) : p{pl} {
-  o1 = o;
-  o2 = nullptr;
-  player1 = false;
-  player2 = true;
-  priority = 32;
-  subpriority = 32;
-
-}
 Inter::Inter(Object* m, Object* n) {
   o1 = m;
   o2 = n;
@@ -108,7 +99,7 @@ void Level::updateWindowPos() {
     3       | unsigned int  :  width of sprites
     4       | unsigned int  :  height of sprites
     5,height| comma-delimited list  :  nodes of map
-*/
+    */
 
 int Level::loadLevel(const std::string& levelname) {
   // create the levelName
@@ -148,8 +139,8 @@ bool Level::loadMutables(const std::string& levelname) {
       std::clog << "Error: Failed level load\n";
       return false;
     }
-    
-    
+
+
   }
   return true;
 }
@@ -181,7 +172,7 @@ void Level::assignTextureToWinNode(sf::Vector2i pos, TextureCache& cache) {
   CacheNodeAttributes cna;
   MapNode x = window[p.x][p.y];
   cna.srcImg = x.getTileset();
-  
+
   //generate cna.tList
   Transform t;
   t.type = Transform::SubRect;
@@ -193,23 +184,23 @@ void Level::assignTextureToWinNode(sf::Vector2i pos, TextureCache& cache) {
   cna.tList.push_back(t);
 
   /*
-  switch(window[p.x][p.y].getId()) {
-  case 8: {
-    //water: add a xShift transformation
-    Transform t;
-    t.type = Transform::Set_Width;
-    t.args[0] = static_cast<int>(tilesizeX);
-    cna.tList.push_back(t);  //set width to one tile
-    
-    Transform t2;
-    t2.type = Transform::Slide_X;
-    t2.args[0] = 2*(int(frameCount/10)%8);
-    cna.tList.push_back(t2);
+     switch(window[p.x][p.y].getId()) {
+     case 8: {
+  //water: add a xShift transformation
+  Transform t;
+  t.type = Transform::Set_Width;
+  t.args[0] = static_cast<int>(tilesizeX);
+  cna.tList.push_back(t);  //set width to one tile
+
+  Transform t2;
+  t2.type = Transform::Slide_X;
+  t2.args[0] = 2*(int(frameCount/10)%8);
+  cna.tList.push_back(t2);
   }
-    break;
+  break;
   default:
-    //no transformations
-    break;
+  //no transformations
+  break;
   }
   */
   try {
@@ -225,7 +216,7 @@ void Level::assignTextureToWinNode(sf::Vector2i pos, TextureCache& cache) {
 
 void Level::assignTextureToObject(unsigned index, TextureCache& cache) {
   //determine what texture to use and which transformations to apply
-  
+
   // this needs to use some sort of Object virtual function to take obj_args into account
 
   if(index > objects.size()) {
@@ -234,9 +225,9 @@ void Level::assignTextureToObject(unsigned index, TextureCache& cache) {
 
   Object* ob = objects.getObjPtr(index);
   //create cna using a virtual function
-  
+
   CacheNodeAttributes cna = ob->draw(&cache);
-  
+
   try {
     objects.getObjPtr(index)->setTexture(cache.getTexture(cna));
   }
@@ -252,7 +243,7 @@ int Level::advanceFrameCount() {
     return 0;
   }
   return(++frameCount);
-  
+
 }
 
 void Level::addObject(const Object& ob, const std::string& s) {
@@ -276,7 +267,7 @@ void Level::resetObjDeltas() {
   }
 }
 
-Interface Level::handleObjects(sf::Vector2i pos, sf::Vector2i size, SwitchHandler* sh, Utility* u) {
+Interface Level::handleObjects(sf::Vector2f pos, sf::Vector2f size, SwitchHandler* sh, Utility* u) {
   Interface inter;
   for(unsigned i=0;i<objects.size();i++) {
     Object* x = objects.getObjPtr(i);
@@ -300,18 +291,18 @@ Interface Level::handleObjects(sf::Vector2i pos, sf::Vector2i size, SwitchHandle
       //send any required messages
       objects.notify(y);
     }
-    
+
 
     sf::Vector2i mid(pos.x+size.x/2, pos.y+size.y/2);
     unsigned pscrx = (static_cast<unsigned>(mid.x)-tilesizeX) / (tilesizeX*(WINDOW_WIDTH-2));
     unsigned pscry = (static_cast<unsigned>(mid.y)-tilesizeY) / (tilesizeY*(WINDOW_HEIGHT-2));
-    
+
     sf::Vector2i omid(x->getPos().x+x->getSize().x/2, x->getPos().y+x->getSize().y/2);
     //calculate objects position on player's screen. If it can be displayed, display it:
-    
+
     sf::Vector2i relPos(x->getPos().x-static_cast<int>((WINDOW_WIDTH-2)*tilesizeX*pscrx)+static_cast<int>(tilesizeX), x->getPos().y-static_cast<int>((WINDOW_HEIGHT-2)*tilesizeY*pscry)+static_cast<int>(tilesizeY));
     x->setPosition(relPos.x,relPos.y);
-    
+
     x->setLastPos(x->getPos());
   }
 
@@ -323,16 +314,16 @@ Interface Level::handleObjects(sf::Vector2i pos, sf::Vector2i size, SwitchHandle
       i--;
     }
   }
-  
+
 
   return inter;
 }
-bool Level::displayObject(unsigned index, sf::Vector2i ppos, sf::Vector2i size) const {
-  
+bool Level::displayObject(unsigned index, sf::Vector2f ppos, sf::Vector2f size) const {
+
   if(objects.size() <= index) {
     return false;
   }
-  
+
   Object ob{objects.getObj(index)};
 
   //don't display invisible objects
@@ -340,201 +331,32 @@ bool Level::displayObject(unsigned index, sf::Vector2i ppos, sf::Vector2i size) 
     return false;
     //add any other invisible objects here
   }
-  
+
   sf::Vector2i mid(ppos.x+size.x/2, ppos.y+size.y/2);
-  
-  int pxRel = (mid.x-size.x)%(size.x*(WINDOW_WIDTH-2))+size.x;
-  int pyRel = (mid.y-size.y)%(size.y*(WINDOW_HEIGHT-2))+size.y;
-  
-  int pscrx = (mid.x-pxRel)/((WINDOW_WIDTH-2)*field.getTilesize().x);
-  int pscry = (mid.y-pyRel)/((WINDOW_HEIGHT-2)*field.getTilesize().y);
-  
+
+  float pxRel = std::fmod((mid.x-size.x),(field.getTilesize().x*(WINDOW_WIDTH-2)))+field.getTilesize().x;
+  float pyRel = std::fmod((mid.y-size.y),(field.getTilesize().y*(WINDOW_HEIGHT-2)))+field.getTilesize().y;
+
+  int pscrx = int(mid.x-pxRel)/((WINDOW_WIDTH-2)*field.getTilesize().x);
+  int pscry = int(mid.y-pyRel)/((WINDOW_HEIGHT-2)*field.getTilesize().y);
+
   //calculate objects position on player's screen. If it can be displayed, display it:
-  
+
   sf::Vector2i relPos(ob.getPos().x-(WINDOW_WIDTH-2)*field.getTilesize().x*pscrx,
-              ob.getPos().y-(WINDOW_HEIGHT-2)*field.getTilesize().y*pscry);
-  
+      ob.getPos().y-(WINDOW_HEIGHT-2)*field.getTilesize().y*pscry);
+
   if(relPos.x+ob.getSize().x < 0 ||
-     relPos.y+ob.getSize().y < 0 ||
-     relPos.x + ob.getSize().x >= (WINDOW_WIDTH+2)*field.getTilesize().x ||
-     relPos.y + ob.getSize().y >= (WINDOW_HEIGHT+2)*field.getTilesize().y) {
+      relPos.y+ob.getSize().y < 0 ||
+      relPos.x + ob.getSize().x >= (WINDOW_WIDTH+2)*field.getTilesize().x ||
+      relPos.y + ob.getSize().y >= (WINDOW_HEIGHT+2)*field.getTilesize().y) {
     return false;
   }
   return true;
-  
+
 }
 
-//this needs to be reworked at some point
-sf::Vector2i Level::validMove(sf::Vector2i pos, sf::Vector2i size, sf::Vector2i speed) const {
-  //sorry about how awful this code is
-  
-  //convert player coordinates to level coordinates
-  int playX = int(pos.x / getTilesizeX());
-  int playY = int(pos.y / getTilesizeY());
-  int playXg = int((pos.x+size.x-1) / getTilesizeX());
-  int playYg = int((pos.y+size.y-1) / getTilesizeY());
-  int phx = pos.x + size.x;
-  int phy = pos.y + size.y;
-  bool fullMove = true;
-  sf::Vector2i moveDistance = speed;
-  sf::Vector2i deltaR;
-  int tempSpeed = 0;
-  
-  //find destination square
-  
-  if(speed.y < 0) {
-    if(pos.y < speed.y) {
-      fullMove = false;
-      moveDistance.y = pos.y;
-    }
-    if(playY != 0) { //if the player isn't at the bottom edge of the map
-      int numTiles = int(size.x / getTilesizeX()); //how many tiles to check for collision
-      int extraTile = (phx % getTilesizeX() == 0) ? 0 : 1;
-      for(int i=0; i<numTiles+extraTile; i++) {
-    int cxP = pos.x + i * getTilesizeX();
-    if(cxP > phx)
-      cxP = phx;
-    if(getNode(int(cxP/getTilesizeX()), int(pos.y/getTilesizeY())-1).getSolid(Down)) {
-      tempSpeed = pos.y - playY * getTilesizeY();
-      moveDistance.y = abs(moveDistance.y) > abs(tempSpeed) ? tempSpeed : moveDistance.y;
-    }
-      }
-      fullMove = false;
-    }
-  }
-  else if(speed.y > 0) {
-    if(phy + speed.y >= getHeight() * getTilesizeY()) {
-      fullMove = false;
-      moveDistance.y = getHeight() * getTilesizeY() - phy;
-    }
-    if(playY != getHeight()) {
-      int numTiles = int(size.x / getTilesizeX());
-      int extraTile = (phx % getTilesizeX() == 0) ? 0 : 1;
-      for(int i=0; i<numTiles+extraTile; i++) {
-    int cxP = pos.x + i * getTilesizeX();
-    if(cxP > phx)
-      cxP = phx;
-    if(getNode(int(cxP/getTilesizeX()), int((phy)/getTilesizeY())).getSolid(Up)) {
-      tempSpeed = int(phy / getTilesizeY()) * getTilesizeY() - phy;
-      moveDistance.y = moveDistance.y > tempSpeed ? tempSpeed : moveDistance.y;
-    }
-      }
-      fullMove = false;
-    }
-  }
-  if(speed.x < 0) {
-    if(pos.x < speed.x) {
-      fullMove = false;
-      moveDistance.x = pos.x;
-    }
-    if(playX != 0) {
-      int numTiles = int(size.y / getTilesizeY());
-      int extraTile = (phy % getTilesizeY() == 0) ? 0 : 1;
-      for(int i=0; i<numTiles+extraTile; i++) {
-    int cyP = pos.y + i * getTilesizeY();
-    if(cyP > phy)
-      cyP = phy;
-    if(getNode(int(pos.x/getTilesizeX())-1, int(cyP/getTilesizeY())).getSolid(Right)) {
-      tempSpeed = pos.x - playX * getTilesizeX();
-      moveDistance.x = abs(moveDistance.x) > abs(tempSpeed) ? tempSpeed : moveDistance.x;
-    }
-      }
-      fullMove = false;
-    }
-  }
-  else if(speed.x > 0) {
-    if(phx + speed.x >= getWidth() * getTilesizeX()) { fullMove = false;
-      moveDistance.x = getWidth() * getTilesizeX() - phx;
-    }
-    if(playX != getWidth()) {
-      int numTiles = int(size.y / getTilesizeY());
-      int extraTile = (phy % getTilesizeY() == 0) ? 0 : 1;
-      for(int i=0;i<numTiles+extraTile; i++) {
-    int cyP = pos.y + i * getTilesizeY();
-    if(cyP > phy)
-      cyP = phy;
-    if(getNode(int((phx)/getTilesizeX()), int(cyP/getTilesizeY())).getSolid(Left)) {
-      tempSpeed = int(phx / getTilesizeX()) * getTilesizeX() - phx;
-      moveDistance.x = moveDistance.x > tempSpeed ? tempSpeed : moveDistance.x;
-    }
-      }
-      fullMove = false;
-    }
-  }
-  
-  
-  
-  sf::Vector2i p = pos + moveDistance;
-  
-  int playXn = int(p.x / getTilesizeX());
-  int playYn = int(p.y / getTilesizeY());
-  int playXgn = int((p.x+size.x-1) / getTilesizeX());
-  int playYgn = int((p.y+size.y-1) / getTilesizeY());
-  bool colly = false;
-  bool collx = false;
-  
-  if(moveDistance.x < 0 && moveDistance.y < 0) {
-    if(playX != playXn) {
-      if(getNode(playXn, playYn).getSolid(Left)) {
-    collx = true;
-      }
-    }
-    if(playY != playYn) {
-      if(getNode(playXn, playYn).getSolid(Up)) {
-    colly = true;
-      }
-    }
-  }
-  else if(moveDistance.x < 0 && moveDistance.y > 0) {
-    if(playX != playXn) {
-      if(getNode(playXn, playYgn).getSolid(Left)) {
-    collx = true;
-      }
-    }
-    if(playYg != playYgn) {
-      if(getNode(playXn, playYgn).getSolid(Down)) {
-    colly = true;
-      }
-    }
-  }
-  else if(moveDistance.x > 0 && moveDistance.y < 0) {
-    if(playXg != playXgn) {
-      if(getNode(playXgn, playYn).getSolid(Right)) {
-    collx = true;
-      }
-    }
-    if(playY != playYn) {
-      if(getNode(playXgn, playYn).getSolid(Up)) {
-    colly = true;
-      }
-    }
-  }
-  else if(moveDistance.x > 0 && moveDistance.y > 0) {
-    if(playXg != playXgn) {
-      if(getNode(playXgn, playYgn).getSolid(Right)) {
-    collx = true;
-      }
-    }
-    if(playYg != playYgn) {
-      if(getNode(playXgn, playYgn).getSolid(Down)) {
-    colly = true;
-      }
-    }
-  }
-  
-  if(collx)
-    moveDistance.x = 0;
-  if(colly)
-    moveDistance.y = 0;
-  
-  
-  //check if the resulting move
-  //now, iterate through all objects, check if they are solid, and if so,
-  //check if they block player's path. If so, shorten move distance.
-  
-  //make sure to prevent player becoming trapped inside a solid object
-  
-  return fullMove ? speed : moveDistance;
+sf::Vector2f Level::validMove(sf::Vector2f pos, sf::Vector2f size, sf::Vector2f speed) const {
+  return field.validMove(pos, size, speed);
 }
 
 //! Populate an Object's fields from a list of ObjAttr's.
@@ -544,8 +366,8 @@ bool generateObjFromObjAttrList(const std::list<ObjAttr>& attribs, Object& obj, 
   //TODO: add a way to avoid duplicates
   std::array<int, 8> args;
   std::array<int, 8> switches;
-  sf::Vector2i pos{0,0};
-  sf::Vector2i size{0,0};
+  sf::Vector2f pos{0,0};
+  sf::Vector2f size{0,0};
   std::string text;
   std::string objClass;
   int parent=-1;
@@ -761,8 +583,8 @@ bool str2obj2(const std::string& line, Object& obj, std::string& objType) {
   //TODO: add a way to avoid duplicates
   std::array<int, 8> args;
   std::array<int, 8> switches;
-  sf::Vector2i pos{0,0};
-  sf::Vector2i size{0,0};
+  sf::Vector2f pos{0,0};
+  sf::Vector2f size{0,0};
   std::string text;
   std::string objClass;
   int parent=-1;

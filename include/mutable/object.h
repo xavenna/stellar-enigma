@@ -109,8 +109,15 @@ public:
   int getArg(std::size_t) const;
   //! get the obj's status
   Status getStatus() const;
-  //! Resets the obj's status
-  void resetStatus();
+  //! Sets the obj's status.
+  /*!
+   *  Eventually, I'd like to do away with this, but for now it seems necessary.\n
+   *  As the interaction handler needs to update the object's state, either external
+   *  access is needed, or I have to add yet another virtual for updating state that is
+   *  run each iteration of the handler. For now, this is a passable solution. Maybe it
+   *  should be a friend function or something?
+   */
+  void setStatus(Object::Status);
   //! get the text
   std::string getText() const;
   //! set all switches at once
@@ -134,6 +141,10 @@ public:
   //! uid constructor
   Object(int);
 
+  void setPushback(Direction d);
+  void resetPushback();
+
+  bool readPushback(Direction d);
 protected:
   //can be preset
   int link_id; //!< an id used for interactions between objects
@@ -145,6 +156,8 @@ protected:
   std::array<int, 8> switches;
   std::string text; //!< A text field that can be used by the object.
 
+  sf::Vector2f pushbackVect; //!< Used for motion handling
+  DirectionalBool pushback; //!< Pushback status
   //internal, aren't preset
 
   const int unique_id=-1; //!< Used internally to differentiate objects

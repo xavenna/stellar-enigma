@@ -17,6 +17,10 @@ protected:
   sf::Vector2i screen; //!< Which screen the mutable is on
   sf::Vector2f size; //!< Size of the mutable in pixels
   bool solid; //!< Whether other mutables can pass through the mutable. Deprecated
+  //!< The object's mass. A higher mass means it's harder to push.
+  float mass=0;
+  //!< Self-initiated movement distance for the next frame
+  sf::Vector2f selfPush;
 
 public:
 
@@ -36,6 +40,10 @@ public:
   sf::Vector2i getScreen() const;
   //! Returns position delta (pos - lastpos)
   sf::Vector2f getDelta() const;
+  //! Returns mass
+  float getMass() const;
+  //! Returns self push
+  sf::Vector2f getSelfPush() const;
 
   //! Save current position
   void savePos();
@@ -50,7 +58,10 @@ public:
   void setSize(sf::Vector2f);
   //! set the screen-pos of the mutable as a sf::Vector2i
   void setScreen(sf::Vector2i);
-
+  //! sets mass
+  void setMass(float);
+  //! sets self push
+  void setSelfPush(sf::Vector2f);
 
   //! set both x and y position of the mutable
   void setPos(float, float);

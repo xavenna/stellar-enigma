@@ -33,6 +33,13 @@ bool getEntireFile(std::ifstream& in, std::string& out) {
 	return true;
 }
 
+bool isInt(float s) {
+  return (s == std::floor(s));
+}
+
+bool isInt(double s) {
+  return (s == std::floor(s));
+}
 
 //returns whether n is found in key
 bool ifMatch(char n, std::string key) {
@@ -56,3 +63,7 @@ void parse(const std::string& n, std::vector<std::string>& th, std::string key) 
   }
   th.push_back(cw);
 }
+
+
+
+

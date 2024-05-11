@@ -52,8 +52,8 @@ std::array<int, 8> Object::getSwitches() const {
 Object::Status Object::getStatus() const {
   return status;
 }
-void Object::resetStatus() {
-  status = Object::Normal;
+void Object::setStatus(Object::Status s) {
+  status = s;
 }
 std::string Object::getText() const {
   return text;
@@ -81,12 +81,27 @@ Object::Object() {
   size.y = 0;
   solid = false;
   status = Object::Normal;
+  mass = 1.f;
+  selfPush = zero2<float>();
 }
 
 Object::Object(int uid) : unique_id{uid} {
   Object();
 }
 
+void Object::setPushback(Direction d) {
+  pushback.set(d, true);
+}
+void Object::resetPushback() {
+  pushback.set(Up, false);
+  pushback.set(Down, false);
+  pushback.set(Left, false);
+  pushback.set(Right, false);
+}
+
+bool Object::readPushback(Direction d) {
+  return pushback[d];
+}
 
 Interface Object::interact(Object*, Field*, SwitchHandler*) {
   //do absolutely nothing by default

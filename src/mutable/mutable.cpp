@@ -32,6 +32,12 @@ sf::Vector2f Mutable::getSize() const {
 sf::Vector2i Mutable::getScreen() const {
   return screen;
 }
+float Mutable::getMass() const {
+  return mass;
+}
+sf::Vector2f Mutable::getSelfPush() const {
+  return selfPush;
+}
 
 void Mutable::setPos(sf::Vector2f n) {
   pos = n;
@@ -44,6 +50,12 @@ void Mutable::setSize(sf::Vector2f n) {
 }
 void Mutable::setScreen(sf::Vector2i n) {
   screen = n;
+}
+void Mutable::setMass(float n) {
+  mass = n;
+}
+void Mutable::setSelfPush(sf::Vector2f n) {
+  selfPush = n;
 }
 
 void Mutable::setXPos(float n) {

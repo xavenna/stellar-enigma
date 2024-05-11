@@ -20,6 +20,9 @@ bool isEmpty(char c);
 //! breaks n into a vector, starting a new element wherever a component of key is found
 void parse(const std::string& n, std::vector<std::string>& th, std::string key = "./\\-");
 
+
+bool isInt(float s);
+bool isInt(double s);
 //this function was taken from stackoverflow
 template <typename T> int sign(T val) {
   return (T(0) < val) - (val < T(0));

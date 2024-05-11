@@ -2,6 +2,7 @@
 #define VECT_H
 #include <cmath>
 #include <SFML/System.hpp>
+#include "util.h"
 
 #define PI 3.141592653589793238462643383
 
@@ -253,13 +254,13 @@ template <typename T> sf::Vector2<T> norm(sf::Vector2<T> v) {
 }
 
 //! Calculates the dot product of the two 2D vectors
-template <typename T> sf::Vector2<T> dp(sf::Vector2<T> v, sf::Vector2<T> w) {
-  return sf::Vector2<T>(v.x*w.x, v.y*w.y);
+template <typename T> T dp(sf::Vector2<T> v, sf::Vector2<T> w) {
+  return v.x*w.x + v.y*w.y;
 }
 
 //! Calculates the dot product of the two 3D vectors
-template <typename T> sf::Vector2<T> dp(sf::Vector3<T> v, sf::Vector3<T> w) {
-  return sf::Vector3<T>(v.x*w.x, v.y*w.y, v.z*w.z);
+template <typename T> T dp(sf::Vector3<T> v, sf::Vector3<T> w) {
+  return v.x*w.x + v.y*w.y + v.z*w.z;
 }
 
 //! Calculates the cross product of the two 3D vectors
@@ -278,30 +279,6 @@ template <typename T> T xp(sf::Vector2<T> v, sf::Vector2<T> w) {
 //! gets the angle of specified vector
 template <typename T> float angle(sf::Vector2<T> v) {
   return angle(v, sf::Vector2<T>(1,0));
-  /*
-  if(v.x == 0) {
-    if(v.y > 0) {
-      return 90;
-    }
-    else if(v.y < 0) {
-      return 270;
-    }
-    else {
-      return 0;
-    }
-  }
-  else if(v.y == 0) {
-    if(v.x > 0) {
-      return 0;
-    }
-    else {
-      return 180;
-    }
-  }
-  else {
-    return sign(v.y) * DEG(std::atan(v.y / v.x));
-  }
-  */
 }
 //! Gets the angle between two vectors, in degrees
 template <typename T> float angle(sf::Vector2<T> v, sf::Vector2<T> w) {
@@ -322,8 +299,8 @@ template <typename T> sf::Vector2<T> proj(sf::Vector2<T> source, sf::Vector2<T> 
   if(magnitude(source) == 0) {
     return sf::Vector2<T>(0,0);
   }
-  T magnitude = dp(source, target) / (magnitude(target));
-  return norm(target) * magnitude;
+  T mag = dp(source, target) / (magnitude(target));
+  return norm(target) * mag;
 }
 
 //! projects source onto target
@@ -350,4 +327,19 @@ template <typename T> sf::Vector3<T> zero3() {
   return sf::Vector3<T>{0,0,0};
 }
 
-#endif 
+template <typename T> sf::Vector2<T> vsign(sf::Vector2<T> v) {
+  return sf::Vector2<T>{static_cast<float>(sign<T>(v.x)), static_cast<float>(sign<T>(v.y))};
+}
+
+// linear algebra stuff
+
+//! Finds the determinant of a 2D matrix, given as columns
+template <typename T> T det2(sf::Vector2<T> c1, sf::Vector2<T> c2) {
+  return c1.x * c2.y - c1.y * c2.x;
+}
+
+//! Solves a 2D matrix given as columns. Excepts if no unique solution exists
+sf::Vector2f systemsolve2(sf::Vector2f c1, sf::Vector2f c2, sf::Vector2f c);
+
+
+#endif

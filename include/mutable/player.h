@@ -41,9 +41,9 @@ public:
   //! Apply specified effect to player
   void applyEffect(const Effect& e);
   //! Gets the speed of the player
-  int getSpeed() const;
+  float getSpeed() const;
   //! Gets the raw speed of the player
-  int getRawSpeed() const;
+  float getRawSpeed() const;
   //! Gets the health of the player
   unsigned getHealth() const;
   //! Gets the raw health of the player
@@ -53,7 +53,7 @@ public:
   //! Gets the direction of the player
   Direction getFacing() const;
   //! Sets the speed of the player 
-  void setSpeed(int);
+  void setSpeed(float);
   //! Sets the health of the player 
   void setHealth(unsigned);
   //! Sets the maximum cooldown
@@ -81,7 +81,7 @@ public:
    */
   Player();
 protected:
-  int speed; //!< How many pixels the player can move per frame
+  float speed; //!< How many pixels the player can move per frame
   unsigned maxCooldown=0; //!< Number of invincibility frames
   unsigned cooldown=0; //!< Remaining invincibility frames
   unsigned health=0; //!< The player's health

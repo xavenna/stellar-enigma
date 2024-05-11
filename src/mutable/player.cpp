@@ -91,13 +91,13 @@ unsigned Player::getScore() const{
   return score;
 }
 
-void Player::setSpeed(int n) {
+void Player::setSpeed(float n) {
   speed = n;
 }
-int Player::getRawSpeed() const{
+float Player::getRawSpeed() const{
   return speed;
 }
-int Player::getSpeed() const {
+float Player::getSpeed() const {
   float totalScale{1};
   for(auto x : effects) {
     //check if effect modifies speed

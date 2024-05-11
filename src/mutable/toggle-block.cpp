@@ -10,13 +10,10 @@ ToggleBlock::ToggleBlock(int uid) : Solid(uid) {
 Interface ToggleBlock::interact(Object* p, Field* f, SwitchHandler* s) {
   Interface i = Solid::interact(p, f, s);
   if(p->Type() == Object::Play) {
-    if(interacting) {
-      //toggle state
-      if(!vars[1]) {
-        vars[0] = !vars[0];
-        vars[1] = args[1];
-      }
-
+    //toggle state
+    if(!vars[1]) {
+      vars[0] = !vars[0];
+      vars[1] = args[1];
     }
   }
   return i;

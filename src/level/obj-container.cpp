@@ -158,7 +158,7 @@ bool ObjContainer::storeObj(Object ob, std::string t) {
   list.back()->setSize(ob.getSize());
   list.back()->setSolid(ob.getSolid());
   list.back()->setText(ob.getText());
-  list.back()->resetStatus();
+  list.back()->setStatus(Object::Normal);
   //list.back()->setActive(ob.getActive());
   //active is set to true in the object constructor, so this isn't needed now.
   //also, active is deprecated

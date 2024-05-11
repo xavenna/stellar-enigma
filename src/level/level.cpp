@@ -106,6 +106,10 @@ int Level::loadLevel(const std::string& levelname) {
   if(field.loadJsonLevel(levelname)) {
     return -1;
   }
+  //initialize walls
+  if(!field.initializeWalls()) {
+
+  }
   if(loadMutables(levelname)) {
     return -1;
   }
@@ -356,7 +360,7 @@ bool Level::displayObject(unsigned index, sf::Vector2f ppos, sf::Vector2f size) 
 }
 
 sf::Vector2f Level::validMove(sf::Vector2f pos, sf::Vector2f size, sf::Vector2f speed) const {
-  return field.validMove(pos, size, speed);
+  return field.wallHandle(pos, size, speed);
 }
 
 //! Populate an Object's fields from a list of ObjAttr's.
@@ -473,7 +477,7 @@ bool generateObjFromObjAttrList(const std::list<ObjAttr>& attribs, Object& obj, 
   obj.setPos(pos);
   obj.setSize(size);
   obj.setText(text);
-  obj.resetStatus();
+  obj.setStatus(Object::Normal);
   objType = objClass;
   return true;
 }
@@ -690,7 +694,7 @@ bool str2obj2(const std::string& line, Object& obj, std::string& objType) {
   obj.setPos(pos);
   obj.setSize(size);
   obj.setText(text);
-  obj.resetStatus();
+  obj.setStatus(Object::Normal);
   objType = objClass;
   return true;
 }

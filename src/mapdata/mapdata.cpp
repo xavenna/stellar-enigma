@@ -238,7 +238,7 @@ int MapData::event0Handle() {
 void MapData::event1Handle() {
   //this is the basic gameplay mode
   sf::Keyboard::Key lk;
-  sf::Vector2i moveDir(0,0);
+  sf::Vector2f moveDir(0,0);
   bool pause = false;
   while(modeSwitcher.getLastKey(lk)) {
     if(lk == sf::Keyboard::W) {
@@ -277,11 +277,16 @@ void MapData::event1Handle() {
   }
 
   //now that all input has been gathered, handle movement
+  if(std::fabs(moveDir.x) == 1 && std::fabs(moveDir.y) == 1) {
+    //scale diagonal movement by sqrt(2)/2 so that diagonal moves aren't longer
+    moveDir *= static_cast<float>(sqrt(2)/2);
+  }
   sf::Vector2f sp(moveDir.x * player.getSpeed(), moveDir.y * player.getSpeed());
+  player.setSelfPush(moveDir * player.getSpeed());
 
 
-  sp = levelSlot.validMove(player.getPos(), player.getSize(), sp);
-  player.setPos(player.getPos() + sp);
+  //sp = levelSlot.validMove(player.getPos(), player.getSize(), sp);
+  //player.setPos(player.getPos() + sp);
   //check for interaction between player and objects/entities
 
   //this whole thing is getting a restructuring, as the flickering player bug revealed
@@ -347,9 +352,18 @@ void MapData::event1Handle() {
 
 
 void MapData::handleInteractions() {
+  //first, update each object's position using the internal selfPush vector;
+  for(unsigned i=0;i<levelSlot.getObjNum();i++) {
+    auto* x = levelSlot.getObjPtr(i);
+    sf::Vector2f fspeed = levelSlot.validMove(x->getPos(), x->getSize(), x->getSelfPush());
+    x->setPos(x->getPos()+fspeed);
+  }
+  sf::Vector2f fs = levelSlot.validMove(player.getPos(), player.getSize(), player.getSelfPush());
+  player.setPos(player.getPos() + fs);
   std::deque<Inter> interactions;
 
-  for(int i=0;i<6;i++) {
+  //eventually, this will iterate until a stable configuration is reached.
+  for(int i=0;i<8;i++) {
     //create a list of interactions
     //check each pair of objects (plus player)
     for(unsigned i=0;i<levelSlot.getObjNum();i++) {
@@ -391,14 +405,11 @@ void MapData::handleInteractions() {
 
     std::stable_sort(interactions.begin(), interactions.end(), [](Inter o, Inter p) {
         return o.subpriority < p.subpriority;
-        });
+    });
 
     std::stable_sort(interactions.begin(), interactions.end(), [](Inter o, Inter p) {
         return o.priority < p.priority;
-        });
-
-    //here, it diverges. Use the old version as a template.
-    //The primary change is that states are used much more here to make behavior better
+    });
 
     //handle in priority rank
     for(size_t i=0;i<interactions.size();i++) {
@@ -494,6 +505,27 @@ void MapData::handleInteractions() {
           Results r = rectangle_collide(x.o2, x.o1);
 
           //handle the collision using the results;
+
+          //check & update states
+          if(x.o1->Type() == Object::Static && magnitude(r.second) != 0) {
+            //o2 was pushed by a static
+            if(x.o2->getStatus() != Object::Squished) {
+              if(x.o2->getStatus() != Object::PushBack) {
+                x.o2->setStatus(Object::PushBack);
+              }
+              else {
+                x.o2->setStatus(Object::Squished);
+              }
+            }
+            else {
+              //object was squished, what do we do?
+            }
+          }
+
+          if(x.o2->Type() == Object::Static && magnitude(r.first) != 0) {
+            //o1 was pushed by a static
+          }
+
           //r.first is o1 offset
           //r.second is o2 offset
           x.o1->setPos(x.o1->getPos()+r.first);

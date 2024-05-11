@@ -1,5 +1,18 @@
 #include "level/field.h"
 
+Wall::Wall(sf::Vector2f m, sf::Vector2f n) {
+  p1 = m;
+  p2 = n;
+}
+
+sf::Vector2f Wall::push() const {
+  //find a normalized vector normal to face vector
+  return norm(sf::Vector2f(-face().y, face().x));
+}
+
+sf::Vector2f Wall::face() const {
+  return p2-p1;
+}
 
 NodeBase Field::getNode(unsigned x, unsigned y) const {
   return mapBase[x][y];
@@ -26,173 +39,210 @@ sf::Vector2i Field::getTilesize() const {
   return tilesize;
 }
 
-/*
-sf::Vector2f Field::wallPush(const Object* o, sf::Vector2f move) {
-  return validMove(o->getPos(), o->getSize(), move) - move;
+sf::Vector2f Field::wallHandle(const sf::Vector2f pos, const sf::Vector2f size, const sf::Vector2f speed) const {
+  if(magnitude(speed) == 0) {
+    return zero2<float>();
+  }
+
+  //speed is r
+
+  // TODO:
+  // this works great for diagonal movement. For orthogonal movement, it doesn't detect
+  // walls that don't pass the center point
+  // to rectify: for horizontal movement, use each corner on face as an anchor, find
+  // lower t value
+
+  //determine anchor point
+  sf::Vector2f moveDir = vsign(speed); //broadly categorizes the move into diag, ortho
+  sf::Vector2f anchor = pos + sf::Vector2f( //finds the anchor based on direction
+      ((moveDir.x + 1) / 2) * size.x,
+      ((moveDir.y + 1) / 2) * size.y
+  );
+  
+  float lowT=1; //lowest value of t1 constant.
+  auto terminalWall = walls.end(); //which wall, if any, is blocking the path.
+                                   //if set to end, no block occurred
+  for(auto it=walls.begin(); it != walls.end(); it++) {
+    auto x = *it;
+    //if movement is diagonal:
+    if(moveDir.x != 0 && moveDir.y != 0) {
+      //like orthogonal, but each face touching facing vertex needs to be checked.
+      //find the lowest value of the two faces
+
+      //values that are same for both faces
+      sf::Vector2f r = x.face();
+      sf::Vector2f r0 = x.p1;
+
+      sf::Vector2f p = x.push();
+      sf::Vector2f w2 = speed;
+
+      //horizontal face
+      sf::Vector2f w0a; //player corner
+      sf::Vector2f w1a; //player face
+      if(moveDir.y == 1) {
+        w0a = pos + size;  // top right
+        w1a = sf::Vector2f(-size.x, 0);
+      }
+      else {
+        w0a = pos;  // bottom left
+        w1a = sf::Vector2f(size.x, 0);
+      }
+
+
+      //vertical face
+      sf::Vector2f w0b;
+      sf::Vector2f w1b;
+      if(moveDir.x == -1) {
+        w0b = pos + sf::Vector2f(0, size.y); //bottom right corner
+        w1b = sf::Vector2f(0, -size.y);
+      }
+      else if(moveDir.x == 1) {
+        w0b = pos + sf::Vector2f(size.x, 0);  // top left
+        w1b = sf::Vector2f(0, size.y);
+      }
+
+      //get lowest t value from each face, then take the minimum
+      float t2a = findClosestPointInRange(w0a, w1a, w2, r0, r, p);
+      float t2b = findClosestPointInRange(w0b, w1b, w2, r0, r, p);
+
+      float t2 = std::min(t2a, t2b);
+
+      if(lowT > t2) {
+        lowT = t2;
+        terminalWall = it;
+      }
+      if(t2 == 0) {
+        //if a wall entirely blocks motion, there's no need to iterate over others
+        break;
+      }
+    }
+    else {
+      //orthogonal movement
+
+      //find values for the specified wall
+      sf::Vector2f r = x.face();
+      sf::Vector2f r0 = x.p1;
+
+      sf::Vector2f p = x.push();
+
+      sf::Vector2f w0; //player corner
+      sf::Vector2f w1; //player face
+      if(moveDir.x == -1) {
+        w0 = pos + sf::Vector2f(0, size.y); //bottom right corner
+        w1 = sf::Vector2f(0, -size.y);
+      }
+      else if(moveDir.x == 1) {
+        w0 = pos + sf::Vector2f(size.x, 0);  // top left
+        w1 = sf::Vector2f(0, size.y);
+      }
+      else if(moveDir.y == 1) {
+        w0 = pos + size;  // top right
+        w1 = sf::Vector2f(-size.x, 0);
+      }
+      else {
+        w0 = pos;  // bottom left
+        w1 = sf::Vector2f(size.x, 0);
+      }
+      sf::Vector2f w2 = speed;
+
+      float t2 = findClosestPointInRange(w0, w1, w2, r0, r, p);
+
+      if(lowT > t2) {
+        lowT = t2;
+        terminalWall = it;
+      }
+      if(t2 == 0) {
+        //if a wall entirely blocks motion, there's no need to iterate over others
+        break;
+      }
+
+
+    }
+  }
+  //lowT * speed is the distance player moves
+  // check how much residual speed is left
+  if(lowT < 1 && terminalWall != walls.end()) {
+    //direct residual speed along terminalWall
+    sf::Vector2f residSpeed = (1 - lowT) * speed;
+    if(dp(residSpeed, (*terminalWall).face()) != 0) { 
+      return wallHandle(pos + lowT*speed, size, proj(residSpeed, (*terminalWall).face()));
+    }
+
+
+  }
+  return lowT * speed;
 }
-*/
-sf::Vector2f Field::validMove(sf::Vector2f pos, sf::Vector2f size, sf::Vector2f speed) const {
-  //convert player coordinates to level coordinates
-  int playX = int(pos.x / getTilesizeX());
-  int playY = int(pos.y / getTilesizeY());
-  int playXg = int((pos.x+size.x-1) / getTilesizeX());
-  int playYg = int((pos.y+size.y-1) / getTilesizeY());
-  int phx = pos.x + size.x;
-  int phy = pos.y + size.y;
-  bool fullMove = true;
-  sf::Vector2f moveDistance = speed;
-  sf::Vector2f deltaR;
-  int tempSpeed = 0;
 
-  //find destination square
-
-  if(speed.y < 0) {
-    //std::cout << speed.x << '\n';
-    if(pos.y < speed.y) {
-      fullMove = false;
-      moveDistance.y = pos.y;
-    }
-    if(playY != 0) { //if the player isn't at the bottom edge of the map
-      int numTiles = int(size.x / getTilesizeX()); //how many tiles to check for collision
-      int extraTile = (phx % getTilesizeX() == 0) ? 0 : 1;
-      for(int i=0; i<numTiles+extraTile; i++) {
-        int cxP = pos.x + i * getTilesizeX();
-        if(cxP > phx)
-          cxP = phx;
-        if(getNode(unsigned(cxP/getTilesizeX()), unsigned(pos.y/getTilesizeY())-1).getSolid(Down)) {
-          tempSpeed = pos.y - playY * getTilesizeY();
-          moveDistance.y = abs(moveDistance.y) > abs(tempSpeed) ? tempSpeed : moveDistance.y;
-        }
-      }
-      fullMove = false;
-    }
+float Field::findClosestPointInRange(const sf::Vector2f w0, const sf::Vector2f w1, const sf::Vector2f w2, const sf::Vector2f r0, const sf::Vector2f r, const sf::Vector2f p) const {
+  if(dp(w2, p) >= 0) {
+    //wall doesn't block player movement
+    return 1.f;
   }
-  else if(speed.y > 0) {
-    if(phy + speed.y >= getHeight() * getTilesizeY()) {
-      fullMove = false;
-      moveDistance.y = getHeight() * getTilesizeY() - phy;
-    }
-    if(playY != getHeight()) {
-      int numTiles = int(size.x / getTilesizeX());
-      int extraTile = (phx % getTilesizeX() == 0) ? 0 : 1;
-      for(int i=0; i<numTiles+extraTile; i++) {
-        int cxP = pos.x + i * getTilesizeX();
-        if(cxP > phx)
-          cxP = phx;
-        if(getNode(unsigned(cxP/getTilesizeX()), unsigned((phy)/getTilesizeY())).getSolid(Up)) {
-          tempSpeed = int(phy / getTilesizeY()) * getTilesizeY() - phy;
-          moveDistance.y = moveDistance.y > tempSpeed ? tempSpeed : moveDistance.y;
-        }
-      }
-      fullMove = false;
-    }
-  }
-  if(speed.x < 0) {
-    if(pos.x < speed.x) {
-      fullMove = false;
-      moveDistance.x = pos.x;
-    }
-    if(playX != 0) {
-      int numTiles = int(size.y / getTilesizeY());
-      int extraTile = (phy % getTilesizeY() == 0) ? 0 : 1;
-      for(int i=0; i<numTiles+extraTile; i++) {
-        int cyP = pos.y + i * getTilesizeY();
-        if(cyP > phy)
-          cyP = phy;
-        if(getNode(unsigned(pos.x/getTilesizeX())-1, unsigned(cyP/getTilesizeY())).getSolid(Right)) {
-          tempSpeed = pos.x - playX * getTilesizeX();
-          moveDistance.x = abs(moveDistance.x) > abs(tempSpeed) ? tempSpeed : moveDistance.x;
-        }
-      }
-      fullMove = false;
-    }
-  }
-  else if(speed.x > 0) {
-    if(phx + speed.x >= getWidth() * getTilesizeX()) {
-      fullMove = false;
-      moveDistance.x = getWidth() * getTilesizeX() - phx;
-    }
-    if(playX != getWidth()) {
-      int numTiles = int(size.y / getTilesizeY());
-      int extraTile = (phy % getTilesizeY() == 0) ? 0 : 1;
-      for(int i=0;i<numTiles+extraTile; i++) {
-        int cyP = pos.y + i * getTilesizeY();
-        if(cyP > phy)
-          cyP = phy;
-        if(getNode(unsigned((phx)/getTilesizeX()), unsigned(cyP/getTilesizeY())).getSolid(Left)) {
-          tempSpeed = int(phx / getTilesizeX()) * getTilesizeX() - phx;
-          moveDistance.x = moveDistance.x > tempSpeed ? tempSpeed : moveDistance.x;
-        }
-      }
-      fullMove = false;
-    }
+  if(det2(-r, w2) == 0) {
+    //wall is parallel to movement
+    return 1.f;
   }
 
+  //set t2=0, find other constant values
 
+  sf::Vector2f constants1 = systemsolve2(-w2, r, w0 - r0);
 
-  sf::Vector2f p = pos + moveDistance;
+  //repeat for t2=1
+  //this time, we use w0 + w1 as the origin point
 
-  int playXn = int(p.x / getTilesizeX());
-  int playYn = int(p.y / getTilesizeY());
-  int playXgn = int((p.x+size.x-1) / getTilesizeX());
-  int playYgn = int((p.y+size.y-1) / getTilesizeY());
-  bool colly = false;
-  bool collx = false;
+  sf::Vector2f constants2 = systemsolve2(-w2, r, (w0+w1) - r0);
 
-  if(moveDistance.x < 0 && moveDistance.y < 0) {
-    if(playX != playXn) {
-      if(getNode(static_cast<unsigned>(playXn), static_cast<unsigned>(playYn)).getSolid(Left)) {
-        collx = true;
-      }
-    }
-    if(playY != playYn) {
-      if(getNode(static_cast<unsigned>(playXn), static_cast<unsigned>(playYn)).getSolid(Up)) {
-        colly = true;
-      }
-    }
-  }
-  else if(moveDistance.x < 0 && moveDistance.y > 0) {
-    if(playX != playXn) {
-      if(getNode(static_cast<unsigned>(playXn), static_cast<unsigned>(playYn)).getSolid(Left)) {
-        collx = true;
-      }
-    }
-    if(playYg != playYgn) {
-      if(getNode(static_cast<unsigned>(playXn), static_cast<unsigned>(playYn)).getSolid(Down)) {
-        colly = true;
-      }
-    }
-  }
-  else if(moveDistance.x > 0 && moveDistance.y < 0) {
-    if(playXg != playXgn) {
-      if(getNode(static_cast<unsigned>(playXn), static_cast<unsigned>(playYn)).getSolid(Right)) {
-        collx = true;
-      }
-    }
-    if(playY != playYn) {
-      if(getNode(static_cast<unsigned>(playXn), static_cast<unsigned>(playYn)).getSolid(Up)) {
-        colly = true;
-      }
-    }
-  }
-  else if(moveDistance.x > 0 && moveDistance.y > 0) {
-    if(playXg != playXgn) {
-      if(getNode(static_cast<unsigned>(playXn), static_cast<unsigned>(playYn)).getSolid(Right)) {
-        collx = true;
-      }
-    }
-    if(playYg != playYgn) {
-      if(getNode(static_cast<unsigned>(playXn), static_cast<unsigned>(playYn)).getSolid(Down)) {
-        colly = true;
-      }
-    }
+  //we now know t1 and t3 at each edge of the player hitbox.
+  //now, we check how large the overlap between t2 and t1 is:
+  // (constants#.x is t3, constants#.y is t1)
+
+  if(constants1.y >= 1 || constants2.y <= 0) {
+    //no overlap occurs.
+    return 1.f;
   }
 
-  if(collx)
-    moveDistance.x = 0;
-  if(colly)
-    moveDistance.y = 0;
-  return fullMove ? speed : moveDistance;
+  //using these values, we can calculate the t2 value for both edges of the wall:
+  // t2 = m * t1 + b
+  float m = 1 / (constants2.y - constants1.y);
+  float b = -constants1.y;
+  
+  //since the wall is a line, we only need to check the values at the edges of the 
+  //overlap. The left edge of the overlap is the rightmost of the two left edges:
+  //std::max(0, t2(0))
+
+  //the right edge of the overlap is the leftmost of the right edges:
+  //std::min(1, t2(1))
+
+  float left = std::max(0.f, b);
+  float right = std::min(1.f, m + b);
+
+  //since we have the left and right values, we check the distance to player at each
+  //we know the t2 value, so we use it to change the player's start pos
+  //
+  sf::Vector2f constantsLeft = systemsolve2(-w2, r, (w0 + w1*left) - r0);
+  sf::Vector2f constantsRight = systemsolve2(-w2, r, (w0 + w1*right) - r0);
+
+  //the minimum of the t3 values is the one we go with: (t3 is c...x
+
+  if(constantsLeft.x < 0 || constantsLeft.x > 1) {
+    //out of range
+    if(constantsRight.x < 0 || constantsRight.x > 1) {
+      return 1.f;
+    }
+    else {
+      return constantsRight.x;
+    }
+  }
+  else {
+    if(constantsRight.x < 0 || constantsRight.x > 1) {
+      //right is out of range
+      return constantsLeft.x;
+    }
+    else {
+      //both are in range:
+      return std::min(constantsLeft.x, constantsRight.x);
+    }
+  }
 }
 
 int Field::loadJsonLevel(const std::string& levelname) {
@@ -255,8 +305,8 @@ int Field::loadJsonLevel(const std::string& levelname) {
           json11::Json elem = row[j].array_items();
           mapBase[j][i].setTile(sf::Vector2i(elem[0].int_value(), elem[1].int_value()));
           mapBase[j][i].setTileset(0); //this should be set from tileset somehow
-          // i signifies the row, j signifies the column. As the level data is stored
-          // as (x,y), this needs to be flipped
+                                       // i signifies the row, j signifies the column. As the level data is stored
+                                       // as (x,y), this needs to be flipped
         }
       }
     }
@@ -307,7 +357,100 @@ int Field::loadJsonLevel(const std::string& levelname) {
   return 0;
 }
 
+bool Field::initializeWalls() {
+  //creates the walls vector from tile solidity data
+
+
+  for(unsigned i=0;i<mapBase.size();i++) {
+    bool prevLeftWall = false; //bottom to top
+    bool prevRightWall = false; //top to bottom
+    int leftWallStartPos = 0;
+    int rightWallStartPos = 0;
+    for(unsigned j=0;j<mapBase[i].size();j++) {
+
+      bool leftWall = mapBase[i][j].getSolid(Left);
+      bool rightWall = mapBase[i][j].getSolid(Right);
+
+      if(prevLeftWall && !leftWall) {
+        //left wall ends
+        //bottom then top
+        walls.push_back(Wall(sf::Vector2f(i, leftWallStartPos), sf::Vector2f(i, j)));
+      }
+      else if(!prevLeftWall && leftWall) {
+        //left wall begins
+        leftWallStartPos = j;
+      }
+
+      if(prevRightWall && !rightWall) {
+        //right wall ends
+        //top then bottom
+        walls.push_back(Wall(sf::Vector2f(i+1, j), sf::Vector2f(i+1, rightWallStartPos)));
+      }
+      else if(!prevRightWall && rightWall) {
+        //right wall begins
+        rightWallStartPos = j;
+      }
+
+      prevLeftWall = leftWall;
+      prevRightWall = rightWall;
+
+    }
+  }
+
+  //search rows for horizontal walls
+  if(mapBase.size() != 0) {
+    for(unsigned j=0;j<mapBase[0].size();j++) {
+      bool prevTopWall = false;
+      bool prevBottomWall = false;
+      int topWallStartPos = 0;
+      int bottomWallStartPos = 0;
+      for(unsigned i=0;i<mapBase.size();i++) {
+        bool bottomWall = mapBase[i][j].getSolid(Down);
+        bool topWall = mapBase[i][j].getSolid(Up);
+        if(!prevTopWall && topWall) {
+          //a top wall begins
+          topWallStartPos = i;
+        }
+        else if(prevTopWall && !topWall) {
+          //a top wall ends
+          //left, then right
+          walls.push_back(Wall(sf::Vector2f(i, j), sf::Vector2f(topWallStartPos, j)));
+        }
+
+        if(!prevBottomWall && bottomWall) {
+          //a bottom wall begins
+          bottomWallStartPos = i;
+        }
+        else if(prevBottomWall && !bottomWall) {
+          //a bottom wall ends
+          //right, then left
+          walls.push_back(Wall(sf::Vector2f(bottomWallStartPos,j+1), sf::Vector2f(i,j+1)));
+        }
+
+        prevTopWall = topWall;
+        prevBottomWall = bottomWall;
+      }
+
+    }
+  }
+  for(auto& x : walls) {
+    //scale by the tilesize, as walls are currently in terms of tiles
+    x.p1.x *= tilesize.x;
+    x.p1.y *= tilesize.y; 
+
+    x.p2.x *= tilesize.x;
+    x.p2.y *= tilesize.y;
+    /*
+    std::cerr << "[(" << x.p1.x << "," << x.p1.y << ") -> (" << x.p2.x << "," << x.p2.y;
+    std::cerr << ")]\n";
+    */
+  }
+
+}
+
+
 int Field::loadLevel(const std::string& levelname) {
+  std::cerr << "The use of sel levels is deprecated. Please migrate to json levels\n";
   std::string complevel = "assets/level/" + levelname + ".sel";
   std::ifstream load(complevel);
   if(!load.is_open())

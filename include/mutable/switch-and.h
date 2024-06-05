@@ -7,6 +7,7 @@ class SwAnd : public Object {
 public:
   using Object::interact;
   virtual Object::MotionType Type() const {return Object::Intangible;} 
+  virtual std::string Name() const {return "switch_and";}
   virtual Interface behave(SwitchHandler*, Utility*);
   SwAnd(int uid);
 };

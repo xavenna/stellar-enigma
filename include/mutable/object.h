@@ -18,17 +18,17 @@
 
 //! A class for objects, anything with dynamic behavior
 /*!
- *  Extends mutable with additional attributes specific to objects
- *  Any derived classes should just redefine the virtual functions, without adding new
- *  members
+ *  Extends mutable with additional attributes specific to objects.
+ *  To create an object, extend this class, redefining any necessary virtual functions
  * 
- *  Virtual functions:
- *  behave - called every frame, normal behavior occurs here
- *  interact - called when something interacts with the object
+ *  Virtual functions:\n
+ *  behave - called every frame, normal behavior occurs here\n
+ *  interact - called when something interacts with the object\n
  *  draw - tells the engine how to draw the object
  *  
+ *  In the future, solid objects will have a list of walls, used in addition to the map
+ *  wall list in the interaction handler
  *
- *  To set status, use bitmasking to toggle specified bit.
  */
 class Object : public Mutable {
 public:
@@ -54,6 +54,9 @@ public:
     Inactive, //!< Temporarily doesn't interact with anything
     Destroy, //!< Object should be destroyed
     Acting,  //!< Currently interacting with something
+    Acted,   //!< Being interacted with
+    Grabbing,  //!< Grabbing
+    Held,      //!< Being held
     Invulnerable,  //!< Unable to interact with anything
     Moving,  //!< The object is moving by itself
     Pushed,  //!< The object is being pushed by something else
@@ -81,8 +84,6 @@ public:
   //! object interaction priority
   virtual int priority() const {return 32;} //0 is highest, decreases counting up
   //! base version of interact();
-  //virtual Interface interact(Player*, Field*, SwitchHandler*);
-  //! version of interact for object-object interactions
   virtual Interface interact(Object*, Field*, SwitchHandler*);
   //! produces the proper CacheNodeAttributes for the state of the object
   virtual CacheNodeAttributes draw(const TextureCache*);
@@ -161,7 +162,11 @@ protected:
   //internal, aren't preset
 
   const int unique_id=-1; //!< Used internally to differentiate objects
-  std::array<int, 4> vars; //!< Internal variables, used similarly to args
+  //! Internal variables, used similarly to args. Deprecated.
+  /*! Going forward, objects can define additional member variables. Since objects are
+   * stored in the heap, they don't need to all have the same size.
+   */
+  std::array<int, 4> vars;
 
   Status status; //!< Internal status, can be externally read but not written
 };

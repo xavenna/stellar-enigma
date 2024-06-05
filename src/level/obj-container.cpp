@@ -118,6 +118,7 @@ bool ObjContainer::notify(msg m) {
 }
 
 
+/*
 bool ObjContainer::storeObj(Object ob, std::string t) {
   if(t == "obj") {
     list.push_back(new Object(counter));
@@ -159,10 +160,6 @@ bool ObjContainer::storeObj(Object ob, std::string t) {
   list.back()->setSolid(ob.getSolid());
   list.back()->setText(ob.getText());
   list.back()->setStatus(Object::Normal);
-  //list.back()->setActive(ob.getActive());
-  //active is set to true in the object constructor, so this isn't needed now.
-  //also, active is deprecated
-
 
   list.back()->setArgs(ob.getArgs());
   list.back()->setSwitches(ob.getSwitches());
@@ -178,6 +175,7 @@ bool ObjContainer::storeObj(Object ob, std::string t) {
   counter++;
   return true;
 }
+*/
 
 bool ObjContainer::storeObj(std::string t) {
   Object o;

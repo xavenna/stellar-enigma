@@ -240,6 +240,7 @@ void MapData::event1Handle() {
   sf::Keyboard::Key lk;
   sf::Vector2f moveDir(0,0);
   bool pause = false;
+  bool interact = false;
   while(modeSwitcher.getLastKey(lk)) {
     if(lk == sf::Keyboard::W) {
       if(moveDir.y == 0)
@@ -265,9 +266,13 @@ void MapData::event1Handle() {
       else
         moveDir.x = 0;
     }
-    if(lk == sf::Keyboard::Escape) {
+    else if(lk == sf::Keyboard::Escape) {
       pause = true;
     }
+    else if(lk == sf::Keyboard::K) {
+      interact = true;
+    }
+
   }
   if(pause) {
     //switch to mode 1
@@ -296,6 +301,17 @@ void MapData::event1Handle() {
 
   handleInteractions();
 
+  if(interact) {
+    //set player to interacting mode. Determine the interact target, and set its
+    //status to interacted
+
+    //search for an object to interact with
+    //using player's facing direction, search a rectangle size 8x8, centered 6 units
+    //in front of player's facing side.
+    //get a list of every obj that intersects with this range
+    Object* target;
+
+  }
 
 
   //various player updates

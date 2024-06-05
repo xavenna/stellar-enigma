@@ -2,14 +2,6 @@
 #define OBJ_CONTAINER_H
 #include <list>
 #include "mutable/object.h"
-#include "mutable/solid.h"
-#include "mutable/pushable.h"
-#include "mutable/key.h"
-#include "mutable/board.h"
-#include "mutable/spike.h"
-#include "mutable/toggle-block.h"
-#include "mutable/cutplay.h"
-#include "mutable/door.h"
 
 //! A class for holding the object list, as well as serving as an Object Factory
 /*!

@@ -165,7 +165,7 @@ sf::Vector2f Field::wallHandle(const sf::Vector2f pos, const sf::Vector2f size, 
     //direct residual speed along terminalWall
     sf::Vector2f residSpeed = (1 - lowT) * speed;
     if(dp(residSpeed, (*terminalWall).face()) != 0) { 
-      return wallHandle(pos + lowT*speed, size, proj(residSpeed, (*terminalWall).face()));
+      return lowT*speed + wallHandle(pos + lowT*speed, size, proj(residSpeed, (*terminalWall).face()));
     }
 
 

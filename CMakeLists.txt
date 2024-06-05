@@ -29,6 +29,8 @@ file(GLOB MUTABLE_SRC "src/mutable/*.cpp")
 file(GLOB UTILITY_SRC "src/utility/*.cpp")
 file(GLOB PHYSICS_SRC "src/physics/*.cpp")
 
+file(GLOB PREBUILD_SRC "src/prebuild/*.cpp")
+
 set(SRC ${AUDIO_SRC} ${CUTSCENE_SRC} ${INTERFACE_SRC} ${LEVEL_SRC} ${MAPDATA_SRC} ${MISC_SRC} ${MUTABLE_SRC} ${UTILITY_SRC} ${PHYSICS_SRC})
 
 file(GLOB AUDIO_INC "include/audio/*.h")
@@ -43,21 +45,32 @@ file(GLOB PHYSICS_INC "include/physics/*.h")
 
 set(INC ${AUDIO_INC} ${CUTSCENE_INC} ${INTERFACE_INC} ${LEVEL_INC} ${MAPDATA_INC} ${MISC_INC} ${MUTABLE_INC} ${UTILITY_INC} ${PHYSICS_INC} include/stellar-enigma.hpp)
 
-add_library(stellar ${SRC} ${INC})
+add_library(stellar ${SRC} ${INC} ${CMAKE_CURRENT_BINARY_DIR}/store-obj.cpp)
 add_executable(stellar-test src/main.cpp)
 
+add_executable(prebuild ${PREBUILD_SRC})
 target_link_libraries(stellar sfml-graphics sfml-window sfml-audio sfml-system json11)
 target_link_libraries(stellar-test stellar)
 
 
+set_property(TARGET prebuild PROPERTY CXX_STANDARD 17)
 set_property(TARGET stellar-test PROPERTY CXX_STANDARD 17)
+set_property(TARGET stellar PROPERTY CXX_STANDARD 17)
 
 
 target_include_directories(stellar PRIVATE "./include/")
 target_include_directories(stellar-test PRIVATE "./include/")
+target_include_directories(prebuild PRIVATE "./include/")
 target_compile_definitions(stellar PRIVATE WINDOW_WIDTH=16 WINDOW_HEIGHT=12 FRAMERATE=30)
 target_compile_definitions(stellar-test PRIVATE WINDOW_WIDTH=16 WINDOW_HEIGHT=12 FRAMERATE=30)
 
+# setup prebuild command
+add_custom_command(
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/store-obj.cpp
+  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/prebuild store-obj.cpp
+  DEPENDS prebuild
+  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+)
 
 if(RAND_TIME)
   target_compile_definitions(stellar PRIVATE RAND_USE_TIME)

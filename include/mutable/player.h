@@ -20,7 +20,8 @@ public:
     Invulnerable, //!< Immune to Damage
     Damaged,  //!< Currently recovering from damage
     Normal,   //!< Not in any special state
-    Pushed   //!< The player just finished being pushed back by a solid object
+    Pushed,  //!< The player just finished being pushed back by a solid object
+    Grabbing //!< Grabbing an object
   };
   virtual std::string Name() const {return "player";}
   virtual Object::MotionType Type() const {return Object::Play;} 

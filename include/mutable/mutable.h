@@ -14,7 +14,7 @@ protected:
   sf::Vector2f pos; //!< Current pos of the mutable
   sf::Vector2f lastPos; //!< Where the mutable was before its most recent move
   sf::Vector2f savedPos; //!< Used for properly resolving lastPos
-  sf::Vector2i screen; //!< Which screen the mutable is on
+  sf::Vector2i screen; //!< Which screen the mutable is on. Deprecated
   sf::Vector2f size; //!< Size of the mutable in pixels
   bool solid; //!< Whether other mutables can pass through the mutable. Deprecated
   //!< The object's mass. A higher mass means it's harder to push.
@@ -32,6 +32,8 @@ public:
   sf::Vector2f getPos() const;
   //! get the center of the mutable
   sf::Vector2f getCenter() const;
+  //! get the hitbox rectangle
+  sf::FloatRect getBounds() const;
   //! get the last position of the mutable as a sf::Vector2i
   sf::Vector2f getLastPos() const;
   //! get the size of the mutable as a sf::Vector2i

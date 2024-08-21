@@ -132,3 +132,8 @@ void Object::notify(msg) {
   //only parents need it at the moment
   return;
 }
+
+
+bool Object::use(Object* p) {
+  return false;
+}

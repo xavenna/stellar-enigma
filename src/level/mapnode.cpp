@@ -33,3 +33,6 @@ MapNode::MapNode() : NodeBase{} {
   setPosition(0,0);
   
 }
+
+MapNode::MapNode(NodeBase n) : NodeBase{n} {
+}

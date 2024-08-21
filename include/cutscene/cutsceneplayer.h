@@ -13,6 +13,7 @@
 #include "mapdata/mode.h"
 #include "level/level.h"
 #include "audio/audio.h"
+#include "camera/camera.h"
 
 #include "cutscene/cutscene.h"
 #include "cutscene/cutscene-manager.h"
@@ -22,13 +23,22 @@
 
 //! A class that handles the playing of cutscenes
 /*! 
- *   
+ *  Contains references to all the components it can affect
  */
 class CutscenePlayer {
 private:
   Cutscene cutscene; //!< Currently playing cutscene
   int timer;
   unsigned pos;  //!< position in the cutscene
+  
+  //references to engine components:
+  Player& pl;
+  Message& me;
+  Level& le;
+  ModeSwitcher& ms;
+  MusicPlayer& mp;
+  SwitchHandler& sh;
+  Camera& cam;
 public:
   //! Doesn't do anything. I'm not sure what I intended it to do
   void playCutscene();
@@ -40,14 +50,14 @@ public:
    *  event in the list. Otherwise, decrements cooldown timer.
    *  Returns false if the cutscene is over, Otherwise returns true
    */
-  bool updateCutscene(Player&, Message&, Level&, ModeSwitcher&, MusicPlayer&, SwitchHandler& sh);
+  bool updateCutscene();
   //! Plays next event; called by updateCutscene if current event is finished
   /*!
    *  This function executes the current event in the cutscene
    */
-  bool playEvent(Player&, Message&, Level&, MusicPlayer&, SwitchHandler&);
+  bool playEvent();
   //! Basic constructor
-  CutscenePlayer();
+  CutscenePlayer(Player& p, Message& m, Level& l, ModeSwitcher& mo, MusicPlayer& mu, SwitchHandler& s, Camera& c);
 
   CutsceneManager man;
 };

@@ -15,6 +15,7 @@
 #include "utility/texture-cache.h"
 #include "utility/save.h"
 #include "physics/physics.h"
+#include "camera/camera.h"
 
 
 //! Mapdata is the class that encapsulates all level components
@@ -31,6 +32,7 @@ public:
   Menu mainMenu; //!< Controls Menus and Splash screens
   MusicPlayer musicPlayer; //!< Controls playing of sounds and music
   Message message; //!< Displays textual information to the player
+  Camera camera; //!< Controls rendering of play field
   CutscenePlayer cutscenePlayer; //!< Plays cutscenes to the player
 
   //move to utility

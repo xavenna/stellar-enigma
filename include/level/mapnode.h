@@ -47,6 +47,7 @@ public:
   //! Constructs the MapNode with passed attributes
   MapNode(unsigned n, DirectionalBool b);
   MapNode();
+  MapNode(NodeBase);
 };
 
 #endif

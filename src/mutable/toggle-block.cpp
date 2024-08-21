@@ -9,6 +9,7 @@ ToggleBlock::ToggleBlock(int uid) : Solid(uid) {
 
 Interface ToggleBlock::interact(Object* p, Field* f, SwitchHandler* s) {
   Interface i = Solid::interact(p, f, s);
+  /*
   if(p->Type() == Object::Play) {
     //toggle state
     if(!vars[1]) {
@@ -16,7 +17,17 @@ Interface ToggleBlock::interact(Object* p, Field* f, SwitchHandler* s) {
       vars[1] = args[1];
     }
   }
+  */
   return i;
+}
+
+bool ToggleBlock::use(Object*) {
+  //toggle state
+  if(!vars[1]) {
+    vars[0] = !vars[0];
+    vars[1] = args[1];
+  }
+  return false;
 }
 
 CacheNodeAttributes ToggleBlock::draw(const TextureCache* cache) {

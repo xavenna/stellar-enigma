@@ -2,7 +2,7 @@
 
 // This file has functions for the overarching classes
 
-MapData::MapData(unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSize) : musicPlayer{"audiomap.txt"},  message{mWid, mCool, mElem, mCharSize}, cache{"assets/texturemap/default.tm", utility.save} {
+MapData::MapData(unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSize) : musicPlayer{"audiomap.txt"},  message{mWid, mCool, mElem, mCharSize}, camera{player, levelSlot, "assests/camera/"}, cutscenePlayer{player, message, levelSlot, modeSwitcher, musicPlayer, switchHandler, camera}, cache{"assets/texturemap/default.tm", utility.save} {
   //initialize members here
 
   //load level
@@ -81,26 +81,16 @@ void MapData::finishFrame(sf::RenderWindow& window) {
     if(levelSlot.displayUpdate) {
       levelSlot.readyWindow(player.getScreen().x, player.getScreen().y);
     }
-    for(unsigned i=0;i<WINDOW_WIDTH;i++) {
-      for(unsigned j=0;j<WINDOW_HEIGHT;j++) {
-        //this needs to be overhauled: add a new api for getting texture from spritesheet
-
-        levelSlot.assignTextureToWinNode(sf::Vector2i(static_cast<int>(i),static_cast<int>(j)), cache);
-        window.draw(levelSlot.window[i][j]);
-      }
-    }
 
     for(unsigned i=0;i<levelSlot.getObjNum();i++) {
       levelSlot.assignTextureToObject(i, cache);
-      if(levelSlot.displayObject(i, player.getPos(), player.getSize())) {
-        window.draw(levelSlot.getObjRef(i));
-      }
     }
+    camera.drawFrame(window, modeSwitcher.getMode(), cache);
 
     //update things
     player.update(levelSlot.getTilesize());
     player.assignTexture(cache);
-    window.draw(player);
+    //window.draw(player);
 
     //draw icons
     interface.drawIcons(window);
@@ -309,7 +299,49 @@ void MapData::event1Handle() {
     //using player's facing direction, search a rectangle size 8x8, centered 6 units
     //in front of player's facing side.
     //get a list of every obj that intersects with this range
-    Object* target;
+    sf::FloatRect searchBox;
+
+    searchBox.left = player.getCenter().x;
+    searchBox.top = player.getCenter().y;
+    if(player.getFacing() == Up) {
+      searchBox.top -= (6 + player.getSize().y / 2.f);
+    }
+    else if(player.getFacing() == Down) {
+      searchBox.top += (6 + player.getSize().y / 2.f);
+    }
+    else if(player.getFacing() == Left) {
+      searchBox.left -= (6 + player.getSize().y / 2.f);
+    }
+    else if(player.getFacing() == Right) {
+      searchBox.left += (6 + player.getSize().y / 2.f);
+    }
+
+    searchBox.width = 6.f;
+    searchBox.height = 6.f;
+    std::vector<Object*> inter_list;
+
+    for(unsigned i=0;i<levelSlot.getObjNum();i++) {
+      if(levelSlot.getObjPtr(i)->getBounds().intersects(searchBox)) {
+        inter_list.push_back(levelSlot.getObjPtr(i));
+      }
+      //select the object to interact with (somehow?)
+      //sort by priority
+    }
+
+
+    if(inter_list.size() != 0) {
+
+      std::stable_sort(inter_list.begin(), inter_list.end(), [](Object* o, Object* p) {
+          return o->priority() < p->priority();
+      });
+
+      Object* target = inter_list[0];
+
+      //what do we do now?
+      if(target->use(&player)) {
+        //player grabbed object...?
+      }
+    }
 
   }
 
@@ -581,7 +613,7 @@ void MapData::handleInteractions() {
 }
 
 void MapData::event2Handle() {  //this is the cutscene mode
-  if(cutscenePlayer.updateCutscene(player, message, levelSlot, modeSwitcher, musicPlayer, switchHandler)) {
+  if(cutscenePlayer.updateCutscene()) {
     //I'm not sure if anything needs to go here
   }
   else {

@@ -7,6 +7,7 @@ class ToggleBlock : public Solid {
 public:
 
   virtual Interface interact(Object*, Field*, SwitchHandler*);
+  virtual bool use(Object*);
   using Solid::interact;
   virtual CacheNodeAttributes draw(const TextureCache*);
   virtual Interface behave(SwitchHandler*, Utility*);

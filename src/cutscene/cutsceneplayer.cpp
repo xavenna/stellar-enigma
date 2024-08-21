@@ -4,7 +4,7 @@ void CutscenePlayer::playCutscene() {//this may be completely useless
   //actually, this could be used when switching to mode 2
 }
 
-bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwitcher& ms, MusicPlayer& mp, SwitchHandler& sh) {
+bool CutscenePlayer::updateCutscene() {
   //make this start the next event, that would be pretty cool
   //okay, I think it does now. Yay
   Event e = cutscene.getEvent(pos);
@@ -27,7 +27,7 @@ bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwit
           if(cutscene.getListLen()-1 == static_cast<int>(pos)) {
             return false;
           }
-          if(!playEvent(pl, me, le, mp, sh)) {
+          if(!playEvent()) {
             //error: invalid event
             std::cout << "Error: invalid event in cutscene. Event skipped.\n";
           }
@@ -47,7 +47,7 @@ bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwit
       else {
         pos++;
         //start next event?
-        if(!playEvent(pl, me, le, mp, sh)) {
+        if(!playEvent()) {
           //error: invalid event
           std::cout << "Error: invalid event in cutscene. Event skipped.\n";
           //set timer to 0?
@@ -62,7 +62,7 @@ bool CutscenePlayer::updateCutscene(Player& pl, Message& me, Level& le, ModeSwit
   return true;
 }
 
-bool CutscenePlayer::playEvent(Player& pl, Message& me, Level& le, MusicPlayer& mp, SwitchHandler& sh) {
+bool CutscenePlayer::playEvent() {
   //add bounds checking whenever an arg is used as an index, or similar use.
   Event e = cutscene.getEvent(pos);
   switch(e.getType()) {
@@ -255,7 +255,7 @@ void CutscenePlayer::loadCutscene(const Cutscene& cut) {
   pos = 0;
   
 }
-CutscenePlayer::CutscenePlayer() {
+CutscenePlayer::CutscenePlayer(Player& p, Message& m, Level& l, ModeSwitcher& mo, MusicPlayer& mu, SwitchHandler& s, Camera& c) : pl{p}, me{m}, le{l}, ms{mo}, mp{mu}, sh{s}, cam{c} {
   timer = 0;
   pos = 0;
 }

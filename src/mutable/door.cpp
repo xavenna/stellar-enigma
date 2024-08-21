@@ -20,7 +20,12 @@ CacheNodeAttributes Door::draw(const TextureCache* cache) {
   CacheNodeAttributes cna;
   switch(texture_id) {
   default:
-    cna.srcImg = cache->reverseHash("crate");
+    if(!vars[0]) {
+      cna.srcImg = cache->reverseHash("crate");
+    }
+    else {
+      cna.srcImg = cache->reverseHash("locked-door");
+    }
   //other textures can be placed here for more design freedom
   }
   //no transforms, so tlist is left blank

@@ -28,10 +28,11 @@ file(GLOB MISC_SRC "src/misc/*.cpp")
 file(GLOB MUTABLE_SRC "src/mutable/*.cpp")
 file(GLOB UTILITY_SRC "src/utility/*.cpp")
 file(GLOB PHYSICS_SRC "src/physics/*.cpp")
+file(GLOB CAMERA_SRC "src/camera/*.cpp")
 
 file(GLOB PREBUILD_SRC "src/prebuild/*.cpp")
 
-set(SRC ${AUDIO_SRC} ${CUTSCENE_SRC} ${INTERFACE_SRC} ${LEVEL_SRC} ${MAPDATA_SRC} ${MISC_SRC} ${MUTABLE_SRC} ${UTILITY_SRC} ${PHYSICS_SRC})
+set(SRC ${AUDIO_SRC} ${CUTSCENE_SRC} ${INTERFACE_SRC} ${LEVEL_SRC} ${MAPDATA_SRC} ${MISC_SRC} ${MUTABLE_SRC} ${UTILITY_SRC} ${PHYSICS_SRC} ${CAMERA_SRC})
 
 file(GLOB AUDIO_INC "include/audio/*.h")
 file(GLOB CUTSCENE_INC "include/cutscene/*.h")
@@ -42,8 +43,9 @@ file(GLOB MISC_INC "include/misc/*.h")
 file(GLOB MUTABLE_INC "include/mutable/*.h")
 file(GLOB UTILITY_INC "include/utility/*.h")
 file(GLOB PHYSICS_INC "include/physics/*.h")
+file(GLOB CAMERA_INC "include/camera/*.h")
 
-set(INC ${AUDIO_INC} ${CUTSCENE_INC} ${INTERFACE_INC} ${LEVEL_INC} ${MAPDATA_INC} ${MISC_INC} ${MUTABLE_INC} ${UTILITY_INC} ${PHYSICS_INC} include/stellar-enigma.hpp)
+set(INC ${AUDIO_INC} ${CUTSCENE_INC} ${INTERFACE_INC} ${LEVEL_INC} ${MAPDATA_INC} ${MISC_INC} ${MUTABLE_INC} ${UTILITY_INC} ${PHYSICS_INC} ${CAMERA_INC} include/stellar-enigma.hpp)
 
 add_library(stellar ${SRC} ${INC} ${CMAKE_CURRENT_BINARY_DIR}/store-obj.cpp)
 add_executable(stellar-test src/main.cpp)

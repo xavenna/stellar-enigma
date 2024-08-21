@@ -10,11 +10,9 @@ To use stellar, create a main.cpp file based on the template provided. Insert an
 custom initialization behaviors in the marked space.
 
 To add custom objects, create a class that extends Object. Implement the virtual
-functions in Object, create a constructor, and add an entry to ObjContainer::storeObj.
-A guide explaining this process is forthcoming. If you add additional objects, as engine
-files will need to be modified, the code will need to be built from source, or the SDK
-version of the libraries need to be obtained.
-
+functions in Object and create a constructor.
+A guide explaining this process is forthcoming. If you add additional objects, the code
+will need to be built from source, as engine files will need to be modified.
 ### Interface
 
 Objects communicate with the engine through an Interface (See documentation for details).
@@ -62,7 +60,7 @@ Build dependencies:
 SFML, json11. Links with install instructions are in the credits section.
 On Linux, just install libsfml-dev and libjson11-1-dev from your package manager
 
-stellar-enigma builds are tested on linux; The makefile may require tweaking to work on
+stellar-enigma builds are tested on linux; Additional steps are likely required for
 other operating systems.
 
 ### Build process:
@@ -88,7 +86,7 @@ These libraries can be found at https://sfml-dev.org/
 The Json11 library was used for json parsing.\
 This can be found at https://github.com/dropbox/json11/
 
-OGMO editor was used for level creation.\
+OGMO editor is used for level creation.\
 This tool can be found at https://ogmo-editor-3.github.io/
 
-stellar-enigma was released under the MIT License. see LICENSE for details.
+stellar-enigma is released under the MIT License. see LICENSE for details.

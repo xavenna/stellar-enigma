@@ -12,9 +12,6 @@
 #include "misc/util.h"
 
 #include <array>
-#include <tuple>
-
-
 
 //! A class for objects, anything with dynamic behavior
 /*!
@@ -75,6 +72,8 @@ public:
     Remove = 7 //!< Object activates this upon collection, death, etc.
   };
 
+  //object info functions
+
   //! Object's motion type
   virtual Object::MotionType Type() const {return Object::Intangible;} 
   //! Object's shape
@@ -83,6 +82,13 @@ public:
   virtual std::string Name() const {return "obj";}
   //! object interaction priority
   virtual int priority() const {return 32;} //0 is highest, decreases counting up
+  //! Can the object be grabbed (SM64 style)?
+  virtual bool grabbable() const {return false;}
+  //! Can the object be used by player
+  virtual bool usable() const {return false;}
+
+  //object behavior functions
+
   //! base version of interact();
   virtual Interface interact(Object*, Field*, SwitchHandler*);
   //! produces the proper CacheNodeAttributes for the state of the object
@@ -93,6 +99,11 @@ public:
   virtual bool verify();
   //! used for the objcontainer to send complex messages to parents (maybe more later)
   virtual void notify(msg);
+
+  //! base version of grab. Returns true if object is grabbed by player
+  virtual bool use(Object*);
+
+  //other functions
 
   //! get the link id of the object
   int getLinkID() const;

@@ -23,6 +23,9 @@ sf::Vector2f Mutable::getPos() const {
 sf::Vector2f Mutable::getCenter() const {
   return pos + size / 2.f;
 }
+sf::FloatRect Mutable::getBounds() const {
+  return sf::FloatRect(pos, size);
+}
 sf::Vector2f Mutable::getLastPos() const {
   return lastPos;
 }

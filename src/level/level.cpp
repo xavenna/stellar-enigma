@@ -187,26 +187,6 @@ void Level::assignTextureToWinNode(sf::Vector2i pos, TextureCache& cache) {
 
   cna.tList.push_back(t);
 
-  /*
-     switch(window[p.x][p.y].getId()) {
-     case 8: {
-  //water: add a xShift transformation
-  Transform t;
-  t.type = Transform::Set_Width;
-  t.args[0] = static_cast<int>(tilesizeX);
-  cna.tList.push_back(t);  //set width to one tile
-
-  Transform t2;
-  t2.type = Transform::Slide_X;
-  t2.args[0] = 2*(int(frameCount/10)%8);
-  cna.tList.push_back(t2);
-  }
-  break;
-  default:
-  //no transformations
-  break;
-  }
-  */
   try {
     window[p.x][p.y].setTexture(cache.getTexture(cna));
   }

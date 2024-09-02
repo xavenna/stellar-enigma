@@ -62,6 +62,16 @@ bool ObjContainer::hasObj(int id) {
   return false;
 }
 
+bool ObjContainer::hasUID(int uid) {
+  for(auto* x : list) {
+    if(x->getUID() == uid) {
+      return true;
+    }
+  }
+  return false;
+}
+
+
 void ObjContainer::removeObj(unsigned ind) {
   if(ind > list.size()) {
     throw std::out_of_range("Invalid array address");
@@ -118,66 +128,13 @@ bool ObjContainer::notify(msg m) {
 }
 
 
-/*
-bool ObjContainer::storeObj(Object ob, std::string t) {
-  if(t == "obj") {
-    list.push_back(new Object(counter));
-  }
-  else if(t == "solid") {
-    list.push_back(new Solid(counter));
-  }
-  else if(t == "pushable") {
-    list.push_back(new Pushable(counter));
-  }
-  else if(t == "key") {
-    list.push_back(new Key(counter));
-  }
-  else if(t == "board") {
-    list.push_back(new Board(counter));
-  }
-  else if(t == "cutscene_player") {
-    list.push_back(new CutPlay(counter));
-  }
-  else if(t == "spike") {
-    list.push_back(new Spike(counter));
-  }
-  else if(t == "toggle_block") {
-    list.push_back(new ToggleBlock(counter));
-  }
-  else if(t == "door") {
-    list.push_back(new Door(counter));
-  }
-  else {
-    std::clog << "Error: Invalid object type\n";
-    return false;
-  }
-  //copy all externally-set attributes of the passed object to list.back();
-  list.back()->setLinkID(ob.getLinkID());
-  list.back()->setTextureID(ob.getTextureID());
-  list.back()->setParentID(ob.getParentID());
-  list.back()->setPos(ob.getPos());
-  list.back()->setSize(ob.getSize());
-  list.back()->setSolid(ob.getSolid());
-  list.back()->setText(ob.getText());
-  list.back()->setStatus(Object::Normal);
-
-  list.back()->setArgs(ob.getArgs());
-  list.back()->setSwitches(ob.getSwitches());
-
-  //now that object is set up properly, verify it.
-  if(!list.back()->verify()) {
-    std::clog << "Error: Invalid object configuration in object of type '";
-    std::clog << list.back()->Name() << "'. Object wasn't added\n";
-    removeObj(list.back());   
-    return false;
-    //object isn't added
-  }
-  counter++;
-  return true;
-}
-*/
 
 bool ObjContainer::storeObj(std::string t) {
   Object o;
-  return storeObj(o, t);
+  std::string status;
+  bool p = storeObj(o, t, status);
+  if(!p) {
+    std::cerr << status << '\n';
+  }
+  return p;
 }

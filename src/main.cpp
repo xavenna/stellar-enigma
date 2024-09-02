@@ -21,6 +21,7 @@ int main() {
   mapData.player.setSpeed(4);
   mapData.player.setHealth(5);
   mapData.player.setMaxCooldown(15);
+  mapData.player.setMaxActCooldown(15);
 
   //initialize some sound things
   mapData.musicPlayer.playMusic("untitled-song-6.ogg");

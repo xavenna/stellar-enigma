@@ -277,21 +277,27 @@ void MapData::event1Handle() {
     moveDir *= static_cast<float>(sqrt(2)/2);
   }
   sf::Vector2f sp(moveDir.x * player.getSpeed(), moveDir.y * player.getSpeed());
-  player.setSelfPush(moveDir * player.getSpeed());
+  if(player.grabbing && player.heavy) {
+    //project speed to facing dir
+    Direction d = player.getFacing();
+    if(d == Up || d == Down) {
+      sp.x = 0;
+    }
+    else {
+      sp.y = 0;
+    }
+  }
+  player.setSelfPush(sp);
 
-
-  //sp = levelSlot.validMove(player.getPos(), player.getSize(), sp);
-  //player.setPos(player.getPos() + sp);
-  //check for interaction between player and objects/entities
-
-  //this whole thing is getting a restructuring, as the flickering player bug revealed
-  //some serious problems with the algorithm used.
 
   //set up interaction handler
 
   handleInteractions();
-
-  if(interact) {
+  if(player.getActCooldown() != 0) {
+    player.decrementActCooldown();
+  }
+  if(interact && player.getActCooldown() == 0) {
+    player.resetActCooldown();
     //set player to interacting mode. Determine the interact target, and set its
     //status to interacted
 
@@ -320,12 +326,11 @@ void MapData::event1Handle() {
     searchBox.height = 6.f;
     std::vector<Object*> inter_list;
 
+    //find all objects that can be grabbed
     for(unsigned i=0;i<levelSlot.getObjNum();i++) {
       if(levelSlot.getObjPtr(i)->getBounds().intersects(searchBox)) {
         inter_list.push_back(levelSlot.getObjPtr(i));
       }
-      //select the object to interact with (somehow?)
-      //sort by priority
     }
 
 
@@ -339,7 +344,19 @@ void MapData::event1Handle() {
 
       //what do we do now?
       if(target->use(&player)) {
-        //player grabbed object...?
+        if(player.grabbing == false) {
+          //player grabbed object...? Check if heavy or light
+          target->held = true;
+          player.grabbing = true;
+          player.heavy = target->heavy();
+          player.setHeldObj(target);
+          std::cerr << "Grabbing obj\n";
+        }
+        else {
+          target->held = false;
+          player.grabbing = false;
+          std::cerr << "Releasing obj\n";
+        }
       }
     }
 
@@ -458,6 +475,9 @@ void MapData::handleInteractions() {
     std::stable_sort(interactions.begin(), interactions.end(), [](Inter o, Inter p) {
         return o.priority < p.priority;
     });
+
+
+    //redo all this:
 
     //handle in priority rank
     for(size_t i=0;i<interactions.size();i++) {
@@ -581,6 +601,9 @@ void MapData::handleInteractions() {
           //check the states of the objects
         }
       }
+
+      //end redo all this block
+
       //call the interaction handler to handle non-position things
       Interface res = (initiator?x.o2:x.o1)->interact((initiator?x.o1:x.o2), &levelSlot.field, &switchHandler);
       for(auto y : res.message) {
@@ -607,6 +630,7 @@ void MapData::handleInteractions() {
       x.o1->updateDelta();
       x.o2->updateDelta();
     }
+
 
   }
 

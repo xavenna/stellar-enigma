@@ -4,6 +4,11 @@
 #include "mutable/solid.h"
 
 //! An object that is solid and blocks movement
+/*!
+ *  Arguments:
+ *  uint args[0]: behavior mode. 1: perma-open; 0: Always Match Switch State; 
+ *    2: toggle on rising edge.
+ */
 class Door : public Solid {
 public:
   virtual Interface interact(Object*, Field*, SwitchHandler*);
@@ -14,6 +19,9 @@ public:
   virtual Object::MotionType Type() const {return Object::Static;} 
   virtual bool verify();
   Door(int);
+protected:
+  bool locked;
+  bool cooldown;
 };
 
 

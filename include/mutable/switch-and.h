@@ -9,6 +9,7 @@ public:
   virtual Object::MotionType Type() const {return Object::Intangible;} 
   virtual std::string Name() const {return "switch_and";}
   virtual Interface behave(SwitchHandler*, Utility*);
+  virtual bool verify();
   SwAnd(int uid);
 };
 

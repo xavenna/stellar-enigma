@@ -123,6 +123,7 @@ bool Level::loadMutables(const std::string& levelname) {
   std::string accum;
   Object o;  //these are defined now so they don't have to be every loop
   std::string type;  //Type of requested object
+  std::string status; //Status of storeObj
   if(!get.is_open()) {
     return -1;
   }
@@ -139,8 +140,8 @@ bool Level::loadMutables(const std::string& levelname) {
       return false;
     }
     o.setPosition(static_cast<unsigned>(o.getPos().x)+2*tilesizeX, static_cast<unsigned>(o.getPos().y)+2*tilesizeY);
-    if(!objects.storeObj(o, type)) {
-      std::clog << "Error: Failed level load\n";
+    if(!objects.storeObj(o, type, status)) {
+      std::clog << "Error: Failed level load\nMessage: " << status << '\n';
       return false;
     }
 
@@ -148,6 +149,7 @@ bool Level::loadMutables(const std::string& levelname) {
   }
   return true;
 }
+
 int Level::getWidth() const {
   return field.getWidth();
 }
@@ -231,7 +233,10 @@ int Level::advanceFrameCount() {
 }
 
 void Level::addObject(const Object& ob, const std::string& s) {
-  objects.storeObj(ob, s);
+  std::string status;
+  if(!objects.storeObj(ob, s, status)) {
+    std::cerr << status;
+  }
 }
 void Level::removeObject(unsigned index) {
   if(index >= objects.size()) {
@@ -253,6 +258,7 @@ void Level::resetObjDeltas() {
 
 Interface Level::handleObjects(sf::Vector2f pos, sf::Vector2f size, SwitchHandler* sh, Utility* u) {
   Interface inter;
+  std::string status; //status of storeObj()
   for(unsigned i=0;i<objects.size();i++) {
     Object* x = objects.getObjPtr(i);
     //do things for x.
@@ -269,7 +275,10 @@ Interface Level::handleObjects(sf::Vector2f pos, sf::Vector2f size, SwitchHandle
     inter.openMenu(res.menu); //this means only one menu can be displayed each frame
     for(auto y : res.objs) {
       //create any requested objects
-      objects.storeObj(y.first, y.second);
+
+      if(!objects.storeObj(y.first, y.second, status)) {
+        std::cerr << status;
+      }
     }
     for(auto y : res.notifications) {
       //send any required messages

@@ -61,8 +61,10 @@ public:
   Object* getObjPtr(unsigned);
   //! returns pointer to object with specified link id
   Object* getObjLinkPtr(int);
-  //! determines if obj-container has specified object
+  //! determines if obj-container has specified object (by linkid)
   bool hasObj(int);
+  //! determines if obj-container has obj with specified uid
+  bool hasUID(int);
   //! sends notification to object
   bool notifyObj(msg);
   //! a fixed-size map that is actually drawn to the screen

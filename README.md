@@ -35,7 +35,7 @@ The assets/ folder contains several required subfolders:
 * texturemap/ - Contains texturemap files
     * Contains a texturemap file. See documentation for TextureCache for format
 * level/ - contains level and object data
-    * Contains level data, stored in .sel files (explor format), and object data, 
+    * Contains level data, stored in .sel files (json from OGMO), and object data, 
     stored in .sml files (stellar object format).
 * audio/ - contains sound and music files, as well as the audio file list
     * Contains audiomap.txt - a list of all audio files, stored in the explor format.
@@ -75,6 +75,8 @@ The variables in CMakeCache can be edited for different behavior
 If the dynamic build was chosen. libstellar.so must be placed in the same directory as
 the main executable or installed systemwide.
 
+To build the object editor, ncurses must be installed. This doesn't currently support
+Windows. Run `make editor` to build the editor.
 
 
 ## Credits:
@@ -88,5 +90,7 @@ This can be found at https://github.com/dropbox/json11/
 
 OGMO editor is used for level creation.\
 This tool can be found at https://ogmo-editor-3.github.io/
+
+The object list editor was built using ncurses.
 
 stellar-enigma is released under the MIT License. see LICENSE for details.

@@ -36,16 +36,16 @@ Possible Values (Object::Status) :
 ## Built-in Objects
 
 Overview:\
-| Name           | ID |  Description                           |
-|----------------|----|----------------------------------------|
-| Solid Block    | 0  | blocks player's path                   |
-| Pushable Object| 1  | can be pushed by player                |
-| key            | 2  | plays cutscene and activates switch on pickup|
-| board          | 3  | displays message stored in text        |
-| cutscene player| 4  | plays a cutscene                       | 
-| cactus         | 5  | harms player                           | 
-| toggle-block   | 6  | toggles state upon player contact      |
-| door           | 7  | solid, becomes intangible after switch is activated | 
+| Name           |  Description                           |
+|----------------|----------------------------------------|
+| Solid Block    | blocks player's path                   |
+| Pushable Object| can be pushed by player                |
+| key            | plays cutscene and activates switch on pickup|
+| board          | displays message stored in text        |
+| cutscene player| plays a cutscene                       | 
+| cactus         | harms player                           | 
+| toggle-block   | toggles state upon player contact      |
+| door           | solid, becomes intangible after switch is activated | 
 
 
 ## Arguments/Variables:
@@ -75,10 +75,21 @@ text: name of cutscene to play
 ### Spike:
 N/A
 
+
 ### Door:
-Var 0 (bool): Is door locked? (init as true)
-Var 1 (bool): Was switch activated last frame?
-SW Trig1: Opens door, changes sprite, becomes intangible
+Vars:
+locked: is door currently solid?
+cooldown: is door currently blocked from toggling?
+
+Arg 0 (int): Behavior
+* 0: Always match state of SW::A
+* 1: Permanently toggle when SW::A becomes high
+* 2: Toggle on a rising edge of SW::A
+
+Arg 1 (bool): Starting state of door (whether it is locked)
+
+SW A: Triggers a change in state (exact behavior depends on arg0)
+
 
 ### Toggle BlocK:
 Var 0 (bool): Is Block Active?

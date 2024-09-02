@@ -1,7 +1,6 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "misc/effect.h"
 #include "mutable/object.h"
 #include "misc/direction.h"
 #include "utility/texture-cache.h"
@@ -37,10 +36,6 @@ public:
    *  This needs to be restructured to match Object::draw();
    */
   void assignTexture(TextureCache& cache);
-  //! clears all effects
-  void clearEffects();
-  //! Apply specified effect to player
-  void applyEffect(const Effect& e);
   //! Gets the speed of the player
   float getSpeed() const;
   //! Gets the raw speed of the player
@@ -59,6 +54,8 @@ public:
   void setHealth(unsigned);
   //! Sets the maximum cooldown
   void setMaxCooldown(unsigned);
+
+  void setMaxActCooldown(unsigned);
   //! Sets the direction of the player
   void setFacing(Direction);
   //! Decrements cooldown and returns the new cooldown
@@ -67,6 +64,16 @@ public:
   unsigned getCooldown();
   //! Reset cooldown to maximum
   void resetCooldown();
+
+  unsigned decrementActCooldown();
+  //! Get current cooldown
+  unsigned getActCooldown();
+  //! Reset cooldown to maximum
+  void resetActCooldown();
+
+  Object* getHeldObj();
+  void setHeldObj(Object*);
+
   //! Decrements health and returns the new health
   unsigned modifyHealth(int);
   //! Increments score by specified amount, returns new value
@@ -77,19 +84,22 @@ public:
    */
   sf::Vector2i getLevelPos(sf::Vector2i tileSize);
   //! constructs player
-  /*!
-   *  
-   */
   Player();
+  bool grabbing=false; //!< is player holding an object
+  bool heavy=false; //!< is player heavy or light grabbing?
 protected:
   float speed; //!< How many pixels the player can move per frame
   unsigned maxCooldown=0; //!< Number of invincibility frames
   unsigned cooldown=0; //!< Remaining invincibility frames
   unsigned health=0; //!< The player's health
   unsigned score=0;  //!< The player's score
+                     //
+  unsigned actCooldown=0; //!< item use cooldown
+  unsigned maxActCooldown=5; //!< Max cooldown between using objects
   Direction facingDir; //!< Which direction the player is facing
-  Player::Status status; //!< Player's current status
-  std::vector<Effect> effects; //!< All active effects on the player
+                         //
+  int heldObjectUID=-1; //!< -1 if no object is being held
+  Object* heldObj; //!< Currently held object
 };
 
 #endif

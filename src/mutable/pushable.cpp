@@ -7,6 +7,11 @@ Interface Pushable::interact(Object* p, Field* l, SwitchHandler*) {
   return Interface();
 }
 
+bool Pushable::use(Object* o) {
+  status = Object::Held;
+  return true;
+}
+
 
 CacheNodeAttributes Pushable::draw(const TextureCache* cache) {
   // draw a blank tile with no transforms

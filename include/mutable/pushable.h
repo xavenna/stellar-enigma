@@ -6,11 +6,13 @@
 class Pushable : public Object {
 public:
   virtual Interface interact(Object*, Field*, SwitchHandler*);
+  virtual bool use(Object*);
   virtual CacheNodeAttributes draw(const TextureCache*);
   virtual std::string Name() const {return "pushable";}
   virtual Object::MotionType Type() const {return Object::Static;} 
   virtual bool grabbable() const {return true;}
   virtual int priority() const {return 2;}
+  virtual bool heavy() const {return true;}
   Pushable(int);
 };
 

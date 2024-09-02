@@ -109,10 +109,10 @@ int main(int argc, char** argv) {
 
   std::string output;
 
-  std::string prefix = R""""(  bool ObjContainer::storeObj(Object ob, std::string t) {
+  std::string prefix = R""""(  bool ObjContainer::storeObj(Object ob, std::string t, std::string& status) {
 )"""";
   const std::string suffix = R""""(else {
-    std::clog << "Error: Invalid object type\n";
+    status = "Error: Invalid object type";
     return false;
   }
   //copy all externally-set attributes of the passed object to list.back();
@@ -128,8 +128,8 @@ int main(int argc, char** argv) {
   list.back()->setSwitches(ob.getSwitches());
 
   if(!list.back()->verify()) {
-    std::clog << "Error: Invalid object configuration in object of type '";
-    std::clog << list.back()->Name() << "'. Object wasn't added\n";
+    status = "Error: Invalid object configuration in object of type '";
+    status += list.back()->Name() + "'. Object wasn't added\n";
     removeObj(list.back());   
     return false;
     //object isn't added
@@ -143,6 +143,8 @@ int main(int argc, char** argv) {
 
   //the first entry is an if, the others are if-else. This signals which one to use
   bool firstEntry = true;
+
+  std::ofstream secondary("obj-names.txt");
 
   for(auto const& entry : std::filesystem::directory_iterator{obj_dir}) {
     //player is a special case of object, and isn't built by the factory
@@ -166,6 +168,9 @@ int main(int argc, char** argv) {
     //this was broken up onto multiple lines for clarity
     output += "if(t == \"" + en.code + "\") {";
     output += " list.push_back(new " + en.name + "(counter));\n  }";
+
+    //write a list of class types to obj-names.txt
+    secondary << en.code << '\n';
   }
   output += suffix;
 

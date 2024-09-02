@@ -44,10 +44,22 @@ CacheNodeAttributes ToggleBlock::draw(const TextureCache* cache) {
   return cna;
 }
 
-Interface ToggleBlock::behave(SwitchHandler*, Utility*) {
+Interface ToggleBlock::behave(SwitchHandler* sh, Utility*) {
   if(vars[1] > 0) {
     vars[1]--;
   }
   //this should toggle a switch
+  sh->write(switches[SW::A], vars[0]);
   return Interface();
+}
+
+bool ToggleBlock::verify() {
+  if(switches[SW::A] < 0 || switches[SW::A] > 255) {
+    return false;
+  }
+  if(args[1] < 0) {
+    return false;
+  }
+
+  return true;
 }

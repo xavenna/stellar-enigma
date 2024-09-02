@@ -50,13 +50,6 @@ void Player::assignTexture(TextureCache& cache) {
   }
 }
 
-void Player::clearEffects() {
-  effects.clear();
-}
-void Player::applyEffect(const Effect& e) {
-  effects.push_back(e);
-}
-
 unsigned Player::decrementCooldown() {
   return cooldown==0?0:(--cooldown);
 }
@@ -66,6 +59,20 @@ unsigned Player::getCooldown() {
 void Player::resetCooldown() {
   cooldown = maxCooldown;
 }
+
+unsigned Player::decrementActCooldown() {
+  return actCooldown==0?0:(--actCooldown);
+}
+unsigned Player::getActCooldown() {
+  return actCooldown;
+}
+void Player::resetActCooldown() {
+  actCooldown = maxActCooldown;
+}
+void Player::setMaxActCooldown(unsigned m) {
+  maxActCooldown = m;
+}
+
 unsigned Player::modifyHealth(int h) {
   if(static_cast<int>(health)+h < 0) {
     health = 0;
@@ -98,19 +105,10 @@ float Player::getRawSpeed() const{
   return speed;
 }
 float Player::getSpeed() const {
-  float totalScale{1};
-  for(auto x : effects) {
-    //check if effect modifies speed
-    switch(x.getType()) {
-    case Effect::Speed:
-      //return modified value
-      totalScale*=x.getScale();
-      break;
-    default:
-      continue;
-    }
+  if(grabbing == true) {
+    return speed * 0.5;
   }
-  return speed * totalScale;
+  return speed;
 }
 void Player::setHealth(unsigned n) {
   health = n;
@@ -119,6 +117,12 @@ void Player::setFacing(Direction n) {
   facingDir = n;
 }
 
+Object* Player::getHeldObj() {
+  return heldObj;
+}
+void Player::setHeldObj(Object* o) {
+  heldObj = o;
+}
 void Player::setMaxCooldown(unsigned m) {
   maxCooldown = m;
 }

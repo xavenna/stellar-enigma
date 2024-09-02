@@ -1,13 +1,13 @@
 #include "mutable/door.h"
 
 Door::Door(int uid) : Solid(uid) {
-  vars[0] = true;
-  vars[1] = false;
+  locked = true;
+  cooldown = false;
 }
 
 
 Interface Door::interact(Object* p, Field* f, SwitchHandler* s) {
-  if(!vars[0]) {
+  if(!locked) {
     return Interface();
   }
   //this prevents having to copy-paste the code from Solid to here
@@ -20,7 +20,7 @@ CacheNodeAttributes Door::draw(const TextureCache* cache) {
   CacheNodeAttributes cna;
   switch(texture_id) {
   default:
-    if(!vars[0]) {
+    if(!locked) {
       cna.srcImg = cache->reverseHash("crate");
     }
     else {
@@ -34,29 +34,42 @@ CacheNodeAttributes Door::draw(const TextureCache* cache) {
 
 bool Door::verify() {
   //SW::A should be a valid switch.
-  return (switches[SW::A] >= 0 && switches[SW::A] < 256);
+  if(switches[SW::A] < 0 || switches[SW::A] > 255) {
+    return false;
+  }
+  if(args[0] < 0 || args[0] > 2) {
+    return false;
+  }
+  return true;
+
 }
 
 Interface Door::behave(SwitchHandler* sh, Utility*) {
   //poll SW_Trig1
   bool sw = sh->read(switches[SW::A]);
-  if(!vars[1]) {
-    if(sw) {
-      vars[1] = true;
-      vars[0] = !vars[0];
-      if(vars[0]) {
-        status = Normal;
-      }
-      else {
-        status = Inactive;
-      }
-
+  if(args[0] == 1) { //perma-open
+    if(sw && !cooldown) {
+      cooldown = true;
+      locked = !locked;
     }
   }
+  else if(args[0] == 0) {
+    locked = !sw;
+  }
   else {
-    if(!sw) {
-      vars[1] = false;
+    if(sw && !cooldown) {
+      cooldown = true;
+      locked = !locked;
     }
+    else if(cooldown && !sw) {
+      cooldown = false;
+    }
+  }
+  if(locked) {
+    status = Normal;
+  }
+  else {
+    status = Inactive;
   }
   return Interface();
 }

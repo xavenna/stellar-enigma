@@ -86,6 +86,8 @@ public:
   virtual bool grabbable() const {return false;}
   //! Can the object be used by player
   virtual bool usable() const {return false;}
+  //! Is the object heavy or light when grabbed?
+  virtual bool heavy() const {return false;}
 
   //object behavior functions
 
@@ -157,6 +159,8 @@ public:
   void resetPushback();
 
   bool readPushback(Direction d);
+
+  bool held=false;
 protected:
   //can be preset
   int link_id; //!< an id used for interactions between objects

@@ -31,6 +31,7 @@ file(GLOB PHYSICS_SRC "src/physics/*.cpp")
 file(GLOB CAMERA_SRC "src/camera/*.cpp")
 
 file(GLOB PREBUILD_SRC "src/prebuild/*.cpp")
+file(GLOB EDITOR_SRC "src/editor/*.cpp")
 
 set(SRC ${AUDIO_SRC} ${CUTSCENE_SRC} ${INTERFACE_SRC} ${LEVEL_SRC} ${MAPDATA_SRC} ${MISC_SRC} ${MUTABLE_SRC} ${UTILITY_SRC} ${PHYSICS_SRC} ${CAMERA_SRC})
 
@@ -44,15 +45,19 @@ file(GLOB MUTABLE_INC "include/mutable/*.h")
 file(GLOB UTILITY_INC "include/utility/*.h")
 file(GLOB PHYSICS_INC "include/physics/*.h")
 file(GLOB CAMERA_INC "include/camera/*.h")
+file(GLOB EDITOR_INC "include/editor/*.h")
 
 set(INC ${AUDIO_INC} ${CUTSCENE_INC} ${INTERFACE_INC} ${LEVEL_INC} ${MAPDATA_INC} ${MISC_INC} ${MUTABLE_INC} ${UTILITY_INC} ${PHYSICS_INC} ${CAMERA_INC} include/stellar-enigma.hpp)
 
 add_library(stellar ${SRC} ${INC} ${CMAKE_CURRENT_BINARY_DIR}/store-obj.cpp)
 add_executable(stellar-test src/main.cpp)
 
+add_executable(editor EXCLUDE_FROM_ALL ${EDITOR_SRC} ${EDITOR_INC})
 add_executable(prebuild ${PREBUILD_SRC})
 target_link_libraries(stellar sfml-graphics sfml-window sfml-audio sfml-system json11)
 target_link_libraries(stellar-test stellar)
+
+target_link_libraries(editor stellar ncurses)
 
 
 set_property(TARGET prebuild PROPERTY CXX_STANDARD 17)
@@ -63,16 +68,19 @@ set_property(TARGET stellar PROPERTY CXX_STANDARD 17)
 target_include_directories(stellar PRIVATE "./include/")
 target_include_directories(stellar-test PRIVATE "./include/")
 target_include_directories(prebuild PRIVATE "./include/")
+target_include_directories(editor PRIVATE "./include/")
 target_compile_definitions(stellar PRIVATE WINDOW_WIDTH=16 WINDOW_HEIGHT=12 FRAMERATE=30)
 target_compile_definitions(stellar-test PRIVATE WINDOW_WIDTH=16 WINDOW_HEIGHT=12 FRAMERATE=30)
+target_compile_definitions(editor PRIVATE WINDOW_WIDTH=16 WINDOW_HEIGHT=12 FRAMERATE=30)
 
 # setup prebuild command
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/store-obj.cpp
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/prebuild store-obj.cpp
-  DEPENDS prebuild
+  DEPENDS prebuild ${MUTABLE_INC}
   WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
 )
+
 
 if(RAND_TIME)
   target_compile_definitions(stellar PRIVATE RAND_USE_TIME)

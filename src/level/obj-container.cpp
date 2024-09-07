@@ -90,6 +90,10 @@ void ObjContainer::removeObj(unsigned ind) {
   list.erase(p);
 }
 
+bool ObjContainer::hasObjPtr(const Object* ob) {
+  auto p = std::find(list.begin(), list.end(),ob);
+  return p!=list.end();
+}
 
 void ObjContainer::removeObj(Object* ob) {
 

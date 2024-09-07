@@ -86,7 +86,6 @@ public:
   //! constructs player
   Player();
   bool grabbing=false; //!< is player holding an object
-  bool heavy=false; //!< is player heavy or light grabbing?
 protected:
   float speed; //!< How many pixels the player can move per frame
   unsigned maxCooldown=0; //!< Number of invincibility frames

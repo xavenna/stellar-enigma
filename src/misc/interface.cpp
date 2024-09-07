@@ -32,3 +32,25 @@ void Interface::clearObjs() {
 void Interface::openMenu(const std::string& s) {
   menu = s;
 }
+
+
+Interface Interface::operator+(const Interface& i) {
+  Interface t;
+  t.message = vecCat(this->message, i.message);
+  t.cutscene = vecCat(this->cutscene, i.cutscene);
+  t.sounds = vecCat(this->sounds, i.sounds);
+
+  //vecCat doesn't work here... We have to use an alternative approach
+  t.objs.reserve(this->objs.size() + i.objs.size());
+
+  for(auto x : this->objs) {
+    t.objs.push_back(x);
+  }
+  for(auto x : i.objs) {
+    t.objs.push_back(x);
+  }
+
+
+  t.menu = this->menu;  //First Interface takes priority
+  return t;
+}

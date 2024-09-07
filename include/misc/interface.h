@@ -47,6 +47,9 @@ public:
   //! Constructs an empty Interface. Use the API functions to request actions. Eventually, the vars may be private
   Interface();
 
+  //! Combines two interfaces
+  Interface operator+(const Interface&);
+
 };
 
 

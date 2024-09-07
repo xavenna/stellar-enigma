@@ -13,6 +13,8 @@
 
 #include <array>
 
+class Player;
+
 //! A class for objects, anything with dynamic behavior
 /*!
  *  Extends mutable with additional attributes specific to objects.
@@ -86,8 +88,6 @@ public:
   virtual bool grabbable() const {return false;}
   //! Can the object be used by player
   virtual bool usable() const {return false;}
-  //! Is the object heavy or light when grabbed?
-  virtual bool heavy() const {return false;}
 
   //object behavior functions
 
@@ -103,7 +103,7 @@ public:
   virtual void notify(msg);
 
   //! base version of grab. Returns true if object is grabbed by player
-  virtual bool use(Object*);
+  virtual bool use(Player*);
 
   //other functions
 

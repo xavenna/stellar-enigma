@@ -10,7 +10,7 @@ bool Solid::verify() {
   return true;
 }
 
-Interface Solid::interact(Object* p, Field* f, SwitchHandler*) {
+Interface Solid::interact(Object*, Field*, SwitchHandler*) {
   return Interface();
 }
 

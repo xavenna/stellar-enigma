@@ -47,10 +47,8 @@ public:
   //! Returns self push
   sf::Vector2f getSelfPush() const;
 
-  //! Save current position
-  void savePos();
   //! move saved position to lastPos (to make deltas work)
-  void updateDelta();
+  //void updateDelta();
 
   //! set the position of the mutable as a sf::Vector2i
   void setPos(sf::Vector2f);

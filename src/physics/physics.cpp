@@ -54,45 +54,12 @@ Results rectangle_collide(const Object* o1, const Object* o2) {
   //now, just determine how far along the tangents the objects move.
   float k1 = 0; 
   float k2 = 0;
-  if(o1->Type() == Object::Static || o1->getStatus() == Object::PushBack) {
-    if(o1->Type() == Object::Static || o1->getStatus() == Object::PushBack) {
-      k1 = 0;
-      k2 = 0;
-    }
-    else if(o2->Type() == Object::Intangible) {
-      k1 = 0;
-      k2 = 0;
-    }
-    else { // movable objects
-      //o2 may need to change states
-    }
-  }
-  else if(o2->Type() == Object::Intangible) {
-    k1 = 0;
-    k2 = 0;
-  }
-  else { // movable objects
-    if(o1->Type() == Object::Static || o1->getStatus() == Object::PushBack) {
-      //o1 may need to change states
 
-    }
-    else if(o2->Type() == Object::Intangible) {
-      k1 = 0;
-      k2 = 0;
-    }
-    else { // movable objects
-      float mr = o1->getMass() / o2->getMass();
-      float modmr = mr / (mr + 1);
-      k1 = 1 - modmr;
-      k2 = modmr;
-    }
-  }
-
-  if(o1->Type() == Object::Sliding || o1->Type() == Object::Play || o1->Type() == Object::Entity) {
-    if(o2->Type() == Object::Sliding || o2->Type() == Object::Play || o2->Type() == Object::Entity) {
+  if(o1->Type() == Object::Play || o1->Type() == Object::Entity) {
+    if(o2->Type() == Object::Play || o2->Type() == Object::Entity) {
       //two pushables
       k1 = 0.5;
-      k2 = 0.5;  //when mass is reintroduced, this will become based on mass ratio
+      k2 = 0.5;
     }
     else if(o2->Type() == Object::Intangible) {
       //no collision
@@ -104,12 +71,29 @@ Results rectangle_collide(const Object* o1, const Object* o2) {
       k2 = 0;
     }
   }
+  else if(o1->Type() == Object::Sliding) {
+    if(o2->Type() == Object::Sliding || o2->Type() == Object::Play || o2->Type() == Object::Entity) {
+      //two pushables
+      k1 = 0;
+      k2 = 1;
+    }
+    else if(o2->Type() == Object::Intangible) {
+      //no collision
+      k1 = 0;
+      k2 = 0;
+    }
+    else {
+      k1 = 1;
+      k2 = 0;
+    }
+
+  }
   else if(o1->Type() == Object::Intangible) {
     //no collision
     k1 = 0;
     k2 = 0;
   }
-  else {
+  else { //solid
     if(o2->Type() == Object::Sliding || o2->Type() == Object::Play || o2->Type() == Object::Entity) {
       k1 = 0;
       k2 = 1;

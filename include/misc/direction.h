@@ -1,6 +1,7 @@
 #ifndef DIRECTION_H
 #define DIRECTION_H
 #include <array>
+#include <SFML/Graphics.hpp>
 
 //! An enum for dealing with cardinal directions
 enum Direction {Up=0, Right, Down, Left};
@@ -55,5 +56,9 @@ template <typename T> Directional<T>::Directional() {
 template <typename T> Directional<T>::Directional(std::array<T, 4> n) {
   data = n;
 }
+
+sf::Vector2f dirToVec(Direction d);
+      
+  
 
 #endif

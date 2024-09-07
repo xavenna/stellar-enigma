@@ -271,23 +271,44 @@ void MapData::event1Handle() {
     modeSwitcher.setMode(0);
   }
 
+
   //now that all input has been gathered, handle movement
   if(std::fabs(moveDir.x) == 1 && std::fabs(moveDir.y) == 1) {
     //scale diagonal movement by sqrt(2)/2 so that diagonal moves aren't longer
     moveDir *= static_cast<float>(sqrt(2)/2);
   }
+
+
   sf::Vector2f sp(moveDir.x * player.getSpeed(), moveDir.y * player.getSpeed());
-  if(player.grabbing && player.heavy) {
-    //project speed to facing dir
-    Direction d = player.getFacing();
-    if(d == Up || d == Down) {
-      sp.x = 0;
-    }
-    else {
-      sp.y = 0;
-    }
-  }
   player.setSelfPush(sp);
+
+  //move held object
+  if(!levelSlot.hasObjPtr(player.getHeldObj())) {
+    //if object no longer exists, don't do this
+    player.grabbing = false;
+  }
+  else if(player.grabbing) {
+    Object* o = player.getHeldObj();
+    o->setSelfPush(sp);
+  }
+
+
+  //set player facing direction now, to avoid breaking pushing
+  //by ordering it like this, diagonal movement faces sideways.
+
+  if(sp.x < 0) {
+    player.setFacing(Left);
+  }
+  else if(sp.x > 0) {
+    player.setFacing(Right);
+  }
+  else if(sp.y < 0) {
+    player.setFacing(Up);
+  }
+  else if(sp.y > 0) {
+    player.setFacing(Down);
+  }
+  //if no movement, don't adjust dir
 
 
   //set up interaction handler
@@ -345,10 +366,9 @@ void MapData::event1Handle() {
       //what do we do now?
       if(target->use(&player)) {
         if(player.grabbing == false) {
-          //player grabbed object...? Check if heavy or light
+          //player grabbed object...?
           target->held = true;
           player.grabbing = true;
-          player.heavy = target->heavy();
           player.setHeldObj(target);
           std::cerr << "Grabbing obj\n";
         }
@@ -379,7 +399,7 @@ void MapData::event1Handle() {
   if(oldps != newps)
     levelSlot.displayUpdate = true;
 
-  Interface res = levelSlot.handleObjects(player.getPos(), player.getSize(), &switchHandler, &utility);
+  Interface res = levelSlot.handleObjects(&switchHandler, &utility);
 
   //handle the interfaces
   for(auto x : res.message) {
@@ -422,21 +442,23 @@ void MapData::handleInteractions() {
     auto* x = levelSlot.getObjPtr(i);
     sf::Vector2f fspeed = levelSlot.validMove(x->getPos(), x->getSize(), x->getSelfPush());
     x->setPos(x->getPos()+fspeed);
+    x->setSelfPush(zero2<float>());
   }
   sf::Vector2f fs = levelSlot.validMove(player.getPos(), player.getSize(), player.getSelfPush());
   player.setPos(player.getPos() + fs);
   std::deque<Inter> interactions;
+  player.setSelfPush(zero2<float>());
 
   //eventually, this will iterate until a stable configuration is reached.
-  for(int i=0;i<8;i++) {
+  for(int i=0;i<1;i++) {
     //create a list of interactions
     //check each pair of objects (plus player)
     for(unsigned i=0;i<levelSlot.getObjNum();i++) {
-      if(levelSlot.getObj(i).getStatus() == Object::Inactive || levelSlot.getObj(i).getStatus() == Object::Destroy) {
+      if(levelSlot.getObj(i).getStatus() == Object::Inactive || levelSlot.getObj(i).getStatus() == Object::Destroy || levelSlot.getObj(i).held) {
         continue;
       }
       for(unsigned j=i;j<levelSlot.getObjNum();j++) {
-        if(i==j || levelSlot.getObj(j).getStatus() == Object::Inactive || levelSlot.getObj(j).getStatus() == Object::Destroy) {
+        if(i==j || levelSlot.getObj(j).getStatus() == Object::Inactive || levelSlot.getObj(j).getStatus() == Object::Destroy || levelSlot.getObj(i).held) {
           continue;
         }
         //check interaction between objects
@@ -488,111 +510,25 @@ void MapData::handleInteractions() {
         continue;
       }
 
-      //set up collision parameters. This should be redone
+      bool ignore = false; //if true, ignore collision
 
-      bool initiator = true; //if true, o1 initiates
-      bool ignore = false; //if true, ignore interaction
+      //we determine whether to ignore the objects, based on their types
 
-      //obj-obj interaction
-      sf::Vector2f delta1 = x.o1->getPos() - x.o1->getLastPos();
-      sf::Vector2f delta2 = x.o2->getPos() - x.o2->getLastPos();
-
-      //here, we determine which object initiates the interaction, and how to handle it
-      //we determine whether to ignore the objects
-      switch(x.o1->Type()) {
-        default: //player will always be o2
-                 //treat as intangible
-        case Object::Intangible:
-          ignore = true;
-          break;
-        case Object::Static:
-          if(x.o2->Type() == Object::Static) {
-            //ignore interaction
-            ignore = true;
-          }
-          else if(x.o2->Type() == Object::Sliding) {
-            initiator = false;
-          }
-          else {
-            initiator = false;
-          }
-          break;
-        case Object::Sliding:
-        case Object::Entity:
-          if(x.o2->Type() == Object::Static) {
-            initiator = true;
-          }
-          else if(x.o2->Type() == Object::Entity || x.o2->Type() == Object::Sliding) {
-            bool o1Moved = (delta1.x || delta1.y);
-            bool o2Moved = (delta2.x || delta2.y);
-            //initiator = false; //this isn't always true. This should be lumped in with
-            //the sliding case and calculate based on deltas
-            if(o1Moved && !o2Moved) {
-              //o1 didn't move, o2 is initiator
-              initiator = true;
-            }
-            else if(!o1Moved && o2Moved) {
-              //o1 is initiator
-              initiator = false;
-            }
-            else if(o1Moved && o2Moved) {
-              //both objects moved. Obj with bigger delta wins
-              initiator = false;
-            }
-            else {
-              //neither obj moved.
-              //ignore interaction? i don't know what to do here ;-;
-              initiator = false;
-            }
-          }
-          else {
-            //...
-          }
-          break;
+      if(x.o1->Type() == Object::Intangible || x.o2->Type() == Object::Intangible) {
+        ignore = true;
       }
-      if(x.o2->Type() == Object::Play) {
-        ignore = false;
-        initiator = false;
-      }
-      else if(x.o2->Type() == Object::Intangible) {
+      if(x.o1->Type() == Object::Static && x.o2->Type() == Object::Static && x.o1->getStatus() != Object::Held && x.o2->getStatus() != Object::Held) {
         ignore = true;
       }
 
       //skip any ignored interactions
-      if(ignore) {
-        continue;
-      }
 
-      x.o1->savePos(); //reconsider this
-      x.o2->savePos();
       //now that flags have been determined, run handler
-      //
-      if(x.o1->Shape() == Object::Rect && x.o2->Shape() == Object::Rect) {
-        if(!(x.o2->Type() == Object::Intangible || x.o1->Type() == Object::Intangible)) {
-
+      if(!ignore) {
+        if(x.o1->Shape() == Object::Rect && x.o2->Shape() == Object::Rect) {
           Results r = rectangle_collide(x.o2, x.o1);
 
           //handle the collision using the results;
-
-          //check & update states
-          if(x.o1->Type() == Object::Static && magnitude(r.second) != 0) {
-            //o2 was pushed by a static
-            if(x.o2->getStatus() != Object::Squished) {
-              if(x.o2->getStatus() != Object::PushBack) {
-                x.o2->setStatus(Object::PushBack);
-              }
-              else {
-                x.o2->setStatus(Object::Squished);
-              }
-            }
-            else {
-              //object was squished, what do we do?
-            }
-          }
-
-          if(x.o2->Type() == Object::Static && magnitude(r.first) != 0) {
-            //o1 was pushed by a static
-          }
 
           //r.first is o1 offset
           //r.second is o2 offset
@@ -605,7 +541,8 @@ void MapData::handleInteractions() {
       //end redo all this block
 
       //call the interaction handler to handle non-position things
-      Interface res = (initiator?x.o2:x.o1)->interact((initiator?x.o1:x.o2), &levelSlot.field, &switchHandler);
+      Interface res = x.o1->interact(x.o2, &levelSlot.field, &switchHandler);
+      res = res + (x.o2->interact(x.o1, &levelSlot.field, &switchHandler));
       for(auto y : res.message) {
         if(y != "") {
           message.addMessage(y);
@@ -627,8 +564,6 @@ void MapData::handleInteractions() {
         //create any requested objects
         levelSlot.addObject(y.first, y.second);
       }
-      x.o1->updateDelta();
-      x.o2->updateDelta();
     }
 
 

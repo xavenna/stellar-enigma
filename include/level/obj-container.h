@@ -23,6 +23,7 @@ public:
   //! Specifies if object with specified link id is contained in container
   bool hasObj(int);
   bool hasUID(int);
+  bool hasObjPtr(const Object*);
 
   //! Create copy of passed object, as specified type
   /*!

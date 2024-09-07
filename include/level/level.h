@@ -65,6 +65,8 @@ public:
   bool hasObj(int);
   //! determines if obj-container has obj with specified uid
   bool hasUID(int);
+  //! Determines if specified obj-ptr is stored
+  bool hasObjPtr(const Object*);
   //! sends notification to object
   bool notifyObj(msg);
   //! a fixed-size map that is actually drawn to the screen
@@ -115,7 +117,7 @@ public:
   /*!
    *  Updates entity tile positions, handles object behavior, etc.
    */
-  Interface handleObjects(sf::Vector2f pos, sf::Vector2f size, SwitchHandler*, Utility*);
+  Interface handleObjects(SwitchHandler*, Utility*);
   //! Resets last pos for objects
   void resetObjDeltas();
   //! Tells whether object is on the correct screen to be displayed

@@ -1,4 +1,5 @@
 #include "mutable/object.h"
+#include "mutable/player.h"
 #include <iostream>
 
 
@@ -134,6 +135,6 @@ void Object::notify(msg) {
 }
 
 
-bool Object::use(Object* p) {
+bool Object::use(Player* p) {
   return false;
 }

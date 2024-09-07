@@ -69,9 +69,9 @@ target_include_directories(stellar PRIVATE "./include/")
 target_include_directories(stellar-test PRIVATE "./include/")
 target_include_directories(prebuild PRIVATE "./include/")
 target_include_directories(editor PRIVATE "./include/")
-target_compile_definitions(stellar PRIVATE WINDOW_WIDTH=16 WINDOW_HEIGHT=12 FRAMERATE=30)
+target_compile_definitions(stellar PRIVATE WINDOW_WIDTH=16 WINDOW_HEIGHT=12)
 target_compile_definitions(stellar-test PRIVATE WINDOW_WIDTH=16 WINDOW_HEIGHT=12 FRAMERATE=30)
-target_compile_definitions(editor PRIVATE WINDOW_WIDTH=16 WINDOW_HEIGHT=12 FRAMERATE=30)
+target_compile_definitions(editor PRIVATE WINDOW_WIDTH=16 WINDOW_HEIGHT=12)
 
 # setup prebuild command
 add_custom_command(

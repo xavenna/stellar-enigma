@@ -6,31 +6,8 @@ Player::Player() {
   facingDir = Up;
 }
 void Player::update(sf::Vector2i tilesize) {
-  //set facing direction;
-  if(pos.x < lastPos.x && pos.y == lastPos.y) {
-    facingDir = Left;
-  }
-  else if(pos.x > lastPos.x && pos.y == lastPos.y) {
-    facingDir = Right;
-  }
-  else if(pos.y < lastPos.y && pos.x == lastPos.x) {
-    facingDir = Up;
-  }
-  else if(pos.y > lastPos.y && pos.x == lastPos.x) {
-    facingDir = Down;
-  }
   lastPos = pos;
-  sf::Vector2f mid(pos.x+size.x/2, pos.y+size.y/2);
-  screen.x = (mid.x-tilesize.x) / (tilesize.x*(WINDOW_WIDTH-2));
-  screen.y = (mid.y-tilesize.y) / (tilesize.y*(WINDOW_HEIGHT-2));
-  setPosition(
-      std::fmod(mid.x-tilesize.x,tilesize.x*(WINDOW_WIDTH-2)) + tilesize.x*2-(size.x/2),
-      std::fmod(mid.y-tilesize.y,tilesize.y*(WINDOW_HEIGHT-2))+tilesize.y*2-(size.y/2));
-
-} // I know this is kind of spaghetti, but it works
-  // at least, it used to. Now it doesn't and it causes a segfault later
-  // :(
-
+}
 //make this match the format of Object::Draw
 void Player::assignTexture(TextureCache& cache) {
   CacheNodeAttributes cna;

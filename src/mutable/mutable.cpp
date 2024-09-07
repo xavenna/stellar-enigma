@@ -9,12 +9,11 @@ sf::Vector2f Mutable::getDelta() const {
   return pos - lastPos;
 }
 
-void Mutable::savePos() {
-  savedPos = pos;
-}
+/*
 void Mutable::updateDelta() {
   lastPos = savedPos;
 }
+*/
 
 
 sf::Vector2f Mutable::getPos() const {

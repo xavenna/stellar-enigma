@@ -32,5 +32,14 @@ template <typename T> T dist(T u, T v) {
   return std::sqrt(std::pow(u, 2) + std::pow(v, 2));
 }
 
+template <typename T> std::vector<T> vecCat(const std::vector<T>& i, const std::vector<T>& j) {
+  std::vector<T> res;
+  res.reserve(i.size() + j.size());
+
+  res = i;
+  res.insert(i.end(), j.begin(), j.end());
+  return res;
+}
+
 bool getEntireFile(std::ifstream& in, std::string& out);
 #endif

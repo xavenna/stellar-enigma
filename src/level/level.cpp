@@ -49,6 +49,10 @@ bool Level::hasObj(int id) {
   return objects.hasObj(id);
 }
 
+bool Level::hasObjPtr(const Object* ob) {
+  return objects.hasObjPtr(ob);
+}
+
 bool Level::notifyObj(msg m) {
   return objects.notify(m);
 }
@@ -256,7 +260,7 @@ void Level::resetObjDeltas() {
   }
 }
 
-Interface Level::handleObjects(sf::Vector2f pos, sf::Vector2f size, SwitchHandler* sh, Utility* u) {
+Interface Level::handleObjects(SwitchHandler* sh, Utility* u) {
   Interface inter;
   std::string status; //status of storeObj()
   for(unsigned i=0;i<objects.size();i++) {
@@ -285,17 +289,6 @@ Interface Level::handleObjects(sf::Vector2f pos, sf::Vector2f size, SwitchHandle
       objects.notify(y);
     }
 
-
-    sf::Vector2i mid(pos.x+size.x/2, pos.y+size.y/2);
-    unsigned pscrx = (static_cast<unsigned>(mid.x)-tilesizeX) / (tilesizeX*(WINDOW_WIDTH-2));
-    unsigned pscry = (static_cast<unsigned>(mid.y)-tilesizeY) / (tilesizeY*(WINDOW_HEIGHT-2));
-
-    sf::Vector2i omid(x->getPos().x+x->getSize().x/2, x->getPos().y+x->getSize().y/2);
-    //calculate objects position on player's screen. If it can be displayed, display it:
-
-    sf::Vector2i relPos(x->getPos().x-static_cast<int>((WINDOW_WIDTH-2)*tilesizeX*pscrx)+static_cast<int>(tilesizeX), x->getPos().y-static_cast<int>((WINDOW_HEIGHT-2)*tilesizeY*pscry)+static_cast<int>(tilesizeY));
-    x->setPosition(relPos.x,relPos.y);
-
     x->setLastPos(x->getPos());
   }
 
@@ -307,8 +300,6 @@ Interface Level::handleObjects(sf::Vector2f pos, sf::Vector2f size, SwitchHandle
       i--;
     }
   }
-
-
   return inter;
 }
 bool Level::displayObject(unsigned index, sf::Vector2f ppos, sf::Vector2f size) const {

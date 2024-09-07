@@ -7,11 +7,22 @@ Interface Pushable::interact(Object* p, Field* l, SwitchHandler*) {
   return Interface();
 }
 
-bool Pushable::use(Object* o) {
-  status = Object::Held;
-  return true;
+bool Pushable::use(Player* p) {
+  pushCounter = 16;
+  pushDir = dirToVec(p->getFacing());
+  return false;
 }
 
+Interface Pushable::behave(SwitchHandler*, Utility*) {
+  if(pushCounter > 0) {
+    selfPush = pushDir;
+    pushCounter--;
+  }
+  else {
+    selfPush = zero2<float>();
+  }
+  return Interface();
+}
 
 CacheNodeAttributes Pushable::draw(const TextureCache* cache) {
   // draw a blank tile with no transforms

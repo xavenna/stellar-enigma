@@ -21,7 +21,7 @@ Interface ToggleBlock::interact(Object* p, Field* f, SwitchHandler* s) {
   return i;
 }
 
-bool ToggleBlock::use(Object*) {
+bool ToggleBlock::use(Player*) {
   //toggle state
   if(!vars[1]) {
     vars[0] = !vars[0];

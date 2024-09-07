@@ -70,7 +70,7 @@ bool parseFile(const std::string& fn, Entry& e) {
   while(load.peek() != EOF && !(foundClass && foundName)) {
     //check line for matches:
     std::getline(load, line);
-    if(!foundClass && line.find("class ") == 0) { //class must be at start of line
+    if(!foundClass && line.find("class ") == 0 && line.find(';') == std::string::npos) { //class must be at start of line
       //class declaration line
       size_t offset = line.find("class ") + 6; // 6 is width of "class "
       e.name = line.substr(offset, line.find(" ", offset)-offset); //gets from offset to next " "

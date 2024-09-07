@@ -4,8 +4,15 @@
 
 
 bool isNum(const std::string& st) {
+  bool hasPoint = false;
   for(unsigned i=0;i<st.size();i++) {
-    if(!isdigit(st[i]) && (st[i] != '-' || i != 0))
+    if(st[i] == '.') {
+      if(hasPoint) {
+        return false;
+      }
+      hasPoint = true;
+    }
+    else if(!isdigit(st[i]) && (st[i] != '-' || i != 0))
       return false;
   }
   return true;

@@ -33,6 +33,9 @@ void Interface::openMenu(const std::string& s) {
   menu = s;
 }
 
+void Interface::selectConfig(const std::string& c) {
+  camera = c;
+}
 
 Interface Interface::operator+(const Interface& i) {
   Interface t;
@@ -52,5 +55,6 @@ Interface Interface::operator+(const Interface& i) {
 
 
   t.menu = this->menu;  //First Interface takes priority
+  t.camera = this->camera; //likewise
   return t;
 }

@@ -10,6 +10,7 @@ Interface Pushable::interact(Object* p, Field* l, SwitchHandler*) {
 bool Pushable::use(Player* p) {
   pushCounter = 16;
   pushDir = dirToVec(p->getFacing());
+  status = Object::Pushed;
   return false;
 }
 
@@ -19,6 +20,7 @@ Interface Pushable::behave(SwitchHandler*, Utility*) {
     pushCounter--;
   }
   else {
+    status = Object::Normal;
     selfPush = zero2<float>();
   }
   return Interface();

@@ -28,6 +28,7 @@ public:
   std::vector<std::pair<Object, std::string>> objs; //!< Objects to create, along with type
   std::vector<msg> notifications; //!< Notifications to send.
   std::string menu; //!< Menu to open
+  std::string camera; //!< Camera config to switch to
 
   //! Registers message to be displayed. Overwrites previous message, if any.
   void addMessage(const std::string&);
@@ -43,6 +44,7 @@ public:
   void clearObjs();
   //! Opens specified menu
   void openMenu(const std::string&);
+  void selectConfig(const std::string&);
 
   //! Constructs an empty Interface. Use the API functions to request actions. Eventually, the vars may be private
   Interface();

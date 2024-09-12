@@ -25,13 +25,16 @@ public:
   };
   //! In fixed mode, the camera's focus point (in map units)
   sf::Vector2f focus;
-  //! In followPlayer modes, 
+  //! In FollowPlayerCoarse, how far from the edge scrolling happens
   sf::Vector2f offset;
   //! Zoom scale factor
   float zoom;
 
+  //! how large the screen is for a coarseFollow
   sf::Vector2f screenSize;
+  //! 
   float scrollDistance;
+  //! Camera Mode
   Mode mode;
 
   Config();
@@ -72,6 +75,8 @@ public:
 
   void startAnimation(AnimDesc an);
 
+  //! Switches to specified camera config. Return value indicatesr success.
+  bool selectConfig(const std::string& c);
   sf::RenderTexture& drawFrame(sf::RenderWindow&, unsigned mode, TextureCache& cache);
   void gameplayDraw(sf::RenderWindow&, unsigned mode, TextureCache& cache);
   void cutsceneDraw(sf::RenderWindow&, unsigned mode, TextureCache& cache);
@@ -98,7 +103,10 @@ private:
 
 void assignTexture(sf::Sprite& s, TextureCache& cache, NodeBase n);
 
+bool generateConfig(json11::Json ob, Config& c, std::string&);
+bool isValidConfigType(const std::string&);
 
+Config::Mode mode(const std::string& n);
 
 
 #endif

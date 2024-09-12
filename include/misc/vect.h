@@ -316,7 +316,7 @@ template <typename T> sf::Vector2<T> normal(sf::Vector2<T> v) {
   return sf::Vector2<T>(-v.y, v.x);
 }
 
-//! Calculates the abs of each element separately
+//! Calculates the abs of each element separatelg
 template <typename T> sf::Vector2<T> vabs(sf::Vector2<T> v) {
   return sf::Vector2<T>(std::abs(v.x), std::abs(v.y));
 }
@@ -325,6 +325,14 @@ template <typename T> sf::Vector2<T> zero2() {
 }
 template <typename T> sf::Vector3<T> zero3() {
   return sf::Vector3<T>{0,0,0};
+}
+
+template <typename T> sf::Vector2<T> cMult(sf::Vector2<T> u, sf::Vector2<T> v) {
+  return sf::Vector2<T>(u.x * v.x, u.y * v.y);
+}
+
+template <typename T> sf::Vector2<T> cDiv(sf::Vector2<T> u, sf::Vector2<T> v) {
+  return sf::Vector2<T>(u.x / v.x, u.y / v.y);
 }
 
 template <typename T> sf::Vector2<T> vsign(sf::Vector2<T> v) {

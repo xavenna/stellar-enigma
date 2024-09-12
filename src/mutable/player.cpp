@@ -11,13 +11,24 @@ void Player::update(sf::Vector2i tilesize) {
 //make this match the format of Object::Draw
 void Player::assignTexture(TextureCache& cache) {
   CacheNodeAttributes cna;
-  cna.srcImg = cache.reverseHash("star");
+  std::string name;
+  switch(facingDir) {
+  case Up:
+    name = "star-b";
+    break;
+  case Right:
+    name = "star-r";
+    break;
+  case Down:
+    name = "star";
+    break;
+  case Left:
+    name = "star-l";
+    break;
+  }
+
+  cna.srcImg = cache.reverseHash(name);
   //apply transformations
-  Transform t;
-  t.type = Transform::Rotate;
-  int rotationAmount = facingDir;
-  t.args[0] = rotationAmount;
-  cna.tList.push_back(t);
 
   try {
     setTexture(cache.getTexture(cna));

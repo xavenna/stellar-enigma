@@ -165,7 +165,7 @@ namespace ed {
             return false;
           }
           else {
-            attribs.back().args.push_back(std::stoi(accum));
+            attribs.back().args.push_back(std::stof(accum));
           }
           accum.clear();
         }

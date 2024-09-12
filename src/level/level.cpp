@@ -553,7 +553,7 @@ bool str2obj2(const std::string& line, Object& obj, std::string& objType) {
           return false;
         }
         else {
-          attribs.back().args.push_back(std::stoi(accum));
+          attribs.back().args.push_back(std::stof(accum));
         }
         accum.clear();
       }

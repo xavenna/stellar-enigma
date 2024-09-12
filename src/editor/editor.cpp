@@ -169,17 +169,26 @@ namespace ed {
         return false;
       }
       file = com.substr(5);
+      //DISPLAY OBJECTS
+      for(unsigned i=0;i<objs.size();i++) {
+        mvwprintw(scr, 1+i, 1, (std::to_string(i) + ": ").c_str());
+        wprintw(scr, ed::objToStr(objs[i]).c_str()); //display obj as string
+      }
+
       return true;
     }
     else if(com.substr(0, 5) == "write") {
       //dump files to specified file
 
+      std::string fname = "assets/level/";
       if(com.size() <= 6) {
-        status = "Error: No file specified.";
-        return false;
+        //write to selected file
+        status = "No file selected, writing to open file";
+        fname += file;
       }
-      std::string fname = com.substr(6);
-      fname = "assets/level/" + fname;
+      else {
+        fname += com.substr(6);
+      }
 
 
       if(!ed::writeListToFile(objs, fname, status)) {

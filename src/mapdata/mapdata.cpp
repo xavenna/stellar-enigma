@@ -2,7 +2,7 @@
 
 // This file has functions for the overarching classes
 
-MapData::MapData(unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSize) : musicPlayer{"audiomap.txt"},  message{mWid, mCool, mElem, mCharSize}, camera{player, levelSlot, "assests/camera/"}, cutscenePlayer{player, message, levelSlot, modeSwitcher, musicPlayer, switchHandler, camera}, cache{"assets/texturemap/default.tm", utility.save} {
+MapData::MapData(unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSize) : musicPlayer{"audiomap.txt"},  message{mWid, mCool, mElem, mCharSize}, camera{player, levelSlot, "assets/camera/config.json"}, cutscenePlayer{player, message, levelSlot, modeSwitcher, musicPlayer, switchHandler, camera}, cache{"assets/texturemap/default.tm", utility.save} {
   //initialize members here
 
   //load level
@@ -517,9 +517,6 @@ void MapData::handleInteractions() {
       if(x.o1->Type() == Object::Intangible || x.o2->Type() == Object::Intangible) {
         ignore = true;
       }
-      if(x.o1->Type() == Object::Static && x.o2->Type() == Object::Static && x.o1->getStatus() != Object::Held && x.o2->getStatus() != Object::Held) {
-        ignore = true;
-      }
 
       //skip any ignored interactions
 
@@ -563,6 +560,19 @@ void MapData::handleInteractions() {
       for(auto y : res.objs) {
         //create any requested objects
         levelSlot.addObject(y.first, y.second);
+      }
+      if(res.camera.size() > 0) {
+        /*
+        AnimDesc an;
+        an.duration = 10;
+        an.configName = res.camera;
+        camera.startAnimation(an);
+        */
+        camera.selectConfig(res.camera);
+      }
+      if(res.menu.size() > 0) {
+        //switch to menu
+        mainMenu.loadTemplate(res.menu);
       }
     }
 

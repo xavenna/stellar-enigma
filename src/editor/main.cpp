@@ -1,28 +1,16 @@
 #include <iostream>
 #include <fstream>
-#include <ncurses.h>
 #include <array>
 #include <vector>
 #include <SFML/Graphics.hpp>
 #include "stellar-enigma.hpp"
+#include <ncurses.h>
 
 #include "editor/file-io.h"
 #include "editor/editor.h"
 
-
-/* commands:
- *
- * l ist: list all objects
- * s elect: Select an object to edit
- * r emove: delete selected object
- * a dd: Add an object
- * e dit: Edit properties of selected object
- * o pen: Load objects from a file
- * c lose
- * w rite
- * v erify: Check if mutable list is valid
-
- */
+//this is the curses-based version
+//a gtk version is in the works.
 int main(int argc, char** argv) {
   //initialize things
 
@@ -33,7 +21,6 @@ int main(int argc, char** argv) {
 
   std::string titleBar = "stellar-enigma obj editor: v-pre"; //displayed at the top of the screen
   std::string menuBar = "Current File: N/A; Current Object: none"; //bottom of screen
-                                              //
   std::string buffer; //command buffer
   std::string statusBar = "Status: Ready";
 
@@ -44,6 +31,7 @@ int main(int argc, char** argv) {
   initscr();
   cbreak();
   noecho();
+  timeout(-1);
   keypad(stdscr, TRUE);
   curs_set(0);
 
@@ -58,11 +46,14 @@ int main(int argc, char** argv) {
     init_pair(7, COLOR_BLACK,   COLOR_WHITE);
   }
 
+
   sf::Vector2i size;
   getmaxyx(stdscr, size.y, size.x);
 
   //make general window
   WINDOW* mainscr = newwin(size.y - 5, size.x-2, 2, 1);
+
+
 
   //begin editor loop
   mvwprintw(mainscr, 2, 2, "Welcome to the stellar-enigma object editor.");
@@ -71,6 +62,7 @@ int main(int argc, char** argv) {
   refresh();
   wrefresh(mainscr);
   while(true) {
+
     mvprintw(0, 1, titleBar.c_str());
     attron(COLOR_PAIR(7));
     move(1,0);

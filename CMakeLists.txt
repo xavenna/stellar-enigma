@@ -9,6 +9,7 @@ project(stellar_enigma
 set(CXX g++)
 
 
+find_package( PkgConfig REQUIRED )
 
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the build type (Debug or Release)")
 set(MAP_WIN_SIZE "16;12" STRING "Sets the size of the playable window")
@@ -49,6 +50,9 @@ file(GLOB EDITOR_INC "include/editor/*.h")
 
 set(INC ${AUDIO_INC} ${CUTSCENE_INC} ${INTERFACE_INC} ${LEVEL_INC} ${MAPDATA_INC} ${MISC_INC} ${MUTABLE_INC} ${UTILITY_INC} ${PHYSICS_INC} ${CAMERA_INC} include/stellar-enigma.hpp)
 
+pkg_check_modules( GTK REQUIRED gtkmm-3.0 ) # or use gtk+-2.0, etc...
+
+
 add_library(stellar ${SRC} ${INC} ${CMAKE_CURRENT_BINARY_DIR}/store-obj.cpp)
 add_executable(stellar-test src/main.cpp)
 
@@ -57,7 +61,7 @@ add_executable(prebuild ${PREBUILD_SRC})
 target_link_libraries(stellar sfml-graphics sfml-window sfml-audio sfml-system json11)
 target_link_libraries(stellar-test stellar)
 
-target_link_libraries(editor stellar ncurses)
+target_link_libraries(editor stellar ncurses ${GTK_LIBRARIES})
 
 
 set_property(TARGET prebuild PROPERTY CXX_STANDARD 17)
@@ -65,10 +69,11 @@ set_property(TARGET stellar-test PROPERTY CXX_STANDARD 17)
 set_property(TARGET stellar PROPERTY CXX_STANDARD 17)
 
 
+
 target_include_directories(stellar PRIVATE "./include/")
 target_include_directories(stellar-test PRIVATE "./include/")
 target_include_directories(prebuild PRIVATE "./include/")
-target_include_directories(editor PRIVATE "./include/")
+target_include_directories(editor PRIVATE "./include/" ${GTK_INCLUDE_DIRS})
 target_compile_definitions(stellar PRIVATE WINDOW_WIDTH=16 WINDOW_HEIGHT=12)
 target_compile_definitions(stellar-test PRIVATE WINDOW_WIDTH=16 WINDOW_HEIGHT=12 FRAMERATE=30)
 target_compile_definitions(editor PRIVATE WINDOW_WIDTH=16 WINDOW_HEIGHT=12)

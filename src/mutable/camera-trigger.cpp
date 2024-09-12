@@ -2,14 +2,14 @@
 
 
 CameraTrig::CameraTrig(int uid) : Object(uid) {
-  vars[0] = 0;
+  cooldown = 0;
 }
 
 Interface CameraTrig::interact(Object* o, Field*, SwitchHandler*) {
-  // play cutscene, nothing else (for now)
+  // trigger a camera change
   Interface inter;
   if(o->Type() == Object::Play) {
-    if(!vars[0]) {
+    if(!cooldown) {
       if(args[0]) { 
         status = Destroy;
       }
@@ -17,18 +17,19 @@ Interface CameraTrig::interact(Object* o, Field*, SwitchHandler*) {
         status = Inactive;
       }
       
-      vars[0] = args[1];
+      cooldown = args[1];
       //trigger a camera change
+      inter.selectConfig(text);
     }
   }
   return inter;
 }
 
 Interface CameraTrig::behave(SwitchHandler*, Utility*) {
-  if(vars[0] > 0) {
-    vars[0]--;
+  if(cooldown > 0) {
+    cooldown--;
   }
-  if(!vars[0]) {
+  if(!cooldown) {
     status = Normal;
   }
   return Interface();

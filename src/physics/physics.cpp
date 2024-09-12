@@ -10,6 +10,10 @@ Results resolveObjTileCollisions(Object* o, const Field* f) {
   //Check if object is in a pushback state. If so, squish object
 }
 Results rectangle_collide(const Object* o1, const Object* o2) {
+  //determine behavior type for each object
+  
+
+
   //center is used here because it makes different-sized objects work properly
   sf::Vector2f offset = o1->getCenter() - o2->getCenter();
 
@@ -55,6 +59,50 @@ Results rectangle_collide(const Object* o1, const Object* o2) {
   float k1 = 0; 
   float k2 = 0;
 
+  if(o1->Type() == Object::Intangible) {
+    k1 = 0;
+    k2 = 0;
+  }
+  else if(o1->Type() == Object::Static && o1->getStatus() == Object::Pushed) {
+    if(o2->Type() == Object::Static && o2->getStatus() == Object::Pushed) {
+      k1 = 0.5;
+      k2 = 0.5;
+    }
+    else if(o2->Type() == Object::Static) {
+      k1 = 1;
+      k2 = 0;
+    }
+    else {
+      k1 = 0;
+      k2 = 0;
+    }
+  }
+  else if(o1->Type() == Object::Static) {
+    k1 = 0;
+    if(o2->Type() == Object::Entity || o2->Type() == Object::Play || (o2->Type() == Object::Static && o2->getStatus() == Object::Pushed)) {
+      k2 = 1;
+    }
+    else {
+      k2 = 0;
+    }
+  }
+  else {
+    if(o2->Type() == Object::Entity || o2->Type() == Object::Play) {
+      k1 = 0.5;
+      k2 = 0.5;
+    }
+    else {
+      k2 = 0;
+      if(o2->Type() == Object::Intangible) {
+        k1 = 0;
+      }
+      else {
+        k1 = 1;
+      }
+    }
+  }
+
+  /*
   if(o1->Type() == Object::Play || o1->Type() == Object::Entity) {
     if(o2->Type() == Object::Play || o2->Type() == Object::Entity) {
       //two pushables
@@ -65,6 +113,9 @@ Results rectangle_collide(const Object* o1, const Object* o2) {
       //no collision
       k1 = 0;
       k2 = 0;
+    }
+    else if(o2->Type() == Object::Sliding && o2->getStatus() == Object::Pushed) {
+      //
     }
     else {
       k1 = 1;
@@ -107,6 +158,7 @@ Results rectangle_collide(const Object* o1, const Object* o2) {
       k2 = 0;
     }
   }
+  */
   r.first = -1.f * moveDist * k2;
   r.second = moveDist * k1;
 

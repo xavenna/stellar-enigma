@@ -20,6 +20,8 @@ void Camera::startAnimation(AnimDesc an) {
   //check if configName is a registered config
   if(configurations.find(an.configName) == configurations.end()) {
     //invalid configuration
+    std::cerr << "Error: Invalid config. Exiting\n";
+    return;
   }
   else {
     Config conf = configurations[an.configName];
@@ -44,22 +46,32 @@ void Camera::startAnimation(AnimDesc an) {
 
 //assumes mode 1
 sf::Vector2f Camera::getFocus(const Config& c) {
-  switch(config.mode) {
+  switch(c.mode) {
   case Config::FollowPlayerClose:
     return p.getCenter();
     break;
   case Config::FollowPlayerCoarse:
-    return p.getCenter();
+    //the logic needs to go here
+    {
+      sf::Vector2f scr;
+      scr.x = std::floor((p.getCenter().x - c.offset.x) / c.screenSize.x);
+      scr.y = std::floor((p.getCenter().y - c.offset.y) / c.screenSize.y);
+      
+      scr.x = scr.x * c.screenSize.y + c.offset.y + c.screenSize.x / 2;
+      scr.y = scr.y * c.screenSize.y + c.offset.x + c.screenSize.y / 2;
+      return scr;
+
+    }
     break;
   case Config::Fixed:
     return config.focus;
     break;
   }
-  
+  return zero2<float>();
 }
 
 float Camera::getScale(const Config& c) {
-  switch(config.mode) {
+  switch(c.mode) {
   case Config::FollowPlayerClose:
     return config.zoom;
     break;
@@ -70,7 +82,7 @@ float Camera::getScale(const Config& c) {
     return config.zoom;
     break;
   }
-
+  return 0.f;
 }
 
 sf::RenderTexture& Camera::drawFrame(sf::RenderWindow& window, unsigned mode, TextureCache& cache) {
@@ -184,20 +196,8 @@ void Camera::cutsceneDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
     }
   }
   else {
-    switch(config.mode) {
-    case Config::FollowPlayerClose:
-      focusPoint = getFocus(config);
-      //align camera to sides of map to avoid overhanging
-      zoom = config.zoom;
-      break;
-    case Config::FollowPlayerCoarse:
-      zoom = config.zoom;
-      break;
-    case Config::Fixed:
-      focusPoint = config.focus;
-      zoom = config.zoom;
-      break;
-    }
+    focusPoint = getFocus(config);
+    zoom = config.zoom;
   }
 
 
@@ -272,16 +272,21 @@ void Camera::cutsceneDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
   }
 
 }
+bool Camera::selectConfig(const std::string& c) {
+  if(configurations.find(c) == configurations.end()) {
+    return false;
+  }
+  config = configurations[c];
+  return true;
+}
 
 Camera::Camera(Player& pl, Level& le, const std::string& fn) : p{pl}, l{le} {
-  /*
   //load a list of configs from the specified json file
   std::ifstream read(fn);
   std::string data;
   std::string err;
   if(!read.is_open()) {
-    std::clog << "Error: Could not open save file\n";
-    return -1;
+    throw std::invalid_argument("Camera::Camera() : Error: Could not open config file");
   }
   getEntireFile(read, data);
   read.close();
@@ -289,25 +294,141 @@ Camera::Camera(Player& pl, Level& le, const std::string& fn) : p{pl}, l{le} {
   json11::Json save;
   save = save.parse(data, err);
   if(!err.empty()) {
-    std::clog << "Json parse error: '"<<err<<"'\n";
-    return -2;
+    throw std::invalid_argument("Camera::Camera() : Json parse error: '"+err);
   }
   //parse json -- extract camera configs
-  */
-  Config c1;
-  c1.mode = Config::Fixed;
-  c1.focus = sf::Vector2f(64,96);
-  c1.zoom = 0.7;
 
-  Config c2;
-  c2.mode = Config::FollowPlayerClose;
-  c2.zoom = 2;
+  json11::Json::object k = save.object_items();
 
-  configurations.emplace("fixed", c1);
-  configurations.emplace("follow", c2);
 
-  config = c2;
+  json11::Json::array confs = k["configs"].array_items();
 
+  for(auto x : confs) {
+    Config c;
+    std::string n;
+    if(!generateConfig(x, c, n)) {
+      throw std::invalid_argument("Camera::Camera() : Invalid json config ");
+    }
+    configurations.emplace(n, c);
+
+
+  }
+
+  config = configurations["follow"];
+
+}
+
+bool generateConfig(json11::Json ob, Config& c, std::string& name) {
+  //ob should be a json11::Json::object
+  //ensure ob has a name and type, and that the type is valid
+  auto nameObj = ob["name"];
+  if(!nameObj.is_string()) {
+    std::cerr << "Error: Name is not a string\n";
+    return false;
+  }
+  name = nameObj.string_value();
+  auto modeObj = ob["mode"];
+  if(!modeObj.is_string()) {
+    std::cerr << "Error: Mode is not a string\n";
+    return false;
+  }
+  if(!isValidConfigType(modeObj.string_value())) {
+    std::cerr << "Error: Invalid mode\n";
+    return false;
+  }
+  c.mode = mode(modeObj.string_value());
+  //based on the mode, set all necessary vars
+  if(c.mode == Config::Fixed) {
+    //should have zoom, focusX, focusY
+    auto z = ob["zoom"];
+    if(!z.is_number()) {
+      std::cerr << "Error: non-numeric argument in numeric field\n";
+      return false;
+    }
+    c.zoom = z.number_value();
+    
+    z = ob["focusX"];
+    if(!z.is_number()) {
+      std::cerr << "Error: non-numeric argument in numeric field\n";
+      return false;
+    }
+    c.focus.x = z.number_value();
+
+    z = ob["focusY"];
+    if(!z.is_number()) {
+      std::cerr << "Error: non-numeric argument in numeric field\n";
+      return false;
+    }
+    c.focus.y = z.number_value();
+
+  }
+  else if(c.mode == Config::FollowPlayerClose) {
+    //should have zoom
+    auto z = ob["zoom"];
+    if(!z.is_number()) {
+      std::cerr << "Error: non-numeric argument in numeric field\n";
+      return false;
+    }
+    c.zoom = z.number_value();
+  }
+  else if(c.mode == Config::FollowPlayerCoarse) {
+    //should have: zoom, screenSizeXY, offsetXY 
+    auto z = ob["zoom"];
+    if(!z.is_number()) {
+      std::cerr << "Error: non-numeric argument in numeric field\n";
+      return false;
+    }
+    c.zoom = z.number_value();
+
+    z = ob["screenSizeX"];
+    if(!z.is_number()) {
+      std::cerr << "Error: non-numeric argument in numeric field\n";
+      return false;
+    }
+    c.screenSize.x = z.number_value();
+
+    z = ob["screenSizeY"];
+    if(!z.is_number()) {
+      std::cerr << "Error: non-numeric argument in numeric field\n";
+      return false;
+    }
+    c.screenSize.y = z.number_value();
+
+    z = ob["offsetX"];
+    if(!z.is_number()) {
+      std::cerr << "Error: non-numeric argument in numeric field\n";
+      return false;
+    }
+    c.offset.x = z.number_value();
+
+    z = ob["offsetY"];
+    if(!z.is_number()) {
+      std::cerr << "Error: non-numeric argument in numeric field\n";
+      return false;
+    }
+    c.offset.y = z.number_value();
+  }
+  return true;
+}
+
+bool isValidConfigType(const std::string& n) {
+  if(n == "fixed" || n == "followClose" || n == "followCoarse") {
+    return true;
+  }
+  return false;
+}
+
+Config::Mode mode(const std::string& n) {
+  if(n == "fixed") {
+    return Config::Fixed;
+  }
+  else if(n == "followClose") {
+    return Config::FollowPlayerClose;
+  }
+  else if(n == "followCoarse") {
+    return Config::FollowPlayerCoarse;
+  }
+  throw std::invalid_argument("mode() : Invalid mode '" + n  + "'");
 }
 
 void assignTexture(sf::Sprite& s, TextureCache& cache, NodeBase n) {

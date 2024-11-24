@@ -19,6 +19,16 @@ const std::string fieldNames = "Editor field shorthand names:\nType (string): c\
 
  */
 
+ObjectBase::ObjectBase() {
+  for(auto& x : args) {
+    x = -1;
+  }
+  for(auto& x : switches) {
+    x = -1;
+  }
+
+}
+
 namespace ed {
   bool isValidCommand(const std::string& buffer) {
     //no-argument commands
@@ -233,26 +243,10 @@ namespace ed {
     return false;
   }
 
+  //retooled to work with the updated system
   bool setAttr(ObjectBase& obj, const std::string& arg1, const std::string& arg2, std::string& status) {
     bool numArg = isNum(arg2);
-    if(arg1 == "c") {
-      if(arg2.size() <= 2) {
-        status = "Error: Invalid argument";
-        return false;
-      }
-      if(arg2[0] != '"' || arg2.back() != '"') {
-        status = "Error: Invalid argument";
-        return false;
-      }
-      status = arg2.substr(1,arg2.size()-2);
-      if(isValidObjType(arg2.substr(1,arg2.size()-2))) {
-        obj.type = arg2.substr(1,arg2.size()-2);
-        return true;
-      }
-      status = "Error: invalid object type";
-      return false;
-    }
-    else if(arg1 == "px") {
+    if(arg1 == "xpos") {
       if(numArg) {
         obj.pos.x = std::stoi(arg2);
       }
@@ -262,7 +256,7 @@ namespace ed {
       }
 
     }
-    else if(arg1 == "py") {
+    else if(arg1 == "ypos") {
       if(numArg) {
         obj.pos.y = std::stoi(arg2);
       }
@@ -272,7 +266,7 @@ namespace ed {
       }
 
     }
-    else if(arg1 == "sx") {
+    else if(arg1 == "x_size") {
       if(numArg) {
         obj.size.x = std::stoi(arg2);
       }
@@ -282,7 +276,7 @@ namespace ed {
       }
 
     }
-    else if(arg1 == "sy") {
+    else if(arg1 == "y_size") {
       if(numArg) {
         obj.size.y = std::stoi(arg2);
       }
@@ -292,7 +286,7 @@ namespace ed {
       }
 
     }
-    else if(arg1 == "li") {
+    else if(arg1 == "Link ID") {
       if(numArg) {
         obj.link_id = std::stoi(arg2);
       }
@@ -302,7 +296,7 @@ namespace ed {
       }
 
     }
-    else if(arg1 == "pi") {
+    else if(arg1 == "Parent ID") {
       if(numArg) {
         obj.parent_id = std::stoi(arg2);
       }
@@ -312,7 +306,7 @@ namespace ed {
       }
 
     }
-    else if(arg1 == "ti") {
+    else if(arg1 == "Texture ID") {
       if(numArg) {
         obj.texture_id = std::stoi(arg2);
       }
@@ -322,34 +316,93 @@ namespace ed {
       }
 
     }
-    else if(arg1 == "te") {
-      if(arg2.size() <= 2) {
-        status = "Error: Invalid argument";
-        return false;
+    else if(arg1 == "Text Arg") {
+      if(arg2.size() <= 0) {
+        obj.text = "";
       }
-      if(arg2[0] != '"' || arg2.back() != '"') {
-        status = "Error: Invalid argument";
-        return false;
-      }
-      status = arg2.substr(1,arg2.size()-2);
-      obj.text = arg2.substr(1,arg2.size()-2);
+      status = arg2;
+      obj.text = arg2;
       return true;
     }
-    else if(!arg1.empty() && arg1[0] == 'a') {
-      if(arg1.size() != 2 || arg1[1] < '0' || arg1[1] > '7' || !numArg) {
+    else if(arg1.size() > 4 && arg1.substr(0, 4) == "arg_") {
+      if(arg1.size() != 5 || arg1[4] < '0' || arg1[4] > '7' || !numArg) {
         status = "Error: Invalid Arguments";
         return false;
       }
-      obj.args[ (arg1[1] - '0') ] = std::stoi(arg2);
+      obj.args[ (arg1[4] - '0') ] = std::stoi(arg2);
       return true;
     }
-    else if(arg1.substr(0,2) == "sw") {
-      if(arg1.size() != 3 || arg1[2] < '0' || arg1[2] > '7' || !numArg) {
+    else if(arg1.size() > 3 && arg1.substr(0,3) == "SW_") {
+      std::vector<std::string> sw = {
+        "Appear", "Disappear", "A", "B", "C", "D", "Stat", "Remove"
+      };
+
+      auto x = std::find(sw.begin(), sw.end(), arg1.substr(3));
+      if(x == sw.end()) {
+        status = "Error: Invalid switch name";
+        return false;
+      }
+      size_t index = x - sw.begin();
+      
+      if(!numArg) {
         status = "Error: Invalid Arguments";
         return false;
       }
-      obj.switches[ (arg1[2] - '0') ] = std::stoi(arg2);
+      obj.switches[index] = std::stoi(arg2);
       return true;
+    }
+    else {
+      status = "Error: Invalid attribute";
+      return false;
+    }
+    return true;
+  }
+
+  bool getAttr(ObjectBase& obj, const std::string& prop, std::string& val, std::string& status) {
+    if(prop == "xpos") {
+      val = std::to_string(obj.pos.x);
+    }
+    else if(prop == "ypos") {
+      val = std::to_string(obj.pos.y);
+    }
+    else if(prop == "x_size") {
+      val = std::to_string(obj.size.x);
+    }
+    else if(prop == "y_size") {
+      val = std::to_string(obj.size.y);
+    }
+    else if(prop == "Link ID") {
+      val = std::to_string(obj.link_id);
+    }
+    else if(prop == "Parent ID") {
+      val = std::to_string(obj.parent_id);
+    }
+    else if(prop == "Texture ID") {
+      val = std::to_string(obj.texture_id);
+    }
+    else if(prop == "Text Arg") {
+      val = obj.text;
+    }
+    else if(prop.size() > 4 && prop.substr(0, 4) == "arg_") {
+      if(prop.size() != 5 || prop[4] < '0' || prop[4] > '7') {
+        status = "Error: Invalid Arguments";
+        return false;
+      }
+      val = std::to_string(obj.args[ (prop[4] - '0') ]);
+    }
+    else if(prop.size() > 3 && prop.substr(0,3) == "SW_") {
+      std::vector<std::string> sw = {
+        "Appear", "Disappear", "A", "B", "C", "D", "Stat", "Remove"
+      };
+
+      auto x = std::find(sw.begin(), sw.end(), prop.substr(3));
+      if(x == sw.end()) {
+        status = "Error: Invalid switch name";
+        return false;
+      }
+      size_t index = x - sw.begin();
+      
+      val = std::to_string(obj.switches[index]);
     }
     else {
       status = "Error: Invalid attribute";

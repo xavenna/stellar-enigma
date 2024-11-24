@@ -2,6 +2,8 @@
 #include "editor/editor.h"
 
 namespace ed {
+  //return code of 1 means couldn't open file
+  //return code of 2 means invalid object
   int loadMutableList(std::vector<ObjectBase>& objs, const std::string& filename) {
     objs.clear();
     std::ifstream get(filename);
@@ -21,8 +23,7 @@ namespace ed {
 
       //switch to using: parseSEObjFormat and generateObjFromObjAttrList here
       if(!str2obj(line, o, type)) {
-        std::clog << "Error: Failed level load\n";
-        return 1;
+        return 2;
       }
       objs.push_back(o);
 

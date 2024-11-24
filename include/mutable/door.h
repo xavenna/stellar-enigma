@@ -3,11 +3,12 @@
 #include "mutable/object.h"
 #include "mutable/solid.h"
 
-//! An object that is solid and blocks movement
+//! An object that is solid and blocks movement, but can be toggled off
 /*!
  *  Arguments:
  *  uint args[0]: behavior mode. 1: perma-open; 0: Always Match Switch State; 
  *    2: toggle on rising edge.
+ *  SW::A controls door state
  */
 class Door : public Solid {
 public:

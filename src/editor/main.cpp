@@ -11,7 +11,7 @@
 
 //this is the curses-based version
 //a gtk version is in the works.
-int main(int argc, char** argv) {
+int main_curses(int argc, char** argv) {
   //initialize things
 
   std::string activeFile;

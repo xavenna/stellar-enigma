@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <object id="window" class="GtkApplicationWindow">
+    <property name="title">Stellar Object Editor</property>
+    <property name="default-width">900</property>
+    <property name="default-height">600</property>
+    <child>
+      <!-- this all should be within a GtkNotebook -->
+      <object id="Panel-1" class="GtkPaned">
+        <property name="orientation">GTK_ORIENTATION_VERTICAL</property>
+        <property name="position">320</property>
+        <child>
+          <object id="Panel-2" class="GtkPaned">
+            <property name="orientation">GTK_ORIENTATION_HORIZONTAL</property>
+            <property name="position">175</property>
+            <child>
+              <object id="ListScroll" class="GtkScrolledWindow">
+                <child>
+                  <object id="ObjList" class="GtkListView">
+                  <!-- object list -->
+
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object id="Panel-4" class="GtkPaned">
+                <property name="orientation">GTK_ORIENTATION_HORIZONTAL</property>
+                <property name="position">500</property>
+                <!-- top-right area -->
+                <child>
+                  <object id="Preview" class="GtkDrawingArea">
+
+                  </object>
+                </child>
+                <child>
+
+                  <object id="ScrollProp" class="GtkScrolledWindow">
+                    <child>
+                      <object id="Properties" class="GtkColumnView">
+
+                      </object>
+                    </child>
+                  </object>
+
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object id="Panel-3" class="GtkPaned">
+            <property name="orientation">GTK_ORIENTATION_HORIZONTAL</property>
+            <child>
+
+                  <!-- button area -->
+                  <object id="Buttons" class="GtkBox">
+                    <!-- will contain children for buttons and text input -->
+                    <property name="orientation">GTK_ORIENTATION_VERTICAL</property>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">Add Object:</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object id="ObjectTypeEntry" class="GtkEntry">
+
+                      </object>
+                    </child>
+                    <child>
+                      <object id="RemoveObjectButton" class="GtkButton">
+                        <property name="label">Remove Selected Object</property>
+
+                      </object>
+                    </child>
+                    <child>
+                      <object id="VerifyButton" class="GtkButton">
+                        <property name="label">Verify</property>
+
+                      </object>
+                    </child>
+                    <child>
+                      <object id="RedrawButton" class="GtkButton">
+                        <property name="label">Redraw Preview</property>
+
+                      </object>
+                    </child>
+
+                  </object>
+                  <!-- end button area -->
+            </child>
+            <child>
+              <!-- status/console area -->
+              <object id="Status" class="GtkScrolledWindow">
+                <child>
+                  <object id="StatusText" class="GtkTextView">
+                    <property name="editable">FALSE</property>
+                  </object>
+  
+                </child>
+              </object>
+
+            </child>
+
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

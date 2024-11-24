@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <menu id="menuBar">
+    <submenu>
+      <attribute name="label">File</attribute>
+      <section>
+        <item>
+          <attribute name="label">Save</attribute>
+          <attribute name="action">app.save</attribute>
+        </item>
+        <item>
+          <attribute name="label">Save As...</attribute>
+          <attribute name="action">app.saveas</attribute>
+        </item>
+        <item>
+          <attribute name="label">Open...</attribute>
+          <attribute name="action">app.open</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
+          <attribute name="label">Quit</attribute>
+          <attribute name="action">app.quit</attribute>
+        </item>
+      </section>
+      <!-- others go here -->
+    </submenu>
+    <submenu>
+      <attribute name="label">Tools</attribute>
+      <section>
+        <item>
+          <attribute name="label">Switch Registry</attribute>
+          <attribute name="action">app.switch_reg</attribute>
+        </item>
+      </section>
+    </submenu>
+  </menu>
+</interface>

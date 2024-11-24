@@ -26,7 +26,9 @@ struct ObjectBase {
   int parent_id=-1;
   std::string text;
   std::string type;
+  ObjectBase();
 };
+
 
 std::string objToStr(ObjectBase&);
 
@@ -48,6 +50,7 @@ namespace ed {
   std::string objToStr(ObjectBase& o);
   std::string objToStrFull(ObjectBase& o);
   bool setAttr(ObjectBase& obj, const std::string& arg1, const std::string& arg2, std::string& status);
+  bool getAttr(ObjectBase& obj, const std::string& prop, std::string& val, std::string& status);
   bool writeListToFile(std::vector<ObjectBase>& objs, const std::string& filename, std::string& status);
 
   bool isValidObjType(const std::string&);

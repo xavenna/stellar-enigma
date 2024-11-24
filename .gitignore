@@ -35,7 +35,9 @@ stellar
 doc/html
 
 # Assets (for now)
-assets/
+assets/*/*
+# Save files
+save/
 # Misc
 src/ytg-objects/
 # Unused files

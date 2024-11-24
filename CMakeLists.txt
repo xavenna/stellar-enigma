@@ -50,7 +50,7 @@ file(GLOB EDITOR_INC "include/editor/*.h")
 
 set(INC ${AUDIO_INC} ${CUTSCENE_INC} ${INTERFACE_INC} ${LEVEL_INC} ${MAPDATA_INC} ${MISC_INC} ${MUTABLE_INC} ${UTILITY_INC} ${PHYSICS_INC} ${CAMERA_INC} include/stellar-enigma.hpp)
 
-pkg_check_modules( GTK REQUIRED gtkmm-3.0 ) # or use gtk+-2.0, etc...
+pkg_check_modules( GTK REQUIRED gtk4 ) # or use gtk+-2.0, etc...
 
 
 add_library(stellar ${SRC} ${INC} ${CMAKE_CURRENT_BINARY_DIR}/store-obj.cpp)

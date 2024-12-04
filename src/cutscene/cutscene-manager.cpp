@@ -1,9 +1,44 @@
 #include "cutscene/cutscene-manager.h"
 
 
-bool CutsceneManager::loadCutscenes(const std::string& filename) {
-  //for the future, this could use std::filesystem's directory iterator to find all cutscene files instead of using an external list.
-  //this would need to use c++17 instead, though (i use c++11)
+bool CutsceneManager::loadCutscenes(const std::string& fn) {
+
+  std::ifstream read(fn);
+  std::string data;
+  std::string err;
+  if(!read.is_open()) {
+    throw std::invalid_argument("CutsceneManager::loadCutscenes() : Error: Could not open config file");
+  }
+  getEntireFile(read, data);
+  read.close();
+  //read contents of save file
+  json11::Json save;
+  save = save.parse(data, err);
+  if(!err.empty()) {
+    throw std::invalid_argument("CutsceneManager::loadCutscenes() : Json parse error: '"+err);
+  }
+  //parse json -- extract configs
+
+  json11::Json::object k = save.object_items();
+
+  json11::Json::array cutscenes = k["cutscenes"].array_items();
+
+  for(auto x : cutscenes) {
+    Cutscene c;
+    std::string name;
+    c.loadFromFile(x, name);
+    cutlist.emplace(name, c);
+    //dump cutscene value to stderr:
+    std::cerr << "name:"<<name<<"; events:";
+    for(unsigned i=0;i<c.getListLen();i++) {
+      Event e = c.getEvent(i);
+      std::cerr << "{type:"<<e.getType()<<"; duration:"<<e.getDuration()<<"}\n";
+      
+    }
+  }
+
+
+  /*
   std::ifstream load;
   std::string line;
   std::string name;
@@ -27,6 +62,7 @@ bool CutsceneManager::loadCutscenes(const std::string& filename) {
       std::cout << "cutscene not loaded from file '" << line << "'\n";
     }
   }
+  */
   return true;
 }
 

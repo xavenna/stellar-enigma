@@ -3,6 +3,12 @@
 
 #include "mutable/object.h"
 
+//! Player start position indicator. If multiple exist, then all but first are ignored
+/*!
+ *  
+ *
+ *
+ */
 class PlayerStart : public Object {
 public:
   virtual std::string Name() const {return "player_start";}

@@ -67,6 +67,7 @@ target_link_libraries(editor stellar ncurses ${GTK_LIBRARIES})
 set_property(TARGET prebuild PROPERTY CXX_STANDARD 17)
 set_property(TARGET stellar-test PROPERTY CXX_STANDARD 17)
 set_property(TARGET stellar PROPERTY CXX_STANDARD 17)
+set_property(TARGET editor PROPERTY CXX_STANDARD 17) # change to 20 eventually
 
 
 

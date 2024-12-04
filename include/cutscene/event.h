@@ -6,6 +6,7 @@
 #include <vector>
 #include <stdexcept>
 #include <iostream>
+#include <json11.hpp>
 
 #include "misc/util.h"
 
@@ -20,16 +21,9 @@ public:
   enum Type {
     /*
     PlayerUpdate = 0,  //!< Updates the player
-    EntityMove = 1,    //!< Moves an entity
     ObjectPlace = 2,   //!< Places an object
     ObjectRemove = 3,  //!< Removes an object
-    MessageDisplay = 4,//!< Displays a message
     ImageDisplay = 5,  //!< Displays an image
-    GetInput = 6,      //!< Waits for player input
-    NodeUpdate = 7,    //!< Updates a node on the map
-    SoundPlay = 8,     //!< Plays a sound
-    MusicPlay = 9,     //!< Plays specified music
-    MapLoad = 10,      //!< Load a new Map
     */
     // New Event list
 
@@ -42,12 +36,14 @@ public:
     MovePlayer = 6,     //!< Moves player
     MoveObject = 7,     //!< Moves an object
     NotifyObject = 8,   //!< Sends message to object
+    Menu = 9,           //!< A dialogue choice.
+    Label = 10,         //!< A jump point for a menu
+    MapLoad = 11,       //!< Loads a new map?
+
     /*
      * Events to implement eventually:
     DisplayImage,
-
     */
-
     Invalid = -1       //!< Invalid Type
   };
   //! Returns event type
@@ -75,7 +71,9 @@ private:
 //! Sets attributes of passed event using passed textual event representation
 /*!
  *  If it fails, returns false. Doesn't empty event (add this in the future)
+ *  Deprecated
  */
 bool line2event(const std::string&, Event&);
+bool parse_json_event(const json11::Json&, Event&);
 
 #endif

@@ -65,7 +65,6 @@ Interface Teleporter::interact(Object* o, Field*, SwitchHandler* sh) {
     return in;
   }
   if(!((args[2] & 0x2) >> 1) || sh->read(switches[SW::A] == true) ) {
-    std::cerr << chargeup << ',' << cooldown << '\n';
     //teleport object
     chargeup++;
     if(static_cast<int>(chargeup) == args[0]) {

@@ -32,6 +32,24 @@
           <attribute name="label">Switch Registry</attribute>
           <attribute name="action">app.switch_reg</attribute>
         </item>
+        <item>
+          <attribute name="label">Verify Objects</attribute>
+          <attribute name="action">app.verify</attribute>
+        </item>
+        <item>
+          <attribute name="label">Object Data</attribute>
+          <attribute name="action">app.objdata</attribute>
+        </item>
+
+      </section>
+    </submenu>
+    <submenu>
+      <attribute name="label">Help</attribute>
+      <section>
+        <item>
+          <attribute name="label">About</attribute>
+          <attribute name="action">app.about</attribute>
+        </item>
       </section>
     </submenu>
   </menu>

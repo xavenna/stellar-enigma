@@ -6,6 +6,7 @@
 #include <array>
 #include <vector>
 #include <map>
+#include <set>
 #include <SFML/Graphics.hpp>
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
@@ -24,8 +25,8 @@ struct _PropItemClass {
 
 struct _PropItem {
   GObject parent;
-  std::string prop;
-  std::string value;
+  std::string prop="";
+  std::string value="";
 };
 
 G_DEFINE_FINAL_TYPE(PropItem, prop_item, G_TYPE_OBJECT);
@@ -79,15 +80,8 @@ static void prop_item_class_init(PropItemClass* cl) {
 }
 
 static void prop_item_init(PropItem* self) {
-
 }
 
-static PropItem* prop_item_new(const char* field, const char* value) {
-  PropItem* item = (PropItem*)  g_object_new(PROP_TYPE_ITEM, NULL);
-  item->prop = field;
-  item->value = value;
-  return item;
-}
 
 void prop_item_set_value(PropItem* self, const char* string) {
   g_object_set (G_OBJECT(self), "value", string, NULL);
@@ -105,8 +99,15 @@ void prop_item_set_prop(PropItem* self, const char* string) {
 void prop_item_get_prop() {
 
 }
+static PropItem* prop_item_new(const char* field, const char* value) {
+  PropItem* item = (PropItem*)  g_object_new(PROP_TYPE_ITEM, NULL);
+  prop_item_set_prop(item, field);
+  prop_item_set_value(item, value);
+  return item;
+}
 
 // end PropItem GObject declaration
+
 
 struct ListData {
   GtkWidget* ent; //!< text entry box [for adding objs]
@@ -116,10 +117,17 @@ struct ListData {
   GtkWidget* pre; //!< preview drawing area
   GtkColumnViewColumn* entries; //!< Data entries
   GtkWindow* win; //!< Window
+  GtkWindow* objdata; //!< object info dialog window
   GtkStringList* list;
   guint* sel; //!< selected obj
   std::string openFile=""; //!< the currently opened file
   std::vector<ObjectBase> objs;
+
+  // objinfo popup components
+  GtkWidget* obj_ent; //!< Object Type entry
+  GtkWidget* obj_tv; //!< Object Text View
+
+  ed::Database db; //!< Object database
 };
 
 

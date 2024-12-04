@@ -58,5 +58,6 @@ private:
   long unsigned counter;
 };
 
+bool is_valid_obj_name(const std::string&);
 
 #endif

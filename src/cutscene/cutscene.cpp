@@ -12,33 +12,25 @@ int Cutscene::getListLen() {
   return eventList.size();
 }
 
-bool Cutscene::loadFromFile(const std::string& filename) {
-  eventList.clear();
-  name.erase();
-  std::ifstream cutLoad;
-  std::string line;
-  Event tempEv;
-  unsigned counter = 0;
-  cutLoad.open(filename);
-  if(!cutLoad.is_open()) {
-    std::cout << "Error: cutscene file could not be found.\n";
+bool Cutscene::loadFromFile(const json11::Json& ob, std::string& name) {
+  //should have a name
+  if(!ob["name"].is_string() || !ob["events"].is_array()) {
+    std::cerr << "Couldn't parse cutscene\n";
     return false;
   }
-  while(cutLoad.peek() != EOF) {
-    std::getline(cutLoad, line);
-    //attempt to transform line into a cutscene
-    // empty lines and lines beginning with a pound (comments) are ignored
-    if(line.size() > 0 && line[0] != '#' && !line2event(line, tempEv)) {
-      //event was not valid
-      std::cout << "Error at line " << counter << ": Event is invalid\n";
-      eventList.clear();
+  name = ob["name"].string_value();
+  //now, iterate through ob["events"] and call parse_json_event
+
+  auto events = ob["events"].array_items();
+  for(auto x : events) {
+    Event e;
+    if(!parse_json_event(x, e)) {
+      std::cerr << "Couldn't parse event\n";
       return false;
     }
-    //append event to list
-    eventList.push_back(tempEv);
-    counter++;
+    eventList.push_back(e);
+
   }
-  //set cutscene name
-  name = filename.substr(0, filename.find("."));
+
   return true;
 }

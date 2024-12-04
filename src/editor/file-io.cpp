@@ -290,6 +290,159 @@ namespace ed {
     obj.type = objClass;
     return true;
   }
+
+  bool parse_db(const std::string& fn, Database& d) {
+
+    std::ifstream read(fn);
+    std::string data;
+    std::string err;
+    if(!read.is_open()) {
+      std::cerr << "Error: could not open database\n";
+      return false;
+    }
+    getEntireFile(read, data);
+    read.close();
+    //read contents of save file
+    json11::Json save;
+    save = save.parse(data, err);
+    if(!err.empty()) {
+      std::cerr << "JSON parse error. Details: "<<err<<'\n';
+      return false;
+    }
+    //parse json -- create a table in memory
+    json11::Json::object k = save.object_items();
+    d.version = k["version"].string_value();
+
+    json11::Json::array objs = k["objs"].array_items();
+
+    //turn each element of objs to an ObjInfo struct, then use those to populate
+    for(auto& x : objs) {
+      ObjInfo o;
+      std::string s;
+      if(!x["internal_name"].is_string()) {
+        std::cerr << "Couldn't read entry\n";
+      }
+
+      //populate o with fields of x
+      if(!generateObjInfo(x, o, s)) {
+        std::cerr << "Database Error: " << s << '\n';
+        return false;
+      }
+
+
+      d.append(o);
+    }
+    return true;
+  }
+  bool generateObjInfo(const json11::Json& obj, ObjInfo& o, std::string& err) {
+    //the obj should be flat, so this is simple
+
+    //add checking. If fields are blank, leave them blank...
+    
+    o.parent = obj["parent"].string_value();
+    o.type = obj["type"].string_value();
+    o.size = sf::Vector2f(obj["xsize"].number_value(), obj["ysize"].number_value());
+    o.shortName = obj["internal_name"].string_value();
+    o.longName = obj["verbose_name"].string_value();
+    o.description = obj["description"].string_value();
+    o.textArg = obj["text_arg"].string_value();
+
+    //add args, switches
+    o.switches[0] = obj["SW_Appear"].string_value();
+    o.switches[1] = obj["SW_Disappear"].string_value();
+    o.switches[2] = obj["SW_A"].string_value();
+    o.switches[3] = obj["SW_B"].string_value();
+    o.switches[4] = obj["SW_C"].string_value();
+    o.switches[5] = obj["SW_D"].string_value();
+    o.switches[6] = obj["SW_Stat"].string_value();
+    o.switches[7] = obj["SW_Remove"].string_value();
+
+    o.args[0] = obj["arg_0"].string_value();
+    o.args[1] = obj["arg_1"].string_value();
+    o.args[2] = obj["arg_2"].string_value();
+    o.args[3] = obj["arg_3"].string_value();
+    o.args[4] = obj["arg_4"].string_value();
+    o.args[5] = obj["arg_5"].string_value();
+    o.args[6] = obj["arg_6"].string_value();
+    o.args[7] = obj["arg_7"].string_value();
+
+    //add misc bool flags here
+
+    return true;
+  }
+
+  /*
+    "arg0":"behavior mode: 0-follows state of SW_A; 1-permanently opens once triggered; 2-toggles state on rising edge.",
+    "SW_A":"Activates door",
+    "priority":0,
+    "verbose_name":"Door",
+    "internal_name":"door",
+    "handles_use":false,
+    "handles_interact":false,
+    "texture_id":false,
+    "invisible":true,
+    */
+
+
+
+  void Database::append(const ObjInfo& o) {
+    data.emplace(o.shortName,o);
+  }
+  ObjInfo Database::operator[](std::string key) {
+    if(data.find(key) == data.end()) {
+      throw std::invalid_argument("Error: out of bounds array access");
+    }
+    return data[key];
+  }
+  bool Database::contains(const std::string& key) const {
+    return data.find(key) != data.end();
+  }
+  /*
+    sf::Vector2f size;
+    unsigned priority;
+    bool use;
+    bool interact;
+    bool texture;
+    bool invisible;
+    */
+  std::string Database::get_full_entry(const std::string& key) {
+    if(!contains(key)) {
+      return std::string("Could not find entry...");
+    }
+    ObjInfo o = data[key];
+    std::array<std::string, 8> swnames = {
+      "Appear",
+      "Disappear",
+      "A",
+      "B",
+      "C",
+      "D",
+      "Stat",
+      "Remove"
+    };
+    std::string arg;
+    for(unsigned i=0;i<8;i++) {
+      arg += "arg_"+std::to_string(i)+": "+
+        o.args[i] + '\n';
+    }
+
+    std::string sws;
+    for(unsigned i=0;i<8;i++) {
+      sws += "SW_"+swnames[i]+": "+
+        o.switches[i] + '\n';
+    }
+
+    std::string result =
+      "Internal name: " + o.shortName +
+      "\nVerbose name: " + o.longName +
+      "\nParent object: " + o.parent +
+      "\nObject type: " + o.type +
+      "\nArguments:\n" + arg +
+      "\nSwitches:\n" + sws +
+      "\nDescription: " + o.description;
+
+    return result;
+  }
 }
 
 

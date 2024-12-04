@@ -30,6 +30,7 @@ int main() {
 
   mapData.mainMenu.loadTemplate("main");
 
+
   // END Example initialization behavior
 
   while(window.isOpen()) { //gameplay loop

@@ -7,6 +7,7 @@ void CutscenePlayer::playCutscene() {//this may be completely useless
 bool CutscenePlayer::updateCutscene() {
   //make this start the next event, that would be pretty cool
   //okay, I think it does now. Yay
+  // now, it doesn't play the first event. ????
   Event e = cutscene.getEvent(pos);
   bool finalEvent = (cutscene.getListLen()-1 == static_cast<int>(pos));
   //check if waiting for time or button press
@@ -34,8 +35,7 @@ bool CutscenePlayer::updateCutscene() {
         }
       }
     }
-  }
-  else {
+  } else {
     //waiting for time
     if(timer == 0) {
       //event is over

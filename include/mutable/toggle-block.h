@@ -7,7 +7,6 @@
 class ToggleBlock : public Solid {
 public:
 
-  virtual Interface interact(Object*, Field*, SwitchHandler*);
   virtual bool use(Player*);
   virtual bool verify();
   using Solid::interact;

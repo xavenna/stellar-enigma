@@ -146,6 +146,8 @@ int main(int argc, char** argv) {
 
   std::ofstream secondary("obj-names.txt");
 
+  std::vector<std::string> objNames;
+
   for(auto const& entry : std::filesystem::directory_iterator{obj_dir}) {
     //player is a special case of object, and isn't built by the factory
     if(entry.path().filename() == "player.h" || entry.path().filename() =="mutable.h"
@@ -171,10 +173,23 @@ int main(int argc, char** argv) {
 
     //write a list of class types to obj-names.txt
     secondary << en.code << '\n';
+    objNames.push_back(en.code);
   }
   output += suffix;
 
   dump << includes << prefix << output;
+
+  //add a simple function: is_valid_obj_name(const std::string& s);
+  dump << "\n\nbool is_valid_obj_name(const std::string& s) {\n\treturn(";
+  for(unsigned i=0;i<objNames.size();i++) {
+    dump << "s == \"" << objNames[i] << "\"";
+    if(i+1 == objNames.size()) {
+      dump << ");\n}";
+    } else {
+      dump << " || ";
+    }
+  }
+
   return 0;
 }
 

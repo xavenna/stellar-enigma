@@ -21,7 +21,7 @@ public:
    *  If the operation fails, eventList is emptied (to avoid unexpected
    *  behavior from partially loaded cutscenes)
    */
-  bool loadFromFile(const std::string& filename);
+  bool loadFromFile(const json11::Json&, std::string&);
 };
 
 

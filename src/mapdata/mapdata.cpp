@@ -21,7 +21,7 @@ MapData::MapData(unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSi
   message.setPosition(4+levelSlot.getTilesize().x, msgOfY);
   
 
-  cutscenePlayer.man.loadCutscenes("cutlist.txt");
+  cutscenePlayer.man.loadCutscenes("assets/cutscene/cutscenes.json");
 
   //load savedata.
   utility.save.setSlot("0");
@@ -391,6 +391,7 @@ void MapData::event1Handle() {
   else if(player.getCooldown() != 0) {
     player.decrementCooldown();
   }
+  //this is no longer needed?
   sf::Vector2i oldps(player.getScreen().x, player.getScreen().y);
   player.update(levelSlot.getTilesize());
   sf::Vector2i newps(player.getScreen().x, player.getScreen().y);

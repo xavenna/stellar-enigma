@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <object id="objdata" class="GtkDialog">
+    <property name="title">Object Information</property>
+    <property name="hide-on-close">true</property>
+    <property name="default-width">540</property>
+    <property name="default-height">400</property>
+    <child>
+      <object id="outerbox" class="GtkPaned">
+        <property name="orientation">GTK_ORIENTATION_VERTICAL</property>
+        <property name="position">60</property>
+        <child>
+          <object id="upperbox" class="GtkBox">
+            <property name="orientation">GTK_ORIENTATION_HORIZONTAL</property>
+            <child>
+
+              <object class="GtkBox" id="innerbox">
+                <property name="orientation">GTK_ORIENTATION_VERTICAL</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label">Object Type</property>
+                  </object>
+                </child>
+                <child>
+                  <object id="ObjectTypeEntry" class="GtkEntry">
+
+                  </object>
+                </child>
+              </object>
+
+            </child>
+            <child>
+              <object id="AdjustButton" class="GtkButton">
+                <property name="label">Use Selected Object</property>
+
+              </object>
+            </child>
+
+          </object>
+        </child>
+        <child>
+          <object id="OutputScroll" class="GtkScrolledWindow">
+            <child>
+              <object id="Output" class="GtkTextView">
+                <property name="editable">FALSE</property>
+                <property name="wrap-mode">GTK_WRAP_WORD</property>
+              </object>
+
+            </child>
+          </object>
+
+        </child>
+      </object>
+    </child> <!-- end upperbox -->
+  </object>
+</interface>

@@ -195,13 +195,123 @@ static void add_obj_btn_cb(GtkEntry* btn, gpointer user_data) {
   gtk_widget_queue_draw(data->pre);
 }
 
+static void obj_info_entry_activate_cb(GtkEntry* ent, gpointer user_data) {
+  ListData* data = (ListData*) user_data;
+  //setup textviews
+  GtkTextBuffer* tbuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(data->tv));
+  GtkTextBuffer* obj_tbuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(data->obj_tv));
+
+  GtkEntryBuffer* buf = gtk_entry_get_buffer(GTK_ENTRY(data->obj_ent));
+  const char* rname = gtk_entry_buffer_get_text(buf);
+  std::string name = rname;
+
+  gtk_entry_buffer_set_text(buf, "", -1);
+  gtk_text_buffer_set_text(obj_tbuf, "", 0);
+
+  //now, fetch from db
+  if(!data->db.contains(name)) {
+    gtk_text_buffer_insert_at_cursor(obj_tbuf, "No database entry found...\n", -1);
+    return;
+
+  }
+
+  std::string entry = data->db.get_full_entry(name);
+  gtk_text_buffer_insert_at_cursor(obj_tbuf, entry.c_str(), entry.size());
+
+}
+
+static void obj_info_btn_cb(GtkButton* btn, gpointer user_data) {
+  ListData* data = (ListData*) user_data;
+  //setup textviews
+  GtkTextBuffer* tbuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(data->tv));
+  GtkTextBuffer* obj_tbuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(data->obj_tv));
+  gtk_text_buffer_set_text(obj_tbuf, "", 0);
+
+  GtkEntryBuffer* buf = gtk_entry_get_buffer(GTK_ENTRY(data->obj_ent));
+  //get name of selected object
+  if(data->objs.empty()) {
+    gtk_text_buffer_insert_at_cursor(obj_tbuf, "No object selected", -1);
+    return;
+  }
+
+  if(data->objs.size() <= *data->sel) {
+    gtk_text_buffer_insert_at_cursor(obj_tbuf, "Error: out of bounds selection.\n", -1);
+    return;
+
+  }
+  std::string name = data->objs[*(data->sel)].type;
+
+
+  //now, fetch from db
+  if(!data->db.contains(name)) {
+    gtk_text_buffer_insert_at_cursor(obj_tbuf, "No database entry found...\n", -1);
+    return;
+
+  }
+
+  std::string entry = data->db.get_full_entry(name);
+  gtk_text_buffer_insert_at_cursor(obj_tbuf, entry.c_str(), entry.size());
+
+}
+
+static void sw_info_btn_cb(GtkEntry* ent, gpointer user_data) {
+  std::array<std::string, 8> sw_names = {
+    "Appear",
+    "Disappear",
+    "A",
+    "B",
+    "C",
+    "D",
+    "Stat",
+    "Remove"
+  };
+  ListData* data = (ListData*) user_data;
+  //setup textview
+  GtkTextBuffer* tbuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(data->tv));
+  GtkEntryBuffer* buf = gtk_entry_get_buffer(ent);
+
+  const char* name = gtk_entry_buffer_get_text(buf);
+
+  std::string sw{name};
+  int s = -1;
+  try {
+    s = std::stoi(sw);
+    if(s<0 || s > 255) {
+      gtk_text_buffer_insert_at_cursor(tbuf, "Error: switch number out of range\n", -1);
+      gtk_entry_buffer_set_text(buf, "", -1);
+      return;
+    }
+  } catch(...) {
+    gtk_text_buffer_insert_at_cursor(tbuf, "Error: input must be an integer\n", -1);
+    gtk_entry_buffer_set_text(buf, "", -1);
+    return;
+  }
+  std::string m = "Switch "+std::to_string(s)+":\n";
+  gtk_text_buffer_insert_at_cursor(tbuf, m.c_str(), m.size());
+  //go through all objects, and check for switch values
+  for(unsigned i=0;i<data->objs.size();i++) {
+    auto x = (data->objs)[i];
+    for(int j=0;j<8;j++) {
+      if(x.switches[j] == s) {
+        //output a note
+        std::string msg = "Object "+std::to_string(i)+"<type:"+x.type+"> - SW_"+sw_names[j]+"\n";
+        gtk_text_buffer_insert_at_cursor(tbuf, msg.c_str(), msg.size());
+      }
+
+    }
+
+  }
+  gtk_text_buffer_insert_at_cursor(tbuf, "\n", -1);
+  gtk_entry_buffer_set_text(buf, "", -1);
+
+}
+
 static void redraw_btn_cb(GtkButton* btn, gpointer user_data) {
   ListData* data = (ListData*) user_data;
   //setup textview
   GtkTextBuffer* tbuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(data->tv));
 
   gtk_widget_queue_draw(data->pre);
-
 }
 
 static void rem_obj_btn_cb(GtkButton* btn, gpointer user_data) {
@@ -399,8 +509,17 @@ static void open_activated(GSimpleAction *act, GVariant *parameter, gpointer use
                     data);
 
 }
+static void objdata_activated(GSimpleAction *act, GVariant *parameter, gpointer user_data){
+  ListData* data = (ListData*) user_data;
+  GtkTextBuffer* tbuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(data->tv));
 
-static void verify_btn_cb(GtkButton* btn, gpointer user_data) {
+  gtk_window_present(data->objdata);
+
+
+
+}
+
+static void verify_activated(GSimpleAction *act, GVariant *parameter, gpointer user_data){
   ListData* data = (ListData*) user_data;
   //setup textview
   GtkTextBuffer* tbuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(data->tv));
@@ -420,12 +539,30 @@ static void verify_btn_cb(GtkButton* btn, gpointer user_data) {
     load.close();
   }
 
+
   bool success=true;
+
+  std::set<int> link_ids;
+
   ObjContainer oc;
   std::string vstat;
   unsigned line=0;
   for(unsigned i=0;i<data->objs.size();i++) {
     ObjectBase& x = (data->objs)[i];
+
+    if(x.link_id >= 0) { //check link_id if not null
+      if(link_ids.count(x.link_id) != 0) {
+        std::string mesg = "Verification failure: Repeated link_id " + std::to_string(x.link_id) + "\n";
+        gtk_text_buffer_insert_at_cursor(tbuf, mesg.c_str(), mesg.size());
+        success = false;
+        line += 1;
+      } else {
+        link_ids.insert(x.link_id);
+      }
+
+    }
+
+
     //construct an object from the ObjectBase, then have the ObjContainer initialize it
     Object ob;
     ob.setLinkID(x.link_id);
@@ -459,6 +596,7 @@ static void verify_btn_cb(GtkButton* btn, gpointer user_data) {
     gtk_text_buffer_insert_at_cursor(tbuf, "Verification failure\n", -1);
   }
 }
+
 
 //eventually, this renders a preview of the objects
 static void draw_function(GtkDrawingArea* area, cairo_t* cr, int width, int height, gpointer user_data) {
@@ -602,8 +740,8 @@ static void app_startup(GtkApplication* app, gpointer user_data) {
   //add callbacks to buttons?
   GObject* remove_btn = gtk_builder_get_object(builder, "RemoveObjectButton");
   GObject* entry = gtk_builder_get_object(builder, "ObjectTypeEntry");
-  GObject* verify_btn = gtk_builder_get_object(builder, "VerifyButton");
   GObject* redraw_btn = gtk_builder_get_object(builder, "RedrawButton");
+  GObject* sw_entry = gtk_builder_get_object(builder, "SwitchInfoEntry");
 
   //setup preview pane
   GObject* preview = gtk_builder_get_object(builder, "Preview");
@@ -662,7 +800,7 @@ static void app_startup(GtkApplication* app, gpointer user_data) {
     {"Link ID", "-1"},
     {"Parent ID", "-1"},
     {"Texture ID", "-1"},
-    {"Text Arg", "..."},
+    {"Text Arg", "."},
 
     {"arg_0", "-1"},
     {"arg_1", "-1"},
@@ -696,11 +834,32 @@ static void app_startup(GtkApplication* app, gpointer user_data) {
 
   g_signal_connect(GTK_WIDGET(entry), "activate", G_CALLBACK(add_obj_btn_cb), d);
   g_signal_connect(GTK_WIDGET(remove_btn), "clicked", G_CALLBACK(rem_obj_btn_cb), d);
-  g_signal_connect(GTK_WIDGET(verify_btn), "clicked", G_CALLBACK(verify_btn_cb), d);
   g_signal_connect(GTK_WIDGET(redraw_btn), "clicked", G_CALLBACK(redraw_btn_cb), d);
+  g_signal_connect(GTK_WIDGET(sw_entry), "activate", G_CALLBACK(sw_info_btn_cb), d);
 
   //selection model
   g_signal_connect(sel, "selection-changed", G_CALLBACK(change_selected_obj_cb), d);
+
+
+  GtkBuilder* dbuilder = gtk_builder_new_from_file("assets/objdata.ui");
+
+  GtkWidget* dialog = GTK_WIDGET(gtk_builder_get_object(dbuilder, "objdata"));
+  gtk_window_set_transient_for(GTK_WINDOW(dialog), d->win);
+
+  //load obj-db
+  ed::parse_db("assets/obj.json", d->db);
+
+  //setup callbacks for obj-db window
+
+  GtkWidget* obj_ent = GTK_WIDGET(gtk_builder_get_object(dbuilder, "ObjectTypeEntry"));
+  GtkWidget* obj_btn = GTK_WIDGET(gtk_builder_get_object(dbuilder, "AdjustButton"));
+  GtkWidget* obj_tv = GTK_WIDGET(gtk_builder_get_object(dbuilder, "Output"));
+  g_signal_connect(GTK_WIDGET(obj_ent), "activate", G_CALLBACK(obj_info_entry_activate_cb), d);
+  g_signal_connect(GTK_WIDGET(obj_btn), "clicked", G_CALLBACK(obj_info_btn_cb), d);
+
+  d->objdata = GTK_WINDOW(dialog);
+  d->obj_tv = obj_tv;
+  d->obj_ent = obj_ent;
 
   //menu
   GtkBuilder* mBuilder = gtk_builder_new_from_file("assets/menu.ui");
@@ -711,7 +870,10 @@ static void app_startup(GtkApplication* app, gpointer user_data) {
     {"quit", quit_activated, NULL, NULL, NULL},
     {"save", save_activated, NULL, NULL, NULL},
     {"saveas", saveas_activated, NULL, NULL, NULL},
-    {"open", open_activated, NULL, NULL, NULL}
+    {"open", open_activated, NULL, NULL, NULL},
+    {"verify", verify_activated, NULL, NULL, NULL},
+    {"objdata", objdata_activated, NULL, NULL, NULL},
+    //{"about", about_activated, NULL, NULL, NULL}
   };
   struct {
     const char *action_and_target;
@@ -721,6 +883,8 @@ static void app_startup(GtkApplication* app, gpointer user_data) {
     { "app.saveas", { "<Control><Shift>s", NULL } },
     { "app.quit", { "<Control>q", NULL } },
     { "app.open", { "<Control>o", NULL } },
+    { "app.verify", {"<Alt>v", NULL} },
+    { "app.objdata", {"<Alt>o", NULL} },
   };
 
   g_action_map_add_action_entries(G_ACTION_MAP(app), app_entries, G_N_ELEMENTS(app_entries), d);

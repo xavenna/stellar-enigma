@@ -154,19 +154,19 @@ bool Level::loadMutables(const std::string& levelname) {
   return true;
 }
 
-int Level::getWidth() const {
+unsigned Level::getWidth() const {
   return field.getWidth();
 }
-int Level::getHeight() const {
+unsigned Level::getHeight() const {
   return field.getHeight();
 }
-int Level::getTilesizeX() const {
+unsigned Level::getTilesizeX() const {
   return field.getTilesizeX();
 }
-int Level::getTilesizeY() const {
+unsigned Level::getTilesizeY() const {
   return field.getTilesizeY();
 }
-sf::Vector2i Level::getTilesize() const {
+sf::Vector2u Level::getTilesize() const {
   return field.getTilesize();
 }
 unsigned Level::getObjNum() const {

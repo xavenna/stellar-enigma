@@ -12,7 +12,7 @@ private:
   std::string name;
 public:
   //! Get the number of cutscenes stored
-  int getListLen();
+  unsigned getListLen();
   //! Gets specified event from eventList
   Event getEvent(unsigned pos);
   //! Loads a cutscene from a file.

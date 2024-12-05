@@ -11,7 +11,7 @@ bool CutsceneManager::loadCutscenes(const std::string& fn) {
   }
   getEntireFile(read, data);
   read.close();
-  //read contents of save file
+  //read contents of file
   json11::Json save;
   save = save.parse(data, err);
   if(!err.empty()) {
@@ -28,41 +28,7 @@ bool CutsceneManager::loadCutscenes(const std::string& fn) {
     std::string name;
     c.loadFromFile(x, name);
     cutlist.emplace(name, c);
-    //dump cutscene value to stderr:
-    std::cerr << "name:"<<name<<"; events:";
-    for(unsigned i=0;i<c.getListLen();i++) {
-      Event e = c.getEvent(i);
-      std::cerr << "{type:"<<e.getType()<<"; duration:"<<e.getDuration()<<"}\n";
-      
-    }
   }
-
-
-  /*
-  std::ifstream load;
-  std::string line;
-  std::string name;
-  std::string compName;
-  std::string nfn = "assets/cutscene/" + filename;
-  load.open(nfn);
-  if(!load.is_open()) {
-    //error
-    return false;
-  }
-  while(load.peek() != EOF) {
-    std::getline(load, line);
-    compName = "assets/cutscene/" + line;
-    Cutscene c;
-    //attempt to load line into a cutscene
-    if(c.loadFromFile(compName)) {
-      name = line.substr(0,line.find("."));
-      cutlist.emplace(name, c);
-    }
-    else {
-      std::cout << "cutscene not loaded from file '" << line << "'\n";
-    }
-  }
-  */
   return true;
 }
 

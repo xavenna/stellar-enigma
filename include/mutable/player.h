@@ -30,7 +30,7 @@ public:
    *  Sets the sprite's position based on where the player is located. Ensures the player's position
    *  is in the correct place relative to the currently displayed section of the level
    */
-  void update(sf::Vector2i);
+  void update();
   //! Assign texture from cache
   /*!
    *  This needs to be restructured to match Object::draw();

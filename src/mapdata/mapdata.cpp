@@ -88,7 +88,7 @@ void MapData::finishFrame(sf::RenderWindow& window) {
     camera.drawFrame(window, modeSwitcher.getMode(), cache);
 
     //update things
-    player.update(levelSlot.getTilesize());
+    player.update();
     player.assignTexture(cache);
     //window.draw(player);
 
@@ -392,13 +392,9 @@ void MapData::event1Handle() {
     player.decrementCooldown();
   }
   //this is no longer needed?
-  sf::Vector2i oldps(player.getScreen().x, player.getScreen().y);
-  player.update(levelSlot.getTilesize());
-  sf::Vector2i newps(player.getScreen().x, player.getScreen().y);
+  player.update();
 
   //various updates
-  if(oldps != newps)
-    levelSlot.displayUpdate = true;
 
   Interface res = levelSlot.handleObjects(&switchHandler, &utility);
 
@@ -410,9 +406,7 @@ void MapData::event1Handle() {
   }
   for(auto x : res.cutscene) {
     if(x != "") {
-      if(cutscenePlayer.man.cutsceneExists(x)) {
-        cutscenePlayer.loadCutscene(cutscenePlayer.man.getCutscene(x));
-      }
+      cutscenePlayer.playCutscene(x);
       modeSwitcher.setMode(2);
     }
   }
@@ -548,9 +542,7 @@ void MapData::handleInteractions() {
       }
       for(auto y : res.cutscene) {
         if(y != "") {
-          if(cutscenePlayer.man.cutsceneExists(y)) {
-            cutscenePlayer.loadCutscene(cutscenePlayer.man.getCutscene(y));
-          }
+          cutscenePlayer.playCutscene(y);
           modeSwitcher.setMode(2);
         }
       }
@@ -590,12 +582,7 @@ void MapData::event2Handle() {  //this is the cutscene mode
     //cutscene is over; do things now... 
     modeSwitcher.setMode(1); //switch back to gameplay mode
   }
-  sf::Vector2i oldps(player.getScreen().x, player.getScreen().y);
-  player.update(levelSlot.getTilesize());
-  sf::Vector2i newps(player.getScreen().x, player.getScreen().y);
-
-  if(oldps != newps)
-    levelSlot.displayUpdate = true;
+  player.update();
 }
 
 

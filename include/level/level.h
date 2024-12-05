@@ -92,15 +92,15 @@ public:
    */
   bool loadMutables(const std::string&);
   //! Gets map height
-  int getHeight() const;
+  unsigned getHeight() const;
   //! Gets map width
-  int getWidth() const;
+  unsigned getWidth() const;
   //! gets tile width
-  int getTilesizeX() const;
+  unsigned getTilesizeX() const;
   //! gets tile height
-  int getTilesizeY() const;
+  unsigned getTilesizeY() const;
   //! gets tilesize as a sf::Vector2i
-  sf::Vector2i getTilesize() const;
+  sf::Vector2u getTilesize() const;
   //! gets the number of objects
   unsigned getObjNum() const;
 

@@ -66,8 +66,9 @@ sf::Vector2f Camera::getFocus(const Config& c) {
   case Config::Fixed:
     return config.focus;
     break;
+  default:
+    return zero2<float>();
   }
-  return zero2<float>();
 }
 
 float Camera::getScale(const Config& c) {
@@ -81,8 +82,9 @@ float Camera::getScale(const Config& c) {
   case Config::Fixed:
     return config.zoom;
     break;
+  default:
+    return 1.f;
   }
-  return 0.f;
 }
 
 sf::RenderTexture& Camera::drawFrame(sf::RenderWindow& window, unsigned mode, TextureCache& cache) {
@@ -109,7 +111,7 @@ void Camera::gameplayDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
   //render a frame of regular gameplay
   //First, determine Camera's focus point and zoom scale
   sf::Vector2f focusPoint = getFocus(config);
-  float zoom = getScale(config);
+  float zo = getScale(config);
 
 
   //once focus point & zoom have been determined, begin rendering
@@ -129,14 +131,14 @@ void Camera::gameplayDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
 
   //render tiles:
   sf::Sprite s;
-  for(int i=0;i<l.getWidth();i++) {
-    for(int j=0;j<l.getHeight();j++) {
+  for(unsigned i=0;i<l.getWidth();i++) {
+    for(unsigned j=0;j<l.getHeight();j++) {
       NodeBase n = l.field.getNode(i,j);
       //apply any transforms to n;
       sf::Vector2f pos = sf::Vector2f(l.getTilesize().x * i, l.getTilesize().y * j); 
 
-      s.setPosition(zoom * (pos - focusPoint) + focusPoint);
-      s.setScale(zoom, zoom);
+      s.setPosition(zo * (pos - focusPoint) + focusPoint);
+      s.setScale(zo, zo);
 
       //set texture
       assignTexture(s, cache, n);
@@ -157,8 +159,8 @@ void Camera::gameplayDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
     Object& obj = l.getObjRef(i);
     //apply any transforms to n;
 
-    obj.setPosition(zoom * (obj.getPos() - focusPoint) + focusPoint);
-    obj.setScale(zoom, zoom);
+    obj.setPosition(zo * (obj.getPos() - focusPoint) + focusPoint);
+    obj.setScale(zo, zo);
 
     //render m to frame
     if(view.intersects(obj.getGlobalBounds())) {
@@ -169,8 +171,8 @@ void Camera::gameplayDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
 
 
   //render player
-  p.setPosition(zoom * (p.getPos() - focusPoint) + focusPoint);
-  p.setScale(zoom, zoom);
+  p.setPosition(zo * (p.getPos() - focusPoint) + focusPoint);
+  p.setScale(zo, zo);
 
   //render m to frame
   if(view.intersects(p.getGlobalBounds())) {
@@ -184,7 +186,7 @@ void Camera::gameplayDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
 void Camera::cutsceneDraw(sf::RenderWindow& window, unsigned mode, TextureCache& cache) {
 
   sf::Vector2f focusPoint;
-  float zoom;
+  float zo;
   if(inAnim) {
     //an animation is occurring, ignore config settings; use animStatus
     zoom = animStatus.startScale + (animStatus.scaleStep * animStatus.currentFrame);
@@ -197,7 +199,7 @@ void Camera::cutsceneDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
   }
   else {
     focusPoint = getFocus(config);
-    zoom = config.zoom;
+    zo = config.zoom;
   }
 
 
@@ -218,14 +220,14 @@ void Camera::cutsceneDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
 
   //render tiles:
   sf::Sprite s;
-  for(int i=0;i<l.getWidth();i++) {
-    for(int j=0;j<l.getHeight();j++) {
+  for(unsigned i=0;i<l.getWidth();i++) {
+    for(unsigned j=0;j<l.getHeight();j++) {
       NodeBase n = l.field.getNode(i,j);
       //apply any transforms to n;
       sf::Vector2f pos = sf::Vector2f(l.getTilesize().x * i, l.getTilesize().y * j); 
 
-      s.setPosition(zoom * (pos - focusPoint) + focusPoint);
-      s.setScale(zoom, zoom);
+      s.setPosition(zo * (pos - focusPoint) + focusPoint);
+      s.setScale(zo, zo);
 
       //set texture
       assignTexture(s, cache, n);
@@ -250,8 +252,8 @@ void Camera::cutsceneDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
     Object& obj = l.getObjRef(i);
     //apply any transforms to n;
 
-    obj.setPosition(zoom * (obj.getPos() - focusPoint) + focusPoint);
-    obj.setScale(zoom, zoom);
+    obj.setPosition(zo * (obj.getPos() - focusPoint) + focusPoint);
+    obj.setScale(zo, zo);
 
     //render m to frame
     if(view.intersects(obj.getGlobalBounds())) {
@@ -262,8 +264,8 @@ void Camera::cutsceneDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
   }
 
   //render player
-  p.setPosition(zoom * (p.getPos() - focusPoint) + focusPoint);
-  p.setScale(zoom, zoom);
+  p.setPosition(zo * (p.getPos() - focusPoint) + focusPoint);
+  p.setScale(zo, zo);
 
   //render m to frame
   if(view.intersects(p.getGlobalBounds())) {

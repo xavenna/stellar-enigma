@@ -28,8 +28,9 @@
 class CutscenePlayer {
 private:
   Cutscene cutscene; //!< Currently playing cutscene
-  int timer;
-  unsigned pos;  //!< position in the cutscene
+  unsigned timer=0;
+  unsigned pos=0;  //!< position in the cutscene
+  bool waiting=false;
   
   //references to engine components:
   Player& pl;
@@ -41,7 +42,7 @@ private:
   Camera& cam;
 public:
   //! Doesn't do anything. I'm not sure what I intended it to do
-  void playCutscene();
+  bool playCutscene(const std::string&);
   //! Loads specified cutscene
   void loadCutscene(const Cutscene&);
   //! Runs every frame and checks the status of the cutscene.

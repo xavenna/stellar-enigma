@@ -22,20 +22,20 @@ void Field::updateNode(unsigned x, unsigned y, const NodeBase& node) {
   mapBase[x][y] = node;
 }
 
-int Field::getWidth() const {
+unsigned Field::getWidth() const {
   return mapBase.size();
 }
-int Field::getHeight() const {
+unsigned Field::getHeight() const {
   return mapBase[0].size();
 }
 
-int Field::getTilesizeX() const {
+unsigned Field::getTilesizeX() const {
   return tilesize.x;
 }
-int Field::getTilesizeY() const {
+unsigned Field::getTilesizeY() const {
   return tilesize.y;
 }
-sf::Vector2i Field::getTilesize() const {
+sf::Vector2u Field::getTilesize() const {
   return tilesize;
 }
 
@@ -265,7 +265,7 @@ int Field::loadJsonLevel(const std::string& levelname) {
   }
 
   sf::Vector2i mapSize; // (units of nodes)
-  sf::Vector2i tileSize; // in pixels
+  sf::Vector2u tileSize; // in pixels
 
   //parse 'save', extract level data
 
@@ -284,7 +284,7 @@ int Field::loadJsonLevel(const std::string& levelname) {
 
     std::string name = x["name"].string_value();
     sf::Vector2i map = sf::Vector2i(x["gridCellsX"].int_value(), x["gridCellsY"].int_value());
-    sf::Vector2i tile = sf::Vector2i(x["gridCellWidth"].int_value(), x["gridCellHeight"].int_value());
+    sf::Vector2u tile = sf::Vector2u(x["gridCellWidth"].int_value(), x["gridCellHeight"].int_value());
 
     std::vector<json11::Json> data = x["dataCoords2D"].array_items();
     std::vector<json11::Json> gridData = x["grid2D"].array_items();

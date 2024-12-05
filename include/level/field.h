@@ -25,7 +25,7 @@ public:
 class Field {
 private:
   std::vector<std::vector<NodeBase>> mapBase; //!< The level data of the map
-  sf::Vector2i tilesize;
+  sf::Vector2u tilesize;
   std::vector<Wall> walls; //the list of walls found in the level
 public:
   //! returns a copy of specified node
@@ -33,16 +33,16 @@ public:
   //! overwrites the mapnode at position x,y with node
   void updateNode(unsigned x, unsigned y, const NodeBase& node);
   //! Gets map height
-  int getHeight() const;
+  unsigned getHeight() const;
   //! Gets map width
-  int getWidth() const;
+  unsigned getWidth() const;
 
   //! gets tile width
-  int getTilesizeX() const;
+  unsigned getTilesizeX() const;
   //! gets tile height
-  int getTilesizeY() const;
+  unsigned getTilesizeY() const;
   //! gets tilesize as a sf::Vector2i
-  sf::Vector2i getTilesize() const;
+  sf::Vector2u getTilesize() const;
 
   //! Constructs a field with specified size
   Field(size_t, size_t);

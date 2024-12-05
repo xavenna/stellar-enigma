@@ -5,7 +5,7 @@ Player::Player() {
   setPos(0,0);
   facingDir = Up;
 }
-void Player::update(sf::Vector2i tilesize) {
+void Player::update() {
   lastPos = pos;
 }
 //make this match the format of Object::Draw

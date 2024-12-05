@@ -96,7 +96,13 @@ if(RAW_IN)
   target_compile_definitions(stellar PRIVATE SE_RAW_IN)
 endif()
 
-target_compile_options(stellar PRIVATE -Wall -Wextra -Wpedantic)
+target_compile_options(stellar PRIVATE -Wall -Wextra -Wpedantic -Wcast-align
+  -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2 -Winit-self 
+  -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wnoexcept -Wold-style-cast
+  -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo
+  -Wstrict-null-sentinel -Wstrict-overflow=5 -Wswitch-default -Wundef)
+# All the warnings are to prevent errors. These were here before migrating to cmake, but
+# I forgot to add them all back here.
 
 # Doxygen
 

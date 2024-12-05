@@ -55,14 +55,14 @@ public:
   //! A wrapper around getArg
   int operator[](unsigned);
   //! Returns duration of event
-  int getDuration();
+  unsigned getDuration();
   //! Constructs event with specified attributes
-  Event(Event::Type ty, int dur, const std::array<int, 8>& arg, const std::string& txt);
+  Event(Event::Type ty, unsigned dur, const std::array<int, 8>& arg, const std::string& txt);
   //! Constructs an empty event
   Event();
 private:
   Type type;  //!< Type of event
-  int duration; //!< Duration in frames of the event
+  unsigned duration; //!< Duration in frames of the event
   std::array<int, 8> arguments;  //!< arguments for the event
   //The 8 here is purely arbitrary, and may change
   std::string text;  //!< text argument

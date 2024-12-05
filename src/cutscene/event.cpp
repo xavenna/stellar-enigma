@@ -18,11 +18,11 @@ int Event::getArg(unsigned index) {
 int Event::operator[](unsigned index) {
   return getArg(index);
 }
-int Event::getDuration() {
+unsigned Event::getDuration() {
   return duration;
 }
 
-Event::Event(Event::Type ty, int dur, const std::array<int, 8>& arg, const std::string& txt) : type{ty}, duration{dur}, arguments{arg}, text{txt} {
+Event::Event(Event::Type ty, unsigned dur, const std::array<int, 8>& arg, const std::string& txt) : type{ty}, duration{dur}, arguments{arg}, text{txt} {
 }
 Event::Event() {
   
@@ -77,7 +77,7 @@ bool line2event(const std::string& line, Event& ev) {
   std::string key = "`";
   parse(line, fieldList, key);
   std::string t;
-  int du{0};
+  unsigned du{0};
   Event::Type et{Event::Invalid};
   std::array<int, 8> ar;
   //now, iterate through the fields and parse them

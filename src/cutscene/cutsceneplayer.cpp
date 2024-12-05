@@ -1,15 +1,76 @@
 #include "cutscene/cutsceneplayer.h"
 
-void CutscenePlayer::playCutscene() {//this may be completely useless
-  //actually, this could be used when switching to mode 2
+bool CutscenePlayer::playCutscene(const std::string& name) {//this may be completely useless
+  //check if specified cutscene exists
+  if(!man.cutsceneExists(name)) {
+    std::cerr << "Error: Cutscene '"<<name<<"' could not be found\n";
+    return false;
+  }
+  cutscene = man.getCutscene(name);
+  pos = 0;
+  waiting = false;
+
+  
+  
+  return true;
 }
 
 bool CutscenePlayer::updateCutscene() {
   //make this start the next event, that would be pretty cool
   //okay, I think it does now. Yay
   // now, it doesn't play the first event. ????
+
   Event e = cutscene.getEvent(pos);
-  bool finalEvent = (cutscene.getListLen()-1 == static_cast<int>(pos));
+  bool finalEvent = (cutscene.getListLen() == pos+1);
+
+  if(waiting) {
+    //check if waiting for time or input
+    if(e.getType() == Event::GetInput || e.getType() == Event::Menu) {
+      sf::Keyboard::Key k;
+      while(ms.getLastKey(k)) {
+        //check if key is valid
+        if(e[1] == 1 || (e[1] == 0 && e[0] == k)) {
+          //event is over
+          if(finalEvent) {
+            //cutscene is over, return or whatever
+            return false;
+          }
+          pos++;
+          waiting = false;
+          if(cutscene.getListLen() == pos+1) {
+            return false;
+          }
+        }
+      }
+    } else {
+      timer--;
+      if(timer == 0) {
+        //switch to next event
+        if(finalEvent) {
+          return false;
+        }
+        pos++;
+        waiting = false;
+      }
+      ms.ignoreKeypresses();
+    }
+  } 
+
+  if(!waiting) { //this isn't an if-else b/c waiting can change in first loop 
+    //play event
+    if(!playEvent()) {
+      //error: invalid event
+      std::cout << "Error: invalid event in cutscene. Event skipped.\n";
+      timer = 0;
+    } else {
+      waiting = true;
+      timer = e.getDuration();
+
+    }
+
+  }
+
+  /*
   //check if waiting for time or button press
   if(e.getType() == Event::GetInput) {
     //wait for player input
@@ -59,6 +120,7 @@ bool CutscenePlayer::updateCutscene() {
     }
     ms.ignoreKeypresses();
   }
+  */
   return true;
 }
 
@@ -256,7 +318,6 @@ void CutscenePlayer::loadCutscene(const Cutscene& cut) {
   
 }
 CutscenePlayer::CutscenePlayer(Player& p, Message& m, Level& l, ModeSwitcher& mo, MusicPlayer& mu, SwitchHandler& s, Camera& c) : pl{p}, me{m}, le{l}, ms{mo}, mp{mu}, sh{s}, cam{c} {
-  timer = 0;
-  pos = 0;
+
 }
 

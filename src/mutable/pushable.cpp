@@ -3,7 +3,7 @@
 
 Pushable::Pushable(int uid) : Object(uid) {}
 
-Interface Pushable::interact(Object* p, Field* l, SwitchHandler*) {
+Interface Pushable::interact(Object*, Field*, SwitchHandler*) {
   return Interface();
 }
 

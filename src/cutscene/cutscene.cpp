@@ -8,17 +8,17 @@ Event Cutscene::getEvent(unsigned pos) {
     throw std::out_of_range("Cutscene::getEvent: in cutscene '" + name + "' (size is "+std::to_string(eventList.size())+", requested index is "+std::to_string(pos)+")");
   }
 }
-int Cutscene::getListLen() {
+unsigned Cutscene::getListLen() {
   return eventList.size();
 }
 
-bool Cutscene::loadFromFile(const json11::Json& ob, std::string& name) {
+bool Cutscene::loadFromFile(const json11::Json& ob, std::string& fn) {
   //should have a name
   if(!ob["name"].is_string() || !ob["events"].is_array()) {
     std::cerr << "Couldn't parse cutscene\n";
     return false;
   }
-  name = ob["name"].string_value();
+  fn = ob["name"].string_value();
   //now, iterate through ob["events"] and call parse_json_event
 
   auto events = ob["events"].array_items();

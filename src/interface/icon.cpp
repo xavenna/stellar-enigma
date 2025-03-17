@@ -79,7 +79,7 @@ void showPoints(const Player* p, sf::Texture& tex, TextureCache* cache) {
   //use texture cache, add a text transform?
   //create a CNA
   CacheNodeAttributes cna;
-  cna.srcImg = cache->reverseHash("score");
+  cna.srcImg = "score";
 
   Transform t;
   t.type = Transform::Add_Text;

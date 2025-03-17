@@ -19,7 +19,7 @@ Interface Spike::interact(Object* o, Field* f, SwitchHandler* s) {
 CacheNodeAttributes Spike::draw(const TextureCache* cache) {
   // draw a cactus with no transforms
   CacheNodeAttributes cna;
-  cna.srcImg = cache->reverseHash("cactus");
+  cna.srcImg = "cactus";
   //no transforms, so tlist is left blank
   return cna;
 }

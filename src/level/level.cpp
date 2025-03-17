@@ -217,6 +217,9 @@ void Level::assignTextureToObject(unsigned index, TextureCache& cache) {
   //create cna using a virtual function
 
   CacheNodeAttributes cna = ob->draw(&cache);
+  if(cna.srcImg == "\t") {
+    std::cerr << '\n';
+  }
 
   try {
     objects.getObjPtr(index)->setTexture(cache.getTexture(cna));

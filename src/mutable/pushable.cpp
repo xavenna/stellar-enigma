@@ -31,7 +31,7 @@ CacheNodeAttributes Pushable::draw(const TextureCache* cache) {
   CacheNodeAttributes cna;
   switch(args[0]) {
   default:
-    cna.srcImg = cache->reverseHash("crate");
+    cna.srcImg = "crate";
   //others can go here for more freedom
   }
   //no transforms, so tlist is left blank

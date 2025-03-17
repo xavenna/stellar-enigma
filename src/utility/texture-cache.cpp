@@ -19,10 +19,6 @@ bool CacheNodeAttributes::operator==(CacheNodeAttributes attr) const {
   return true;
 }
 
-unsigned CacheNodeAttributes::src() {
-  return static_cast<unsigned>(srcImg);
-}
-
 CacheNode::CacheNode(CacheNodeAttributes attr) {
   srcImg = attr.srcImg;
   tList.resize(attr.tList.size());
@@ -58,8 +54,9 @@ bool TextureCache::hasImage(const std::string& value) const {
 
 int TextureCache::searchCache(CacheNodeAttributes attr) const {
   // if texture exists, return its index. Else, return -1
-  for(unsigned long i=0;i<cache[attr.srcImg].size();i++) {
-    if(cache[attr.srcImg][i] == attr) {
+  unsigned s = reverseHash(attr.srcImg);
+  for(unsigned long i=0;i<cache[s].size();i++) {
+    if(cache[s][i] == attr) {
       return static_cast<int>(i);
     }
   }
@@ -67,7 +64,7 @@ int TextureCache::searchCache(CacheNodeAttributes attr) const {
 }
 
 sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
-  if(attr.srcImg > imgNameHash.size()) {
+  if(!hasImage(attr.srcImg)) {
     // requested image hasn't been registered yet
     std::cerr << "Requested Image hasn't been registered ("<<attr.srcImg<<")\n";
     throw std::invalid_argument("TextureCache::getTexture() : Requested Image hasn't been registered");
@@ -80,16 +77,18 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
   if(index >= 0) { //index is guaranteed to be nonnegative
     // requested texture exists
     //std::clog << "Fetching texture from cache "<<attr.srcImg<<", slot " << index << "\n";
-    return cache[attr.srcImg][static_cast<unsigned>(index)].tex;
+    unsigned s = reverseHash(attr.srcImg);
+    return cache[s][static_cast<unsigned>(index)].tex;
   }
   else {
     //std::clog << "Cache miss in subcache " << attr.srcImg << "\n";
     //cache miss
-    //generate a texture with the requested transformations, create a CacheNode using it and
+    //generate a texture with the requested transformations, create a CacheNode using it
     //attr, and append it to the appropriate vector in Cache
     
     // make a copy of requested image
-    sf::Image finalImage(images[attr.srcImg]);
+    unsigned sr = reverseHash(attr.srcImg);
+    sf::Image finalImage(images[sr]);
     sf::IntRect window(0, 0, static_cast<int>(finalImage.getSize().x), static_cast<int>(finalImage.getSize().y));
     // iterate through attr.tList, apply each transformation
     for(auto x : attr.tList) {
@@ -191,13 +190,13 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
     CacheNode c(attr);
     c.tex.loadFromImage(finalImage, window);
     //std::cout << "Placing texture into slot " << cache[attr.srcImg].size() << '\n';
-    cache[attr.srcImg].push_back(c);
+    cache[sr].push_back(c);
     //std::cout << "Creation successful\n";
     //create a CacheNode in the appropriate part of the cache. Use the final Image to make
     // the texture, and attr for the rest.
 
     //now return a reference to the generated texture
-    return cache[attr.srcImg].back().tex;
+    return cache[sr].back().tex;
   }
 }
 

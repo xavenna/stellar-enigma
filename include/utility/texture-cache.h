@@ -77,8 +77,7 @@ struct Transform {
  */
 class CacheNodeAttributes {
 public:
-  unsigned srcImg; //!< Which image # is used
-  unsigned src(); //!< Gets srcImg as an unsigned
+  std::string srcImg; //!< Which image # is used
   std::vector<Transform> tList; //!< List of transforms to apply
   bool operator==(CacheNodeAttributes) const; //!< Checks if two CNAs fully match
 };

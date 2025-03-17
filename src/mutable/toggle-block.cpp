@@ -20,10 +20,10 @@ CacheNodeAttributes ToggleBlock::draw(const TextureCache* cache) {
   // check value of some internal state, and draw using obj_args
   CacheNodeAttributes cna;
   if(vars[0] == 1) {
-    cna.srcImg = cache->reverseHash("on-barr-big");
+    cna.srcImg = "on-barr-big";
   }
   else {
-    cna.srcImg = cache->reverseHash("off-barr-big");
+    cna.srcImg = "off-barr-big";
   }
 
   //no transforms, so tlist is left blank

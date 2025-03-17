@@ -82,7 +82,6 @@ Object::Object() {
   size.y = 0;
   solid = false;
   status = Object::Normal;
-  mass = 1.f;
   selfPush = zero2<float>();
 }
 
@@ -117,7 +116,7 @@ Interface Object::behave(SwitchHandler*, Utility*) {
 CacheNodeAttributes Object::draw(const TextureCache* cache) {
   // draw a blank tile with no transforms
   CacheNodeAttributes cna;
-  cna.srcImg = cache->reverseHash("null");
+  cna.srcImg = "null";
   //no transforms, so tlist is left blank
   return cna;
 }

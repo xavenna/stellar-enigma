@@ -15,7 +15,7 @@ Interface Board::interact(Object* o, Field*, SwitchHandler*) {
 CacheNodeAttributes Board::draw(const TextureCache* cache) {
   // draw a board with no transforms
   CacheNodeAttributes cna;
-  cna.srcImg = cache->reverseHash("board");
+  cna.srcImg = "board";
   //no transforms, so tlist is left blank
   return cna;
 }

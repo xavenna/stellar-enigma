@@ -27,7 +27,7 @@ void Player::assignTexture(TextureCache& cache) {
     break;
   }
 
-  cna.srcImg = cache.reverseHash(name);
+  cna.srcImg = name;
   //apply transformations
 
   try {

@@ -17,8 +17,6 @@ protected:
   sf::Vector2i screen; //!< Which screen the mutable is on. Deprecated
   sf::Vector2f size; //!< Size of the mutable in pixels
   bool solid; //!< Whether other mutables can pass through the mutable. Deprecated
-  //!< The object's mass. A higher mass means it's harder to push.
-  float mass=0;
   //!< Self-initiated movement distance for the next frame
   sf::Vector2f selfPush;
 

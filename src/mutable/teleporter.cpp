@@ -35,10 +35,10 @@ bool Teleporter::verify() {
 CacheNodeAttributes Teleporter::draw(const TextureCache* cache) {
   CacheNodeAttributes cna;
   if(args[3] == 0) {
-    cna.srcImg = cache->reverseHash("null");
+    cna.srcImg = "null";
   }
   else if(args[3] == 1) {
-    cna.srcImg = cache->reverseHash("warp-area");
+    cna.srcImg = "warp-area";
   }
 
   //maybe eventually scale the texture by object's size

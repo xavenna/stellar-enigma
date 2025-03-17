@@ -126,6 +126,7 @@ bool CutscenePlayer::updateCutscene() {
 
 bool CutscenePlayer::playEvent() {
   //add bounds checking whenever an arg is used as an index, or similar use.
+  //add all events here
   Event e = cutscene.getEvent(pos);
   switch(e.getType()) {
   case Event::UpdateNode:

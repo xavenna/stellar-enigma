@@ -26,7 +26,7 @@ CacheNodeAttributes Key::draw(const TextureCache* cache) {
   // draw a key with no transforms
   // use texture_id to decide what to draw
   CacheNodeAttributes cna;
-  cna.srcImg = cache->reverseHash("key");
+  cna.srcImg = "key";
   //no transforms, so tlist is left blank
   return cna;
 }

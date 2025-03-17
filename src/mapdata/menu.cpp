@@ -221,7 +221,7 @@ bool Menu::initialize() {
 
 void Menu::assignTexture(TextureCache& cache) {
   CacheNodeAttributes cna;
-  cna.srcImg = cache.reverseHash(menus.find(currentTemplate)->second.baseImage);
+  cna.srcImg = menus.find(currentTemplate)->second.baseImage;
   cna.tList = menus.find(currentTemplate)->second.tlist;
   setTexture(cache.getTexture(cna));
 }

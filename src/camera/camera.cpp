@@ -437,7 +437,7 @@ void assignTexture(sf::Sprite& s, TextureCache& cache, NodeBase n) {
   //determine what texture to use and which transformations to apply
 
   CacheNodeAttributes cna;
-  cna.srcImg = n.getTileset();
+  cna.srcImg = "tileset"+std::to_string(n.getTileset());
 
   //generate cna.tList
   Transform t;

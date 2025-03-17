@@ -21,10 +21,10 @@ CacheNodeAttributes Door::draw(const TextureCache* cache) {
   switch(texture_id) {
   default:
     if(!locked) {
-      cna.srcImg = cache->reverseHash("crate");
+      cna.srcImg = "crate";
     }
     else {
-      cna.srcImg = cache->reverseHash("locked-door");
+      cna.srcImg = "locked-door";
     }
   //other textures can be placed here for more design freedom
   }

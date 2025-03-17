@@ -22,10 +22,10 @@ CacheNodeAttributes Solid::draw(const TextureCache* cache) {
   CacheNodeAttributes cna;
   switch(texture_id) {
   case 7:
-    cna.srcImg = cache->reverseHash("yim");
+    cna.srcImg = "yim";
     break;
   default:
-    cna.srcImg = cache->reverseHash("stone");
+    cna.srcImg = "stone";
   //other textures can be placed here for more design freedom
   }
   //no transforms, so tlist is left blank

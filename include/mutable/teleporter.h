@@ -40,6 +40,7 @@ public:
   virtual bool verify();
   
   virtual std::string Name() const {return "teleporter";}
+  virtual sf::Vector2f BaseSize() const {return sf::Vector2f(32,32);}
   virtual Object::MotionType Type() const {return Object::Intangible;}
   virtual bool grabbable() const {return false;}
   virtual int priority() const {return 32;}

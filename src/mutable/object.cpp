@@ -2,6 +2,16 @@
 #include "mutable/player.h"
 #include <iostream>
 
+sf::Vector2f Object::getESize() const {
+  return cMult(BaseSize(), scaleFactor);
+}
+
+sf::Vector2f Object::getCenter() const {
+  return pos + getESize() / 2.f;
+}
+sf::FloatRect Object::getBounds() const {
+  return sf::FloatRect(pos, getESize());
+}
 
 int Object::getLinkID() const {
   return link_id;
@@ -78,8 +88,8 @@ void Object::setText(const std::string& n) {
 Object::Object() {
   pos.x = 0;
   pos.y = 0;
-  size.x = 0;
-  size.y = 0;
+  scaleFactor.x = 1;
+  scaleFactor.y = 1;
   solid = false;
   status = Object::Normal;
   selfPush = zero2<float>();

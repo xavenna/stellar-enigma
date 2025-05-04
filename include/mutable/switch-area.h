@@ -8,6 +8,7 @@ public:
   Interface interact(Object*, Field*, SwitchHandler*);
   virtual Object::MotionType Type() const {return Object::Intangible;} 
   virtual std::string Name() const {return "switch_area";}
+  virtual sf::Vector2f BaseSize() const {return sf::Vector2f(64,64);}
   virtual Interface behave(SwitchHandler*, Utility*);
   SwArea(int uid);
 protected:

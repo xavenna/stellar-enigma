@@ -36,9 +36,9 @@ Results rectangle_collide(const Object* o1, const Object* o2) {
   //now, determine the collision depth. Depending on which way the vector points,
   //find the appropriate offset
   sf::Vector2f o1min{o1->getPos()};
-  sf::Vector2f o1max{o1min+o1->getSize()};
+  sf::Vector2f o1max{o1min+o1->getESize()};
   sf::Vector2f o2min{o2->getPos()};
-  sf::Vector2f o2max{o2min+o2->getSize()};
+  sf::Vector2f o2max{o2min+o2->getESize()};
   float bDist = o1max.y - o2min.y;
   float tDist = o2max.y - o1min.y;
   float lDist = o2max.x - o1min.x;
@@ -168,10 +168,10 @@ Results rectangle_collide(const Object* o1, const Object* o2) {
 
 bool rect_intersect(const Object* o1, const Object* o2) {
   sf::Vector2f omin{o1->getPos()};
-  sf::Vector2f omax{omin+o1->getSize()};
+  sf::Vector2f omax{omin+o1->getESize()};
 
   sf::Vector2f bmin{o2->getPos()};
-  sf::Vector2f bmax{bmin+o2->getSize()};
+  sf::Vector2f bmax{bmin+o2->getESize()};
 
 
   if(bmin.x >= omax.x || omin.x >= bmax.x || bmin.y >= omax.y || omin.y >= bmax.y) {

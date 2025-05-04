@@ -6,6 +6,9 @@
 bool isNum(const std::string& st) {
   bool hasPoint = false;
   for(unsigned i=0;i<st.size();i++) {
+    if(hasPoint && st[i] == '-') {
+      return false;
+    }
     if(st[i] == '.') {
       if(hasPoint) {
         return false;

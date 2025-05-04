@@ -331,16 +331,16 @@ void MapData::event1Handle() {
     searchBox.left = player.getCenter().x;
     searchBox.top = player.getCenter().y;
     if(player.getFacing() == Up) {
-      searchBox.top -= (6 + player.getSize().y / 2.f);
+      searchBox.top -= (6 + player.getESize().y / 2.f);
     }
     else if(player.getFacing() == Down) {
-      searchBox.top += (6 + player.getSize().y / 2.f);
+      searchBox.top += (6 + player.getESize().y / 2.f);
     }
     else if(player.getFacing() == Left) {
-      searchBox.left -= (6 + player.getSize().y / 2.f);
+      searchBox.left -= (6 + player.getESize().y / 2.f);
     }
     else if(player.getFacing() == Right) {
-      searchBox.left += (6 + player.getSize().y / 2.f);
+      searchBox.left += (6 + player.getESize().y / 2.f);
     }
 
     searchBox.width = 6.f;
@@ -431,15 +431,16 @@ void MapData::event1Handle() {
 }
 
 
+//update this to use effective size instead of size
 void MapData::handleInteractions() {
   //first, update each object's position using the internal selfPush vector;
   for(unsigned i=0;i<levelSlot.getObjNum();i++) {
     auto* x = levelSlot.getObjPtr(i);
-    sf::Vector2f fspeed = levelSlot.validMove(x->getPos(), x->getSize(), x->getSelfPush());
+    sf::Vector2f fspeed = levelSlot.validMove(x->getPos(), x->getESize(), x->getSelfPush());
     x->setPos(x->getPos()+fspeed);
     x->setSelfPush(zero2<float>());
   }
-  sf::Vector2f fs = levelSlot.validMove(player.getPos(), player.getSize(), player.getSelfPush());
+  sf::Vector2f fs = levelSlot.validMove(player.getPos(), player.getESize(), player.getSelfPush());
   player.setPos(player.getPos() + fs);
   std::deque<Inter> interactions;
   player.setSelfPush(zero2<float>());

@@ -20,7 +20,7 @@ struct ObjectBase {
   std::array<int, 8> args;
   std::array<int, 8> switches;
   sf::Vector2f pos;
-  sf::Vector2f size;
+  sf::Vector2f scale;
   int link_id=-1;
   int texture_id=-1;
   int parent_id=-1;
@@ -56,5 +56,6 @@ namespace ed {
   bool isValidObjType(const std::string&);
   bool verifyObjList(std::vector<ObjectBase>& objs, std::string& status, WINDOW*); 
 }
+
 
 #endif

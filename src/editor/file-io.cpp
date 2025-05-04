@@ -61,7 +61,7 @@ namespace ed {
         line += ",";
       }
       line += "}{p=" + std::to_string(x.pos.x) + "," + std::to_string(x.pos.y) + "}";
-      line += "{s=" + std::to_string(x.size.x) + "," + std::to_string(x.size.y) + "}";
+      line += "{sc=" + std::to_string(x.scale.x) + "," + std::to_string(x.scale.y) + "}";
       line += "{li=" + std::to_string(x.link_id) + "}";
       line += "{pi=" + std::to_string(x.parent_id) + "}";
       line += "{ti=" + std::to_string(x.texture_id) + "}";
@@ -182,6 +182,7 @@ namespace ed {
     std::array<int, 8> switches;
     sf::Vector2f pos{0,0};
     sf::Vector2f size{0,0};
+    sf::Vector2f scale{1,1};
     std::string text;
     std::string objClass;
     int parent=-1;
@@ -230,6 +231,17 @@ namespace ed {
         }
         size.x = x.args[0];
         size.y = x.args[1];
+
+      }
+      else if(x.id == "sc") {
+        //assign size
+        //are there two int args?
+        if(argNum != 2) {
+          std::clog << "Error: sc field requires 2 argument, "<<argNum<<" provided\n";
+          return false;
+        }
+        scale.x = x.args[0];
+        scale.y = x.args[1];
 
       }
       else if(x.id == "pi") {
@@ -285,7 +297,7 @@ namespace ed {
     obj.args = args;
     obj.switches = switches;
     obj.pos = pos;
-    obj.size = size;
+    obj.scale = scale;
     obj.text = text;
     obj.type = objClass;
     return true;
@@ -388,11 +400,12 @@ namespace ed {
   void Database::append(const ObjInfo& o) {
     data.emplace(o.shortName,o);
   }
-  ObjInfo Database::operator[](std::string key) {
+  ObjInfo Database::operator[](std::string key) const {
     if(data.find(key) == data.end()) {
-      throw std::invalid_argument("Error: out of bounds array access");
+      std::string s = "Error: value '" + key + "' not found in database";
+      throw std::invalid_argument(s);
     }
-    return data[key];
+    return data.at(key);
   }
   bool Database::contains(const std::string& key) const {
     return data.find(key) != data.end();
@@ -442,6 +455,11 @@ namespace ed {
       "\nDescription: " + o.description;
 
     return result;
+  }
+  //gets effective size of ObjectBase
+  sf::Vector2f size(const ObjectBase& x, const Database& db) {
+    sf::Vector2f osize = db[x.type].size;
+    return cMult(osize, x.scale);
   }
 }
 

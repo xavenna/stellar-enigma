@@ -117,6 +117,15 @@ void Player::setMaxCooldown(unsigned m) {
 Direction Player::getFacing() const{
   return facingDir;
 }
+
+void Player::setSize(sf::Vector2f n) {
+  size = n;
+}
+
+sf::Vector2f Player::getSize() const {
+  return size;
+}
+
 sf::Vector2i Player::getLevelPos(sf::Vector2i tileSize) {
   return sf::Vector2i( ((pos.x+ (tileSize.x / 2)) / tileSize.x), ((pos.y+ (tileSize.y / 2)) / tileSize.y));
 }

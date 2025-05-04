@@ -160,7 +160,7 @@ void Camera::gameplayDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
     //apply any transforms to n;
 
     obj.setPosition(zo * (obj.getPos() - focusPoint) + focusPoint);
-    obj.setScale(zo, zo);
+    obj.setScale(zo*obj.getScaleFactor().x, zo*obj.getScaleFactor().y);
 
     //render m to frame
     if(view.intersects(obj.getGlobalBounds())) {
@@ -253,7 +253,7 @@ void Camera::cutsceneDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
     //apply any transforms to n;
 
     obj.setPosition(zo * (obj.getPos() - focusPoint) + focusPoint);
-    obj.setScale(zo, zo);
+    obj.setScale(zo*obj.getScaleFactor().x, zo*obj.getScaleFactor().y);
 
     //render m to frame
     if(view.intersects(obj.getGlobalBounds())) {

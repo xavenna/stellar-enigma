@@ -138,11 +138,15 @@ bool Level::loadMutables(const std::string& levelname) {
     }
     //parse `line' as a mutable
 
+    std::list<ObjAttr> fields;
+
     //switch to using: parseSEObjFormat and generateObjFromObjAttrList here
-    if(!str2obj2(line, o, type)) {
+    if(!parseSEObjFormat(line, fields)) {
       std::clog << "Error: Failed level load\n";
       return false;
     }
+    generateObjFromObjAttrList(fields, o, type);
+
     o.setPosition(static_cast<unsigned>(o.getPos().x)+2*tilesizeX, static_cast<unsigned>(o.getPos().y)+2*tilesizeY);
     if(!objects.storeObj(o, type, status)) {
       std::clog << "Error: Failed level load\nMessage: " << status << '\n';
@@ -332,10 +336,10 @@ bool Level::displayObject(unsigned index, sf::Vector2f ppos, sf::Vector2f size) 
   sf::Vector2i relPos(ob.getPos().x-(WINDOW_WIDTH-2)*field.getTilesize().x*pscrx,
       ob.getPos().y-(WINDOW_HEIGHT-2)*field.getTilesize().y*pscry);
 
-  if(relPos.x+ob.getSize().x < 0 ||
-      relPos.y+ob.getSize().y < 0 ||
-      relPos.x + ob.getSize().x >= (WINDOW_WIDTH+2)*field.getTilesize().x ||
-      relPos.y + ob.getSize().y >= (WINDOW_HEIGHT+2)*field.getTilesize().y) {
+  if(relPos.x+ob.getESize().x < 0 ||
+      relPos.y+ob.getESize().y < 0 ||
+      relPos.x + ob.getESize().x >= (WINDOW_WIDTH+2)*field.getTilesize().x ||
+      relPos.y + ob.getESize().y >= (WINDOW_HEIGHT+2)*field.getTilesize().y) {
     return false;
   }
   return true;
@@ -355,6 +359,7 @@ bool generateObjFromObjAttrList(const std::list<ObjAttr>& attribs, Object& obj, 
   std::array<int, 8> switches;
   sf::Vector2f pos{0,0};
   sf::Vector2f size{0,0};
+  sf::Vector2f scale{1,1};
   std::string text;
   std::string objClass;
   int parent=-1;
@@ -403,6 +408,17 @@ bool generateObjFromObjAttrList(const std::list<ObjAttr>& attribs, Object& obj, 
       }
       size.x = x.args[0];
       size.y = x.args[1];
+
+    }
+    else if(x.id == "sc") {
+      //assign size
+      //are there two int args?
+      if(argNum != 2) {
+        std::clog << "Error: s field requires 2 argument, "<<argNum<<" provided\n";
+        return false;
+      }
+      scale.x = x.args[0];
+      scale.y = x.args[1];
 
     }
     else if(x.id == "pi") {
@@ -458,13 +474,14 @@ bool generateObjFromObjAttrList(const std::list<ObjAttr>& attribs, Object& obj, 
   obj.setArgs(args);
   obj.setSwitches(switches);
   obj.setPos(pos);
-  obj.setSize(size);
+  obj.setScaleFactor(scale);
   obj.setText(text);
   obj.setStatus(Object::Normal);
   objType = objClass;
   return true;
 }
 
+/*
 bool str2obj2(const std::string& line, Object& obj, std::string& objType) {
   //parse line. Break into bracketed sections, and interpret each as a vect of strings
   //check if each group has a valid identifier. If so, check if argument list is valid
@@ -571,7 +588,8 @@ bool str2obj2(const std::string& line, Object& obj, std::string& objType) {
   std::array<int, 8> args;
   std::array<int, 8> switches;
   sf::Vector2f pos{0,0};
-  sf::Vector2f size{0,0};
+  sf::Vector2f size{0,0}; //deprecated
+  sf::Vector2f scale{1,1};
   std::string text;
   std::string objClass;
   int parent=-1;
@@ -621,6 +639,16 @@ bool str2obj2(const std::string& line, Object& obj, std::string& objType) {
       size.x = x.args[0];
       size.y = x.args[1];
 
+    }
+    else if(x.id == "sc") {
+      //assign scale
+      //are there two int args?
+      if(argNum != 2) {
+        std::clog << "Error: sc field requires 2 argument, "<<argNum<<" provided\n";
+        return false;
+      }
+      scale.x = x.args[0];
+      scale.y = x.args[1];
     }
     else if(x.id == "pi") {
       if(argNum != 1) {
@@ -676,8 +704,10 @@ bool str2obj2(const std::string& line, Object& obj, std::string& objType) {
   obj.setSwitches(switches);
   obj.setPos(pos);
   obj.setSize(size);
+  obj.setScaleFactor(scale);
   obj.setText(text);
   obj.setStatus(Object::Normal);
   objType = objClass;
   return true;
 }
+*/

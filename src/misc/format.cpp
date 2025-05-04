@@ -91,7 +91,7 @@ bool parseSEObjFormat(const std::string& line, std::list<ObjAttr>& fields) {
           return false;
         }
         else {
-          fields.back().args.push_back(std::stoi(accum));
+          fields.back().args.push_back(std::stof(accum));
         }
         accum.clear();
       }

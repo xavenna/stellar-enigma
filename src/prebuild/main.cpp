@@ -54,6 +54,7 @@ struct Entry {
   public:
     std::string name;  //Class name
     std::string code;  //Object's Name() return value
+    std::string size;  //Object's base size
 };
 
 //searches for definining lines, extract information
@@ -120,7 +121,8 @@ int main(int argc, char** argv) {
   list.back()->setTextureID(ob.getTextureID());
   list.back()->setParentID(ob.getParentID());
   list.back()->setPos(ob.getPos());
-  list.back()->setSize(ob.getSize());
+  //list.back()->setSize(ob.getSize());
+  list.back()->setScaleFactor(ob.getScaleFactor());
   list.back()->setSolid(ob.getSolid());
   list.back()->setText(ob.getText());
   list.back()->setStatus(Object::Normal);

@@ -569,7 +569,7 @@ static void verify_activated(GSimpleAction *act, GVariant *parameter, gpointer u
     ob.setTextureID(x.texture_id);
     ob.setParentID(x.parent_id);
     ob.setPos(x.pos);
-    ob.setSize(x.size);
+    ob.setScale(x.scale);
     ob.setText(x.text);
     ob.setArgs(x.args);
     ob.setSwitches(x.switches);
@@ -609,22 +609,24 @@ static void draw_function(GtkDrawingArea* area, cairo_t* cr, int width, int heig
     return;
   }
   float xmin=data->objs[0].pos.x;
-  float xmax=data->objs[0].pos.x + data->objs[0].size.x;
+
+
+  float xmax=data->objs[0].pos.x + size(data->objs[0], data->db).x;
   float ymin=data->objs[0].pos.y;
-  float ymax=data->objs[0].pos.y + data->objs[0].size.y;
+  float ymax=data->objs[0].pos.y + size(data->objs[0], data->db).y;
 
   for(auto x : data->objs) {
     if(x.pos.x < xmin) {
       xmin = x.pos.x;
     }
-    if(x.pos.x + x.size.x > xmax) {
-      xmax = x.pos.x+x.size.x;
+    if(x.pos.x + size(x, data->db).x > xmax) {
+      xmax = x.pos.x+size(x, data->db).x;
     }
     if(x.pos.y < ymin) {
       ymin = x.pos.y;
     }
-    if(x.pos.y + x.size.y > ymax) {
-      ymax = x.pos.y+x.size.y;
+    if(x.pos.y + size(x, data->db).y > ymax) {
+      ymax = x.pos.y+size(x, data->db).y;
     }
   }
   sf::FloatRect pane(xmin, ymin, xmax-xmin, ymax-ymin);
@@ -656,7 +658,11 @@ static void draw_function(GtkDrawingArea* area, cairo_t* cr, int width, int heig
 
     //transform position & size to in the boundary, then draw a rectangle
     //draw selected object in special color, and do it last
-    cairo_rectangle(cr, x.pos.x, x.pos.y, x.size.x, x.size.y);
+
+    //get obj's base size from database
+    sf::Vector2f osize = data->db[x.type].size;
+
+    cairo_rectangle(cr, x.pos.x, x.pos.y, osize.x * x.scale.x, osize.y * x.scale.y);
     cairo_set_line_width(cr, 3);
     gdk_cairo_set_source_rgba (cr, &obj_color);
     cairo_stroke(cr);
@@ -665,9 +671,10 @@ static void draw_function(GtkDrawingArea* area, cairo_t* cr, int width, int heig
   //draw selected object
   auto z = data->objs[*(data->sel)];
 
-  //std::cerr << z.pos.x << ',' << z.pos.y << ';' << z.size.x << ',' << z.size.y << '\n';
-  
-  cairo_rectangle(cr, z.pos.x, z.pos.y, z.size.x, z.size.y);
+  //get obj's base size from database
+  sf::Vector2f osize = data->db[z.type].size;
+
+  cairo_rectangle(cr, z.pos.x, z.pos.y, osize.x * z.scale.x, osize.y * z.scale.y);
   gdk_cairo_set_source_rgba(cr, &sel_color);
   cairo_set_line_width (cr, 4);
   cairo_stroke(cr);
@@ -795,8 +802,8 @@ static void app_startup(GtkApplication* app, gpointer user_data) {
   const std::vector<std::pair<std::string, std::string>> props = {
     {"xpos", "0"},
     {"ypos", "0"},
-    {"x_size", "0"},
-    {"y_size", "0"},
+    {"x_scale", "1"},
+    {"y_scale", "1"},
     {"Link ID", "-1"},
     {"Parent ID", "-1"},
     {"Texture ID", "-1"},

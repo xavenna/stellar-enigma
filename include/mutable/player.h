@@ -22,6 +22,11 @@ public:
     Pushed,  //!< The player just finished being pushed back by a solid object
     Grabbing //!< Grabbing an object
   };
+
+  //! This works different to standard objects, as player doesn't have a set base size
+  virtual sf::Vector2f BaseSize() const {return sf::Vector2f(16,16);}
+
+
   virtual std::string Name() const {return "player";}
   virtual Object::MotionType Type() const {return Object::Play;} 
   bool damaged=false; //!< Has the player been damaged this frame?
@@ -54,6 +59,13 @@ public:
   void setHealth(unsigned);
   //! Sets the maximum cooldown
   void setMaxCooldown(unsigned);
+
+  //! Sets player's size
+  void setSize(sf::Vector2f n);
+  //! Gets player's size
+  sf::Vector2f getSize() const;
+
+
 
   void setMaxActCooldown(unsigned);
   //! Sets the direction of the player
@@ -92,7 +104,9 @@ protected:
   unsigned cooldown=0; //!< Remaining invincibility frames
   unsigned health=0; //!< The player's health
   unsigned score=0;  //!< The player's score
-                     //
+
+  sf::Vector2f size; //!< Player's size (as players work differently from other objs
+
   unsigned actCooldown=0; //!< item use cooldown
   unsigned maxActCooldown=5; //!< Max cooldown between using objects
   Direction facingDir; //!< Which direction the player is facing

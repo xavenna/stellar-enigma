@@ -82,6 +82,8 @@ public:
   virtual int Shape() const {return Object::Rect;}
   //! Object's string identifier -- replaces the ObjContainer::Type system
   virtual std::string Name() const {return "obj";}
+  //! Object's base size in pixels
+  virtual sf::Vector2f BaseSize() const {return sf::Vector2f(0,0);};
   //! object interaction priority
   virtual int priority() const {return 32;} //0 is highest, decreases counting up
   //! Can the object be grabbed (SM64 style)?
@@ -106,6 +108,13 @@ public:
   virtual bool use(Player*);
 
   //other functions
+
+  //! Gets effective size of object (basesize * scale)
+  sf::Vector2f getESize() const;
+  //! get the center of the mutable
+  sf::Vector2f getCenter() const;
+  //! get the hitbox rectangle
+  sf::FloatRect getBounds() const;
 
   //! get the link id of the object
   int getLinkID() const;

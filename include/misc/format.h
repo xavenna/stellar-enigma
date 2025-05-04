@@ -13,7 +13,7 @@
 //! An internal utility struct for parsing Stellar Object Format lists
 struct ObjAttr {
   std::string id; //!< field's ID
-  std::vector<int> args; //!< Integer arguments, if present
+  std::vector<float> args; //!< Numeric arguments, if present
   std::string textArg; //!< Text argument, if present
 };
 

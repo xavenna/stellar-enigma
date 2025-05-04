@@ -151,6 +151,48 @@
     "invisible":false,
     "texture_id":false,
     "description":"A solid block that toggles its state when used. It writes its state to SW_A when changed. It has an adjustable cooldown between activations"
+  },
+  {
+    "parent":"Object",
+    "type":"static",
+    "xsize":32,
+    "ysize":32,
+    "priority":0,
+    "verbose_name":"Solid",
+    "internal_name":"solid",
+    "handles_use":false,
+    "handles_interact":false,
+    "invisible":false,
+    "texture_id":true,
+    "description":"A solid block with no special properties."
+  },
+  {
+    "parent":"Solid",
+    "type":"static",
+    "xsize":32,
+    "ysize":32,
+    "priority":0,
+    "verbose_name":"Spike",
+    "internal_name":"spike",
+    "handles_use":false,
+    "handles_interact":true,
+    "invisible":false,
+    "texture_id":false,
+    "description":"A solid block that damages the player when touched."
+  },
+  {
+    "parent":"Solid",
+    "type":"static",
+    "xsize":32,
+    "ysize":32,
+    "priority":2,
+    "verbose_name":"Pushable Block",
+    "internal_name":"pushable",
+    "handles_use":true,
+    "handles_interact":false,
+    "invisible":false,
+    "texture_id":true,
+    "description":"A solid block that can be pushed. Moves forward a set distance when used by player."
   }
   ]
 }

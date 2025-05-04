@@ -19,17 +19,11 @@ void Mutable::updateDelta() {
 sf::Vector2f Mutable::getPos() const {
   return pos;
 }
-sf::Vector2f Mutable::getCenter() const {
-  return pos + size / 2.f;
-}
-sf::FloatRect Mutable::getBounds() const {
-  return sf::FloatRect(pos, size);
+sf::Vector2f Mutable::getScaleFactor() const {
+  return scaleFactor;
 }
 sf::Vector2f Mutable::getLastPos() const {
   return lastPos;
-}
-sf::Vector2f Mutable::getSize() const {
-  return size;
 }
 sf::Vector2i Mutable::getScreen() const {
   return screen;
@@ -38,14 +32,14 @@ sf::Vector2f Mutable::getSelfPush() const {
   return selfPush;
 }
 
+void Mutable::setScaleFactor(sf::Vector2f n) {
+  scaleFactor = n;
+}
 void Mutable::setPos(sf::Vector2f n) {
   pos = n;
 }
 void Mutable::setLastPos(sf::Vector2f n) {
   lastPos = n;
-}
-void Mutable::setSize(sf::Vector2f n) {
-  size = n;
 }
 void Mutable::setScreen(sf::Vector2i n) {
   screen = n;
@@ -63,18 +57,6 @@ void Mutable::setYPos(float n) {
 void Mutable::setPos(float m, float n) {
   pos.x = m;
   pos.y = n;
-}
-void Mutable::setWidth(float n) {
-  size.x = n;
-}
-void Mutable::setHeight(float n) {
-  size.y = n;
-}
-void Mutable::setXScreen(int n) {
-  screen.x = n;
-}
-void Mutable::setYScreen(int n) {
-  screen.y = n;
 }
 void Mutable::setSolid(bool n) {
   solid = n;

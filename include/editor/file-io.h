@@ -39,12 +39,14 @@ namespace ed {
     std::string version;
     void append(const ObjInfo&);
     void reserve(unsigned);
-    ObjInfo operator[](std::string);
+    ObjInfo operator[](std::string) const;
     bool contains(const std::string&) const;
     std::string get_full_entry(const std::string&);
   private:
     std::map<std::string, ObjInfo> data;
   };
+
+  sf::Vector2f size(const ObjectBase&, const Database&);
 
   //modified from level loading code
   bool str2obj(const std::string& line, ObjectBase& obj, std::string& objType);

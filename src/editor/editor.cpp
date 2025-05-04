@@ -51,8 +51,7 @@ namespace ed {
   std::string objToStrFull(ObjectBase& o) {
     std::string out;
     out = "Type: " + o.type + "; Pos: (" + std::to_string(o.pos.x) + ", " +
-      std::to_string(o.pos.y) + "); Size: (" + std::to_string(o.size.x) + ", " +
-      std::to_string(o.size.y) + "); Link ID: " + std::to_string(o.link_id) + 
+      std::to_string(o.pos.y) + "); Link ID: " + std::to_string(o.link_id) + 
       "; Parent ID: " + std::to_string(o.parent_id) + "; Texture ID: " + 
       std::to_string(o.texture_id) + "; Args: {";
     for(int i=0;i<8;i++) {
@@ -248,7 +247,7 @@ namespace ed {
     bool numArg = isNum(arg2);
     if(arg1 == "xpos") {
       if(numArg) {
-        obj.pos.x = std::stoi(arg2);
+        obj.pos.x = std::stof(arg2);
       }
       else {
         status = "Error: This attribute requires a numeric argument";
@@ -258,7 +257,7 @@ namespace ed {
     }
     else if(arg1 == "ypos") {
       if(numArg) {
-        obj.pos.y = std::stoi(arg2);
+        obj.pos.y = std::stof(arg2);
       }
       else {
         status = "Error: This attribute requires a numeric argument";
@@ -266,9 +265,9 @@ namespace ed {
       }
 
     }
-    else if(arg1 == "x_size") {
+    else if(arg1 == "x_scale") {
       if(numArg) {
-        obj.size.x = std::stoi(arg2);
+        obj.scale.x = std::stof(arg2);
       }
       else {
         status = "Error: This attribute requires a numeric argument";
@@ -276,9 +275,9 @@ namespace ed {
       }
 
     }
-    else if(arg1 == "y_size") {
+    else if(arg1 == "y_scale") {
       if(numArg) {
-        obj.size.y = std::stoi(arg2);
+        obj.scale.y = std::stof(arg2);
       }
       else {
         status = "Error: This attribute requires a numeric argument";
@@ -365,11 +364,11 @@ namespace ed {
     else if(prop == "ypos") {
       val = std::to_string(obj.pos.y);
     }
-    else if(prop == "x_size") {
-      val = std::to_string(obj.size.x);
+    else if(prop == "x_scale") {
+      val = std::to_string(obj.scale.x);
     }
-    else if(prop == "y_size") {
-      val = std::to_string(obj.size.y);
+    else if(prop == "y_scale") {
+      val = std::to_string(obj.scale.y);
     }
     else if(prop == "Link ID") {
       val = std::to_string(obj.link_id);
@@ -464,7 +463,6 @@ namespace ed {
       ob.setTextureID(x.texture_id);
       ob.setParentID(x.parent_id);
       ob.setPos(x.pos);
-      ob.setSize(x.size);
       ob.setText(x.text);
       ob.setArgs(x.args);
       ob.setSwitches(x.switches);

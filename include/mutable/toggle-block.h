@@ -13,6 +13,7 @@ public:
   virtual CacheNodeAttributes draw(const TextureCache*);
   virtual Interface behave(SwitchHandler*, Utility*);
   virtual std::string Name() const {return "toggle_block";}
+  virtual sf::Vector2f BaseSize() const {return sf::Vector2f(32,32);}
   virtual Object::MotionType Type() const {return Object::Static;} 
   virtual int priority() const {return 0;}
   ToggleBlock(int);

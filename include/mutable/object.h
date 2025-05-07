@@ -84,6 +84,8 @@ public:
   virtual std::string Name() const {return "obj";}
   //! Object's base size in pixels
   virtual sf::Vector2f BaseSize() const {return sf::Vector2f(0,0);};
+  //! Vector pointing from hitbox origin to sprite origin
+  virtual sf::Vector2f Offset() const {return sf::Vector2f(0,0);};
   //! object interaction priority
   virtual int priority() const {return 32;} //0 is highest, decreases counting up
   //! Can the object be grabbed (SM64 style)?
@@ -115,6 +117,8 @@ public:
   sf::Vector2f getCenter() const;
   //! get the hitbox rectangle
   sf::FloatRect getBounds() const;
+  //! get the sprite outline rectangle
+  sf::FloatRect getSpriteBounds() const;
 
   //! get the link id of the object
   int getLinkID() const;

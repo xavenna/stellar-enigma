@@ -17,6 +17,7 @@ public:
   virtual Interface behave(SwitchHandler*, Utility*);
   virtual std::string Name() const {return "door";}
   virtual sf::Vector2f BaseSize() const {return sf::Vector2f(32,32);}
+  virtual sf::Vector2f Offset() const {return sf::Vector2f(32,32);}
   virtual int priority() const {return 0;}
   virtual Object::MotionType Type() const {return Object::Static;} 
   virtual bool verify();

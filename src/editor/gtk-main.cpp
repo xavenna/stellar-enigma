@@ -326,12 +326,14 @@ static void rem_obj_btn_cb(GtkButton* btn, gpointer user_data) {
     gtk_text_buffer_insert_at_cursor(tbuf, "Could not remove object, none selected\n", -1);
   }
   else {
-    auto vec = (data->objs);
+    auto& vec = (data->objs);
     vec.erase(vec.begin() + sel);
     std::string type = vec[sel].type;
     type = "Removing object with type '"+type + "'.\n";
     gtk_text_buffer_insert_at_cursor(tbuf, type.c_str(), type.size());
     gtk_string_list_remove(data->list, sel);
+
+
 
   }
   gtk_widget_queue_draw(data->pre);
@@ -631,8 +633,12 @@ static void draw_function(GtkDrawingArea* area, cairo_t* cr, int width, int heig
   }
   sf::FloatRect pane(xmin, ymin, xmax-xmin, ymax-ymin);
 
-  cairo_scale(cr, pane.width/400.f, pane.height/400.f);
-  //cairo_translate(cr, pane.width/2.f, pane.height/2.f);
+  //get widget size
+  // 
+  float w=static_cast<float>(gtk_widget_get_size(GTK_WIDGET(area), GTK_ORIENTATION_HORIZONTAL));
+  float h=static_cast<float>(gtk_widget_get_size(GTK_WIDGET(area), GTK_ORIENTATION_VERTICAL));
+  //TODO: make this cleaner and nicer to look at
+  cairo_scale(cr, w/pane.width, h/pane.height);
 
   //test placeholder code
   GdkRGBA sel_color; //selected object color

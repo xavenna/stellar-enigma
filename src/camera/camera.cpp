@@ -159,11 +159,30 @@ void Camera::gameplayDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
     Object& obj = l.getObjRef(i);
     //apply any transforms to n;
 
-    obj.setPosition(zo * (obj.getPos() - focusPoint) + focusPoint);
+    // now, we assign sprites.
+    
+    //create cna using a virtual function
+
+    CacheNodeAttributes cna = obj.draw(&cache);
+    if(cna.srcImg == "\t") {
+      std::cerr << '\n';
+    }
+
+    try {
+      obj.setTexture(cache.getTexture(cna));
+    }
+    catch (...) {
+      std::clog << "Error: target image not found\n";
+      continue;
+    }
+
+    //factor in object's sprite offset
+
+    obj.setPosition(zo * (obj.getPos() + obj.Offset() - focusPoint) + focusPoint);
     obj.setScale(zo*obj.getScaleFactor().x, zo*obj.getScaleFactor().y);
 
     //render m to frame
-    if(view.intersects(obj.getGlobalBounds())) {
+    if(view.intersects(obj.getSpriteBounds())) {
       obj.setPosition(obj.getPosition() - origin + offset);
       window.draw(obj);
     }
@@ -252,11 +271,26 @@ void Camera::cutsceneDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
     Object& obj = l.getObjRef(i);
     //apply any transforms to n;
 
-    obj.setPosition(zo * (obj.getPos() - focusPoint) + focusPoint);
+    CacheNodeAttributes cna = obj.draw(&cache);
+    if(cna.srcImg == "\t") {
+      std::cerr << '\n';
+    }
+
+    try {
+      obj.setTexture(cache.getTexture(cna));
+    }
+    catch (...) {
+      std::clog << "Error: target image not found\n";
+      continue;
+    }
+
+    //factor in object's sprite offset
+
+    obj.setPosition(zo * (obj.getPos() + obj.Offset() - focusPoint) + focusPoint);
     obj.setScale(zo*obj.getScaleFactor().x, zo*obj.getScaleFactor().y);
 
     //render m to frame
-    if(view.intersects(obj.getGlobalBounds())) {
+    if(view.intersects(obj.getSpriteBounds())) {
       obj.setPosition(obj.getPosition() - origin + offset);
       window.draw(obj);
     }

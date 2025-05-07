@@ -82,9 +82,6 @@ void MapData::finishFrame(sf::RenderWindow& window) {
       levelSlot.readyWindow(player.getScreen().x, player.getScreen().y);
     }
 
-    for(unsigned i=0;i<levelSlot.getObjNum();i++) {
-      levelSlot.assignTextureToObject(i, cache);
-    }
     camera.drawFrame(window, modeSwitcher.getMode(), cache);
 
     //update things

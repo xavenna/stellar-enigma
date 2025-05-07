@@ -12,6 +12,9 @@ sf::Vector2f Object::getCenter() const {
 sf::FloatRect Object::getBounds() const {
   return sf::FloatRect(pos, getESize());
 }
+sf::FloatRect Object::getSpriteBounds() const {
+  return sf::FloatRect(pos+Offset(), getESize());
+}
 
 int Object::getLinkID() const {
   return link_id;

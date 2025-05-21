@@ -26,7 +26,7 @@ Interface Pushable::behave(SwitchHandler*, Utility*) {
   return Interface();
 }
 
-CacheNodeAttributes Pushable::draw(const TextureCache* cache) {
+CacheNodeAttributes Pushable::draw() {
   // draw a blank tile with no transforms
   CacheNodeAttributes cna;
   switch(args[0]) {

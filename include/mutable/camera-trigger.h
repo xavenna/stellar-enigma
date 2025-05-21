@@ -14,7 +14,7 @@ public:
   CameraTrig(int);
 
 private:
-  unsigned cooldown;
+  int cooldown;
 };
 
 

@@ -13,6 +13,47 @@ Config::Config() {
 
 }
 
+float Animation::currentScale(float c) const {
+  switch(type) {
+  case Animation::LinSlide:
+    return lin_inter(startScale, c, (static_cast<float>(currentFrame)/endFrame));
+    break;
+  case Animation::LogSlide:
+    return log_inter(startScale, c, (static_cast<float>(currentFrame)/endFrame));
+    break;
+  default:
+    return startScale;
+  }
+}
+float Animation::currentAngle(float c) const {
+  switch(type) {
+  case Animation::LinSlide:
+    return lin_inter(startAngle, c, (static_cast<float>(currentFrame)/endFrame));
+    break;
+  case Animation::LogSlide:
+    return log_inter(startAngle, c, (static_cast<float>(currentFrame)/endFrame));
+    break;
+  default:
+    return startAngle;
+  }
+}
+sf::Vector2f Animation::currentPos(sf::Vector2f c) const {
+  switch(type) {
+  case Animation::LinSlide:
+    return lin_inter(startPos, c, (static_cast<float>(currentFrame)/endFrame));
+    break;
+  case Animation::LogSlide:
+    return log_inter(startPos, c, (static_cast<float>(currentFrame)/endFrame));
+    break;
+  default:
+    return startPos;
+  }
+}
+
+bool Camera::configExists(const std::string& c) {
+  return configurations.find(c) != configurations.end();
+}
+
 //needs: animType, duration, target config name
 void Camera::startAnimation(AnimDesc an) {
   //setup animStatus
@@ -24,23 +65,38 @@ void Camera::startAnimation(AnimDesc an) {
     return;
   }
   else {
+    if(an.configName == currentConfig) {
+      //don't animate if camera doesn't change
+      return;
+    }
     Config conf = configurations[an.configName];
+    
     float z = getScale(conf);
     sf::Vector2f fp = getFocus(conf);
 
-    sf::Vector2f fpo = getFocus(conf);
-    float zo = getScale(conf);
+    sf::Vector2f fpo = getFocus(config);
+    float zo = getScale(config);
 
     animStatus.startPos = fpo;
     animStatus.startScale = zo;
     animStatus.currentFrame = 0;
     animStatus.endFrame = an.duration;
 
-    animStatus.posStep = (fp - fpo) / static_cast<float>(an.duration);
-    animStatus.scaleStep = (z - zo) / static_cast<float>(an.duration);
+    animStatus.type = an.type;
 
+    if(an.type == Animation::LinSlide) {
+      animStatus.posStep = (fp - fpo) / static_cast<float>(an.duration);
+      animStatus.scaleStep = (z - zo) / static_cast<float>(an.duration);
+    }
+    else if(an.type == Animation::LogSlide) {
+
+
+    }
     inAnim = true;
+    config = conf;
+    currentConfig = an.configName;
   }
+  //now, we change the current config so that it is set right for the end of the event
 
 }
 
@@ -64,7 +120,7 @@ sf::Vector2f Camera::getFocus(const Config& c) {
     }
     break;
   case Config::Fixed:
-    return config.focus;
+    return c.focus;
     break;
   default:
     return zero2<float>();
@@ -74,17 +130,34 @@ sf::Vector2f Camera::getFocus(const Config& c) {
 float Camera::getScale(const Config& c) {
   switch(c.mode) {
   case Config::FollowPlayerClose:
-    return config.zoom;
+    return c.zoom;
     break;
   case Config::FollowPlayerCoarse:
-    return config.zoom;
+    return c.zoom;
     break;
   case Config::Fixed:
-    return config.zoom;
+    return c.zoom;
     break;
   default:
     return 1.f;
   }
+}
+
+float Camera::getAngle(const Config& c) {
+  switch(c.mode) {
+  case Config::FollowPlayerClose:
+    return c.angle;
+    break;
+  case Config::FollowPlayerCoarse:
+    return c.angle;
+    break;
+  case Config::Fixed:
+    return c.angle;
+    break;
+  default:
+    return 0.f;
+  }
+
 }
 
 sf::RenderTexture& Camera::drawFrame(sf::RenderWindow& window, unsigned mode, TextureCache& cache) {
@@ -110,11 +183,32 @@ sf::RenderTexture& Camera::drawFrame(sf::RenderWindow& window, unsigned mode, Te
 void Camera::gameplayDraw(sf::RenderWindow& window, unsigned mode, TextureCache& cache) {
   //render a frame of regular gameplay
   //First, determine Camera's focus point and zoom scale
-  sf::Vector2f focusPoint = getFocus(config);
-  float zo = getScale(config);
+  //
+  sf::Vector2f focusPoint;
+  float zo;
+  float ang; //currently unused
 
+  if(inAnim) {
+    //an animation is occurring, ignore config settings; use animStatus
+    zo = animStatus.currentScale(getScale(config));
+    focusPoint = animStatus.currentPos(getFocus(config));
+    ang = animStatus.currentAngle(getAngle(config));
+
+    animStatus.currentFrame++;
+    if(animStatus.currentFrame == animStatus.endFrame) {
+      //animation has concluded
+      inAnim = false;
+    }
+  } else {
+    zo = getScale(config);
+    focusPoint = getFocus(config);
+    ang = getAngle(config);
+  }
 
   //once focus point & zoom have been determined, begin rendering
+
+  //adding angle into this will complicate things.
+
   sf::FloatRect view;
   sf::Vector2f size;
   sf::Vector2f origin;
@@ -163,7 +257,7 @@ void Camera::gameplayDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
     
     //create cna using a virtual function
 
-    CacheNodeAttributes cna = obj.draw(&cache);
+    CacheNodeAttributes cna = obj.draw();
     if(cna.srcImg == "\t") {
       std::cerr << '\n';
     }
@@ -206,10 +300,13 @@ void Camera::cutsceneDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
 
   sf::Vector2f focusPoint;
   float zo;
+  float ang;
   if(inAnim) {
     //an animation is occurring, ignore config settings; use animStatus
-    zoom = animStatus.startScale + (animStatus.scaleStep * animStatus.currentFrame);
-    focusPoint = animStatus.startPos + (animStatus.posStep * static_cast<float>(animStatus.currentFrame));
+    zo = animStatus.currentScale(getScale(config));
+    focusPoint = animStatus.currentPos(getFocus(config));
+    ang = animStatus.currentAngle(getAngle(config));
+
     animStatus.currentFrame++;
     if(animStatus.currentFrame == animStatus.endFrame) {
       //animation has concluded
@@ -271,7 +368,7 @@ void Camera::cutsceneDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
     Object& obj = l.getObjRef(i);
     //apply any transforms to n;
 
-    CacheNodeAttributes cna = obj.draw(&cache);
+    CacheNodeAttributes cna = obj.draw();
     if(cna.srcImg == "\t") {
       std::cerr << '\n';
     }
@@ -312,7 +409,20 @@ bool Camera::selectConfig(const std::string& c) {
   if(configurations.find(c) == configurations.end()) {
     return false;
   }
+
+  if(c != currentConfig) {
+    // if new config is different than last config, then add an animation here
+    // Problem: If player moves out of the way during the animation, it breaks.
+    AnimDesc a;
+    a.duration = 12;
+    a.configName = c;
+    a.type = Animation::LogSlide;
+    startAnimation(a);
+  }
+
   config = configurations[c];
+  currentConfig = c;
+
   return true;
 }
 
@@ -397,6 +507,13 @@ bool generateConfig(json11::Json ob, Config& c, std::string& name) {
     }
     c.focus.y = z.number_value();
 
+    z = ob["angle"];
+    if(!z.is_number()) {
+      std::cerr << "Error: non-numeric argument in numeric field\n";
+      return false;
+    }
+    c.angle = z.number_value();
+
   }
   else if(c.mode == Config::FollowPlayerClose) {
     //should have zoom
@@ -406,6 +523,13 @@ bool generateConfig(json11::Json ob, Config& c, std::string& name) {
       return false;
     }
     c.zoom = z.number_value();
+
+    z = ob["angle"];
+    if(!z.is_number()) {
+      std::cerr << "Error: non-numeric argument in numeric field\n";
+      return false;
+    }
+    c.angle = z.number_value();
   }
   else if(c.mode == Config::FollowPlayerCoarse) {
     //should have: zoom, screenSizeXY, offsetXY 
@@ -492,4 +616,28 @@ void assignTexture(sf::Sprite& s, TextureCache& cache, NodeBase n) {
   catch (...) {
     std::clog << "Error: target image not found\n";
   }
+}
+
+
+float lin_inter(float origin, float d, float dist) {
+  return origin + (d-origin) * dist;
+}
+
+//uses smoothstep
+float log_inter(float origin, float fin, float dist) {
+  if(dist < 0) {
+    return origin;
+  } else if(dist > 1) {
+    return fin;
+  }
+  return origin + (fin - origin) * (3*dist*dist - 2*dist*dist*dist);
+
+}
+
+sf::Vector2f lin_inter(sf::Vector2f origin, sf::Vector2f d, float dist) {
+  return origin + (d-origin) * dist;
+}
+
+sf::Vector2f log_inter(sf::Vector2f origin, sf::Vector2f d, float dist) {
+  return sf::Vector2f(log_inter(origin.x, d.x, dist), log_inter(origin.y, d.y, dist));
 }

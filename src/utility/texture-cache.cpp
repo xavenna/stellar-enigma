@@ -90,6 +90,7 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
     unsigned sr = reverseHash(attr.srcImg);
     sf::Image finalImage(images[sr]);
     sf::IntRect window(0, 0, static_cast<int>(finalImage.getSize().x), static_cast<int>(finalImage.getSize().y));
+    int rotationAmount=0;
     // iterate through attr.tList, apply each transformation
     for(auto x : attr.tList) {
       switch(x.type) { //apply each transformation
@@ -123,7 +124,8 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
         }
         break;
       case Transform::Rotate: {
-        int rotationAmount = 90*(x.args[0] % 4);
+        rotationAmount = 90*(x.args[0] % 4);
+        /*
         sf::RenderTexture tex;
         tex.create(finalImage.getSize().x, finalImage.getSize().y);
         sf::Texture p;
@@ -135,6 +137,7 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
         tex.draw(s);
         tex.display();
         finalImage = tex.getTexture().copyToImage();
+        */
 
       }
       break;
@@ -189,6 +192,21 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
     //std::cout << "Writing texture\n";
     CacheNode c(attr);
     c.tex.loadFromImage(finalImage, window);
+
+    //apply rotation
+        sf::RenderTexture tex;
+        tex.create(finalImage.getSize().x, finalImage.getSize().y);
+        sf::Texture p;
+        p.loadFromImage(finalImage);
+        sf::Sprite s(p);
+        s.setOrigin(finalImage.getSize().x/2.f, finalImage.getSize().y/2.f);
+        s.setPosition(finalImage.getSize().x/2.f, finalImage.getSize().y/2.f);
+        s.setRotation(rotationAmount);
+        tex.draw(s);
+        tex.display();
+        finalImage = tex.getTexture().copyToImage();
+
+    //rotate texture now.
     //std::cout << "Placing texture into slot " << cache[attr.srcImg].size() << '\n';
     cache[sr].push_back(c);
     //std::cout << "Creation successful\n";

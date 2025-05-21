@@ -34,5 +34,8 @@ sf::Vector2f dirToVec(Direction d) {
   case Right:
     return sf::Vector2f(1,0);
     break;
+  default: //just in case
+    return sf::Vector2f(0,0);
+    break;
   }
 }

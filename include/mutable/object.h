@@ -98,7 +98,7 @@ public:
   //! base version of interact();
   virtual Interface interact(Object*, Field*, SwitchHandler*);
   //! produces the proper CacheNodeAttributes for the state of the object
-  virtual CacheNodeAttributes draw(const TextureCache*);
+  virtual CacheNodeAttributes draw();
   //! base version of behave();
   virtual Interface behave(SwitchHandler*, Utility*);
   //! base version of verify, which ensures object config is valid

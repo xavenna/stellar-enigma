@@ -327,12 +327,29 @@ static void rem_obj_btn_cb(GtkButton* btn, gpointer user_data) {
   }
   else {
     auto& vec = (data->objs);
-    vec.erase(vec.begin() + sel);
     std::string type = vec[sel].type;
     type = "Removing object with type '"+type + "'.\n";
+    vec.erase(vec.begin() + sel);
     gtk_text_buffer_insert_at_cursor(tbuf, type.c_str(), type.size());
     gtk_string_list_remove(data->list, sel);
+    gtk_selection_model_select_item(GTK_SELECTION_MODEL(mod), 0, TRUE);
+    *(data->sel) = 0;
 
+    //update data in CV to newly-selected item
+    std::string status;
+    std::string val;
+
+    GtkSelectionModel* mod = gtk_column_view_get_model(GTK_COLUMN_VIEW(data->cv));
+    GListModel* list = gtk_no_selection_get_model(GTK_NO_SELECTION(mod));
+    ObjectBase& selobj = (data->objs)[*data->sel];
+    guint le = g_list_model_get_n_items(list);//number of property columns
+    for(guint i=0;i<le;i++) {
+      PropItem* p = (PropItem*) g_list_model_get_item(G_LIST_MODEL(list), i);
+      //go through, row by row, get the appropriate value, set it to the 
+
+      ed::getAttr(selobj, p->prop, val, status);
+      prop_item_set_value(p, val.c_str());
+    }
 
 
   }
@@ -521,6 +538,54 @@ static void objdata_activated(GSimpleAction *act, GVariant *parameter, gpointer 
 
 }
 
+static void logclear_activated(GSimpleAction *act, GVariant *parameter, gpointer user_data){
+  ListData* data = (ListData*) user_data;
+  GtkTextBuffer* tbuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(data->tv));
+  
+  gtk_text_buffer_set_text(tbuf, " ", 1);
+
+}
+
+static void debugwrite_activated(GSimpleAction *act, GVariant *parameter, gpointer user_data){ 
+  ListData* data = (ListData*) user_data;
+  GtkTextBuffer* tbuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(data->tv));
+
+  //writes a list of objects in objs
+  for(auto x : data->objs) {
+    std::string data = x.type + "\n";
+    gtk_text_buffer_insert_at_cursor(tbuf, data.c_str(), data.size());
+
+  }
+
+}
+
+static void about_activated(GSimpleAction *act, GVariant *parameter, gpointer user_data){
+  ListData* data = (ListData*) user_data;
+  //setup textview
+  GtkTextBuffer* tbuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(data->tv));
+  
+  //display about menu
+
+  //GFile *logo_file = g_file_new_for_path ("./logo.png");
+  //GdkTexture *example_logo = gdk_texture_new_from_file (logo_file, NULL);
+  //g_object_unref (logo_file);
+  const char* authors[] {
+    "xavenna",
+    NULL
+  };
+
+  gtk_show_about_dialog (data->win,
+                         "program-name", "stellar-enigma editor",
+                         "title", "About se editor",
+                         "version", "v-pre",
+                         "authors", authors,
+                         "copyright", "(c) xavenna",
+                         "website", "https://xavenna.net/projects/stellar.html",
+                         "comments", "Stellar-enigma's object editor program",
+                         "license-type", GTK_LICENSE_MIT_X11,
+                         NULL);
+}
+
 static void verify_activated(GSimpleAction *act, GVariant *parameter, gpointer user_data){
   ListData* data = (ListData*) user_data;
   //setup textview
@@ -637,8 +702,34 @@ static void draw_function(GtkDrawingArea* area, cairo_t* cr, int width, int heig
   // 
   float w=static_cast<float>(gtk_widget_get_size(GTK_WIDGET(area), GTK_ORIENTATION_HORIZONTAL));
   float h=static_cast<float>(gtk_widget_get_size(GTK_WIDGET(area), GTK_ORIENTATION_VERTICAL));
-  //TODO: make this cleaner and nicer to look at
-  cairo_scale(cr, w/pane.width, h/pane.height);
+
+  // by default, set scale to 1:1. If it doesn't fit, shrink appropriately
+  // this could be improved, but is fine for now
+
+  float x_sc=1.f;
+  float y_sc=1.f;
+  if(pane.height > height) {
+
+    if(pane.width > width) {
+      y_sc = height / pane.height;
+      x_sc = width / pane.width;
+      float min = std::fmin(y_sc, x_sc);
+      y_sc = min;
+      x_sc = min;
+    } 
+    else {
+      y_sc = height / pane.height;
+      x_sc = height / pane.height;
+    }
+  } else {
+    if(pane.width > width) {
+      x_sc = width / pane.width;
+      y_sc = width / pane.width;
+    }
+    //fits at 1:1
+  }
+  //cairo_scale(cr, width/pane.width, height/pane.height);
+  cairo_scale(cr, x_sc, y_sc);
 
   //test placeholder code
   GdkRGBA sel_color; //selected object color
@@ -886,7 +977,9 @@ static void app_startup(GtkApplication* app, gpointer user_data) {
     {"open", open_activated, NULL, NULL, NULL},
     {"verify", verify_activated, NULL, NULL, NULL},
     {"objdata", objdata_activated, NULL, NULL, NULL},
-    //{"about", about_activated, NULL, NULL, NULL}
+    {"logclear", logclear_activated, NULL, NULL, NULL},
+    {"about", about_activated, NULL, NULL, NULL},
+    {"debugwrite", debugwrite_activated, NULL, NULL, NULL},
   };
   struct {
     const char *action_and_target;
@@ -898,6 +991,8 @@ static void app_startup(GtkApplication* app, gpointer user_data) {
     { "app.open", { "<Control>o", NULL } },
     { "app.verify", {"<Alt>v", NULL} },
     { "app.objdata", {"<Alt>o", NULL} },
+    { "app.logclear", {"<Alt>c", NULL} },
+    { "app.debugwrite", {"<Alt>d", NULL} },
   };
 
   g_action_map_add_action_entries(G_ACTION_MAP(app), app_entries, G_N_ELEMENTS(app_entries), d);

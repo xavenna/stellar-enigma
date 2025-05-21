@@ -35,7 +35,7 @@
 class Teleporter : public Object {
 public:
   virtual Interface interact(Object*, Field*, SwitchHandler*);
-  virtual CacheNodeAttributes draw(const TextureCache*);
+  virtual CacheNodeAttributes draw();
   virtual Interface behave(SwitchHandler*, Utility*);
   virtual bool verify();
   
@@ -47,7 +47,7 @@ public:
   Teleporter(int);
 
 protected:
-  unsigned cooldown; //
+  int cooldown; //!< If positive, don't activate
   unsigned chargeup; //!< Counts up time until activation
 
 };

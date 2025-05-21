@@ -32,7 +32,7 @@ bool Teleporter::verify() {
 
 
 
-CacheNodeAttributes Teleporter::draw(const TextureCache* cache) {
+CacheNodeAttributes Teleporter::draw() {
   CacheNodeAttributes cna;
   if(args[3] == 0) {
     cna.srcImg = "null";

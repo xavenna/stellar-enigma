@@ -208,6 +208,7 @@ void Level::assignTextureToWinNode(sf::Vector2i pos, TextureCache& cache) {
   }
 }
 
+/*
 void Level::assignTextureToObject(unsigned index, TextureCache& cache) {
   //determine what texture to use and which transformations to apply
 
@@ -220,7 +221,7 @@ void Level::assignTextureToObject(unsigned index, TextureCache& cache) {
   Object* ob = objects.getObjPtr(index);
   //create cna using a virtual function
 
-  CacheNodeAttributes cna = ob->draw(&cache);
+  CacheNodeAttributes cna = ob->draw();
   if(cna.srcImg == "\t") {
     std::cerr << '\n';
   }
@@ -232,6 +233,7 @@ void Level::assignTextureToObject(unsigned index, TextureCache& cache) {
     std::clog << "Error: target image not found\n";
   }
 }
+*/
 
 
 int Level::advanceFrameCount() {

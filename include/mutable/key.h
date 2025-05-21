@@ -8,7 +8,7 @@ public:
   using Object::interact;
   virtual Object::MotionType Type() const {return Object::Intangible;} 
   virtual Interface interact(Object*, Field*, SwitchHandler*);
-  virtual CacheNodeAttributes draw(const TextureCache*);
+  virtual CacheNodeAttributes draw();
   virtual std::string Name() const {return "key";}
   virtual sf::Vector2f BaseSize() const {return sf::Vector2f(32,32);}
   virtual bool verify();

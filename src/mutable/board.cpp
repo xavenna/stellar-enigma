@@ -12,7 +12,7 @@ Interface Board::interact(Object* o, Field*, SwitchHandler*) {
 
 }
 
-CacheNodeAttributes Board::draw(const TextureCache* cache) {
+CacheNodeAttributes Board::draw() {
   // draw a board with no transforms
   CacheNodeAttributes cna;
   cna.srcImg = "board";

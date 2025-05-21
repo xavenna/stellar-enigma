@@ -40,7 +40,8 @@ bool parse_json_event(const json11::Json& ob, Event& ev) {
     {"notify", Event::NotifyObject},
     {"menu", Event::Menu},
     {"label", Event::Label},
-    {"map_load", Event::MapLoad}
+    {"map_load", Event::MapLoad},
+    {"change_camera", Event::ChangeCamera},
   };
   if(!(ob["type"].is_string() && ob["duration"].is_number())) {
     std::cerr << "Wrong fields\n";
@@ -68,63 +69,3 @@ bool parse_json_event(const json11::Json& ob, Event& ev) {
   ev = Event(types[type], duration, args, text);
   return true;
 }
-
-//deprecated
-bool line2event(const std::string& line, Event& ev) {
-  //parse line, somehow
-  //first, split the line into a list of strings
-  std::vector<std::string> fieldList;
-  std::string key = "`";
-  parse(line, fieldList, key);
-  std::string t;
-  unsigned du{0};
-  Event::Type et{Event::Invalid};
-  std::array<int, 8> ar;
-  //now, iterate through the fields and parse them
-  for(size_t i=0;i<fieldList.size();i++) {
-    if(i==0) {
-      if(isNum(fieldList[0])) {
-	et = static_cast<Event::Type>(std::stoi(fieldList[i]));
-	//cast this because int -> enum is narrowing
-      }
-      else {
-	std::cout << "Error: non-numeric value in numeric field.\n";
-	return false;
-      }
-    }
-    else if(i==1) {
-      if(isNum(fieldList[1])) {
-        du = std::stoi(fieldList[i]);
-      }
-      else {
-	std::cout << "Error: non-numeric value in numeric field.\n";
-	return false;
-      }
-    }
-    else if(i > 1 && i <= 9) {
-      if(isNum(fieldList[i])) {
-	ar[i-2] = std::stoi(fieldList[i]);
-      }
-      else {
-	std::cout << "Error: non-numeric value in numeric field.\n";
-	return false;
-      }
-    }
-    else {
-      t = fieldList[i];
-    }
-  }
-  Event e(et, du, ar, t);
-  ev = e;
-  return true;
-}
-/*event components:
- * Type (enum, stored as int)
- * duration (int)
- * args (int[8])
- * text (char*) (until end of line)
- 
-
-Line:
-type`dur`a0`a1`a2`a3`a4`a5`a6`a7`text
- */

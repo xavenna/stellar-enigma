@@ -8,7 +8,7 @@ class Pushable : public Object {
 public:
   virtual Interface interact(Object*, Field*, SwitchHandler*);
   virtual bool use(Player*);
-  virtual CacheNodeAttributes draw(const TextureCache*);
+  virtual CacheNodeAttributes draw();
   virtual Interface behave(SwitchHandler*, Utility*);
   virtual std::string Name() const {return "pushable";}
   virtual sf::Vector2f BaseSize() const {return sf::Vector2f(32,32);}

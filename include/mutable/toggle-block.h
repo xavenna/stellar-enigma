@@ -10,7 +10,7 @@ public:
   virtual bool use(Player*);
   virtual bool verify();
   using Solid::interact;
-  virtual CacheNodeAttributes draw(const TextureCache*);
+  virtual CacheNodeAttributes draw();
   virtual Interface behave(SwitchHandler*, Utility*);
   virtual std::string Name() const {return "toggle_block";}
   virtual sf::Vector2f BaseSize() const {return sf::Vector2f(32,32);}

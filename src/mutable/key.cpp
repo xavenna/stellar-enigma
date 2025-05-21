@@ -22,7 +22,7 @@ Interface Key::interact(Object* o, Field*, SwitchHandler* sh) {
   return inter;
 }
 
-CacheNodeAttributes Key::draw(const TextureCache* cache) {
+CacheNodeAttributes Key::draw() {
   // draw a key with no transforms
   // use texture_id to decide what to draw
   CacheNodeAttributes cna;

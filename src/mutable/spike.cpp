@@ -16,7 +16,7 @@ Interface Spike::interact(Object* o, Field* f, SwitchHandler* s) {
   return inter;
 }
 
-CacheNodeAttributes Spike::draw(const TextureCache* cache) {
+CacheNodeAttributes Spike::draw() {
   // draw a cactus with no transforms
   CacheNodeAttributes cna;
   cna.srcImg = "cactus";

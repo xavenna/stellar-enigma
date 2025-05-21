@@ -27,7 +27,7 @@ public:
     */
     // New Event list
 
-    UpdateNode = 0,     //!< Updates a map node
+    UpdateNode = 0,     //!< Updates a map tile
     WriteSwitch = 1,    //!< Writes a value to a switch
     DisplayMessage = 2, //!< Prints a message in the messagebox
     GetInput = 3,       //!< Waits for player input
@@ -39,6 +39,7 @@ public:
     Menu = 9,           //!< A dialogue choice.
     Label = 10,         //!< A jump point for a menu
     MapLoad = 11,       //!< Loads a new map?
+    ChangeCamera = 12,  //!< Switches to new camera config
 
     /*
      * Events to implement eventually:

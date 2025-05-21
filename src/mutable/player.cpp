@@ -25,6 +25,9 @@ void Player::assignTexture(TextureCache& cache) {
   case Left:
     name = "star-l";
     break;
+  default:
+    name = "star";
+    break;
   }
 
   cna.srcImg = name;

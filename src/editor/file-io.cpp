@@ -33,12 +33,11 @@ namespace ed {
 
   }
 
-  //{oa=0,0,0,0,0,0,0,0}{sw=-1,-1,-1,-1,-1,-1,-1,-1}{p=32,60}{s=32,32}{li=-1}{pi=-1}{ti=0}{c="solid"}
   bool writeListToFile(std::vector<ObjectBase>& objs, const std::string& filename, std::string& status) {
     std::ofstream write(filename);
     status = filename;
     if(!write.is_open()) {
-      status = "File could not be opened for writing.";
+      status = "File could not be opened for writing.\n";
       return false;
     }
     std::string output;
@@ -450,6 +449,7 @@ namespace ed {
       "\nVerbose name: " + o.longName +
       "\nParent object: " + o.parent +
       "\nObject type: " + o.type +
+      "\nBase Size: (" + std::to_string(o.size.x) + "," + std::to_string(o.size.y)+")"+
       "\nArguments:\n" + arg +
       "\nSwitches:\n" + sws +
       "\nDescription: " + o.description;

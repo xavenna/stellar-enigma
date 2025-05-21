@@ -19,7 +19,7 @@ const std::string fieldNames = "Editor field shorthand names:\nType (string): c\
 
  */
 
-ObjectBase::ObjectBase() {
+ObjectBase::ObjectBase() : pos{0,0}, scale{1,1} {
   for(auto& x : args) {
     x = -1;
   }

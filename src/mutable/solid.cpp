@@ -16,7 +16,7 @@ Interface Solid::interact(Object*, Field*, SwitchHandler*) {
 
 
 
-CacheNodeAttributes Solid::draw(const TextureCache* cache) {
+CacheNodeAttributes Solid::draw() {
   // draw a solid object with no transforms
   // use obj_arg[0] to decide which texture to draw
   CacheNodeAttributes cna;

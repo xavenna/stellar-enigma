@@ -16,7 +16,7 @@ bool ToggleBlock::use(Player*) {
   return false;
 }
 
-CacheNodeAttributes ToggleBlock::draw(const TextureCache* cache) {
+CacheNodeAttributes ToggleBlock::draw() {
   // check value of some internal state, and draw using obj_args
   CacheNodeAttributes cna;
   if(vars[0] == 1) {

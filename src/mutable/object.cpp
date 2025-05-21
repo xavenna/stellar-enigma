@@ -126,7 +126,7 @@ Interface Object::behave(SwitchHandler*, Utility*) {
   return Interface();
 }
 
-CacheNodeAttributes Object::draw(const TextureCache* cache) {
+CacheNodeAttributes Object::draw() {
   // draw a blank tile with no transforms
   CacheNodeAttributes cna;
   cna.srcImg = "null";
@@ -147,6 +147,6 @@ void Object::notify(msg) {
 }
 
 
-bool Object::use(Player* p) {
+bool Object::use(Player*) {
   return false;
 }

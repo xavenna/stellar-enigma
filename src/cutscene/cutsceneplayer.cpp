@@ -253,6 +253,32 @@ bool CutscenePlayer::playEvent() {
       le.notifyObj(m);
     }
     break;
+  case Event::ChangeCamera:
+    //change camera. text-arg is new config name, e[0] is duration
+    //e[1] chooses animation type: 0 - jump, 1 - linear slide, 2 - logistic slide
+    //more controls to come eventually.
+
+    if(cam.configExists(e.getText())) {
+      AnimDesc a;
+      a.duration = static_cast<unsigned>(e[0]);
+      a.configName = e.getText();
+      if(e[1] == 0) { //jump: no animation
+
+      } else {
+        if(e[1] == 1) {
+          a.type = Animation::LinSlide;
+        } else if(e[1] == 2) {
+          a.type = Animation::LogSlide;
+        }
+
+        cam.startAnimation(a);
+      }
+    } else {
+      std::clog << "Error: specified camera config not found in cutscene event\n";
+      std::clog << "(config:"<< e.getText() << ")\n";
+    }
+
+    break;
   /*
   case Event::PlayerUpdate:
     //move player

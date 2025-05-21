@@ -553,12 +553,6 @@ void MapData::handleInteractions() {
         levelSlot.addObject(y.first, y.second);
       }
       if(res.camera.size() > 0) {
-        /*
-        AnimDesc an;
-        an.duration = 10;
-        an.configName = res.camera;
-        camera.startAnimation(an);
-        */
         camera.selectConfig(res.camera);
       }
       if(res.menu.size() > 0) {
@@ -588,6 +582,10 @@ void MapData::event3Handle() {  //debug mode logic
   return; //no logic occurs
 }
 void MapData::event4Handle() {  //level select mode logic
+  //if autoload, trigger level load now.
+  //finish this later
+
+
   return; //no logic occurs
 }
 

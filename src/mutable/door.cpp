@@ -14,7 +14,7 @@ Interface Door::interact(Object* p, Field* f, SwitchHandler* s) {
   return Solid::interact(p, f, s);
 }
 
-CacheNodeAttributes Door::draw(const TextureCache* cache) {
+CacheNodeAttributes Door::draw() {
   // draw a solid object with no transforms
   // use obj_arg[0] to decide which texture to draw
   CacheNodeAttributes cna;

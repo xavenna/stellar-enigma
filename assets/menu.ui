@@ -26,6 +26,15 @@
       <!-- others go here -->
     </submenu>
     <submenu>
+      <attribute name="label">Edit</attribute>
+      <section>
+        <item>
+          <attribute name="label">Clear Log</attribute>
+          <attribute name="action">app.logclear</attribute>
+        </item>
+      </section>
+    </submenu>
+    <submenu>
       <attribute name="label">Tools</attribute>
       <section>
         <item>
@@ -40,7 +49,6 @@
           <attribute name="label">Object Data</attribute>
           <attribute name="action">app.objdata</attribute>
         </item>
-
       </section>
     </submenu>
     <submenu>

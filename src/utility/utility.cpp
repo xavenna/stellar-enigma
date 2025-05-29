@@ -1,6 +1,12 @@
 #include "utility/utility.h"
 
 
+unsigned Utility::getFrame() {
+  return counter;
+}
+void Utility::nextFrame() {
+  counter++;
+}
 
 int Utility::getRandInt(int m, int n) {
   std::uniform_int_distribution<int> dist(m, n);

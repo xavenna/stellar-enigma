@@ -14,15 +14,6 @@ int main() {
   window.setFramerateLimit(FRAMERATE);
 
   //BEGIN Example initialization behavior
-  //initialize player
-  //player pos should be determined by level file
-  mapData.player.setPos(32,32);
-  mapData.player.setScaleFactor(sf::Vector2f(1,1));
-  mapData.player.setSize(sf::Vector2f(16,16));
-  mapData.player.setSpeed(4);
-  mapData.player.setHealth(5);
-  mapData.player.setMaxCooldown(15);
-  mapData.player.setMaxActCooldown(15);
 
   //initialize some sound things
   mapData.musicPlayer.playMusic("untitled-song-6.ogg");

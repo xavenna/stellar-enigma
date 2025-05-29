@@ -11,22 +11,19 @@ void Player::update() {
 //make this match the format of Object::Draw
 void Player::assignTexture(TextureCache& cache) {
   CacheNodeAttributes cna;
-  std::string name;
+  std::string name = text;
   switch(facingDir) {
   case Up:
-    name = "star-b";
+    name = name + "-b";
     break;
   case Right:
-    name = "star-r";
-    break;
-  case Down:
-    name = "star";
+    name = name + "-r";
     break;
   case Left:
-    name = "star-l";
+    name = name + "-l";
     break;
+  case Down:
   default:
-    name = "star";
     break;
   }
 

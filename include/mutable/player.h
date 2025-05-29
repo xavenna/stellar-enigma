@@ -24,7 +24,7 @@ public:
   };
 
   //! This works different to standard objects, as player doesn't have a set base size
-  virtual sf::Vector2f BaseSize() const {return sf::Vector2f(16,16);}
+  virtual sf::Vector2f BaseSize() const {return size;}
 
 
   virtual std::string Name() const {return "player";}

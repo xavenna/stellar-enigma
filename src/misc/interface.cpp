@@ -37,6 +37,11 @@ void Interface::selectConfig(const std::string& c) {
   camera = c;
 }
 
+void Interface::loadLevel(const std::string& l, bool usem4) {
+  useMode4 = usem4;
+  level = l;
+}
+
 Interface Interface::operator+(const Interface& i) {
   Interface t;
   t.message = vecCat(this->message, i.message);
@@ -56,5 +61,7 @@ Interface Interface::operator+(const Interface& i) {
 
   t.menu = this->menu;  //First Interface takes priority
   t.camera = this->camera; //likewise
+  t.level = this->level;   //...
+  t.useMode4 = this->useMode4; //...
   return t;
 }

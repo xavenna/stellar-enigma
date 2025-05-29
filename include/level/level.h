@@ -69,18 +69,8 @@ public:
   bool hasObjPtr(const Object*);
   //! sends notification to object
   bool notifyObj(msg);
-  //! a fixed-size map that is actually drawn to the screen
-  std::array<std::array<MapNode, WINDOW_HEIGHT>, WINDOW_WIDTH> window;
   //! overwrites the mapnode at position x,y with node
   void updateNode(int x, int y, const NodeBase& node);
-  //! copies the necessary nodes over to window in order to set it up
-  void readyWindow(int xscr, int yscr);
-  //! sets the positions of the sprites of the window
-  void updateWindowPos();
-  //! Uses a texturemap to assign a texture to specified node in window
-  void assignTextureToWinNode(sf::Vector2i, TextureCache&);
-  //! Uses a texturemap to assign a texture to the specified object
-  void assignTextureToObject(unsigned, TextureCache&);
   //! Loads mapBase from file, specified by argument.
   /*! 
    *  Searches for file in assets/level/

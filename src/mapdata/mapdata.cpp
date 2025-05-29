@@ -6,7 +6,7 @@ MapData::MapData(unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSi
   //initialize members here
 
   //load level
-  if(!levelSlot.loadLevel("default")) {
+  if(!loadLevel("default")) {
     std::cerr << "Level load failed. Exiting\n";
     throw std::invalid_argument("MapData::MapData() : Level Load unsuccessful");
   }
@@ -78,9 +78,6 @@ void MapData::finishFrame(sf::RenderWindow& window) {
   case 2:  //cutscene mode works the same as gameplay mode
   case 3:  //debug mode can use the same drawing logic as normal mode
     //assign sprites
-    if(levelSlot.displayUpdate) {
-      levelSlot.readyWindow(player.getScreen().x, player.getScreen().y);
-    }
 
     camera.drawFrame(window, modeSwitcher.getMode(), cache);
 
@@ -109,6 +106,7 @@ void MapData::finishFrame(sf::RenderWindow& window) {
   window.display();
   levelSlot.advanceFrameCount();
   frameCount++;
+  utility.nextFrame();
 }
 
 int MapData::handleEvents() {
@@ -210,6 +208,7 @@ int MapData::event0Handle() {
   case 4:
     //enter mode 1, but load specified map
     loadLevel(mainMenu.getTextArg(keynum));
+    //TODO: set player data based on the playerStart obj, if present. Else default
     modeSwitcher.setMode(1);
     modeSwitcher.cooldown(5);
     break;
@@ -416,6 +415,17 @@ void MapData::event1Handle() {
     modeSwitcher.cooldown(15);
     modeSwitcher.setMode(0);
   }
+  if(res.level != "") {
+    //load new level.
+    if(res.useMode4) {
+      std::cerr << "Mode 4 is not yet supported; (Skipped mode switch)\n";
+    } else {
+      //load new level, switch to mode1
+      loadLevel(res.level);
+      modeSwitcher.setMode(1);
+      modeSwitcher.cooldown(5);
+    }
+  }
   //objects and notifications are done in the Level, so they don't need to be done here
 
 
@@ -559,6 +569,18 @@ void MapData::handleInteractions() {
         //switch to menu
         mainMenu.loadTemplate(res.menu);
       }
+      if(res.level != "") {
+        //load new level.
+        if(res.useMode4) {
+          std::cerr << "Mode 4 is not yet supported; (Skipped mode switch)\n";
+        } else {
+          //load new level, switch to mode1
+          loadLevel(res.level);
+          modeSwitcher.setMode(1);
+          modeSwitcher.cooldown(5);
+          break;
+        }
+      }
     }
 
 
@@ -583,8 +605,9 @@ void MapData::event3Handle() {  //debug mode logic
 }
 void MapData::event4Handle() {  //level select mode logic
   //if autoload, trigger level load now.
-  //finish this later
+  // for now, only autoload will be implemented
 
+  // I'll have to finish this later
 
   return; //no logic occurs
 }
@@ -593,15 +616,43 @@ void MapData::event5Handle() {  //world map mode logic
   return; //no logic occurs
 }
 
-void MapData::loadLevel(const std::string& name) {
+bool MapData::loadLevel(const std::string& name) {
   if(!levelSlot.loadLevel(name)) {
-    //load was unsuccessful. Crash?
+    return false;
   }
-  player.setHealth(5);
-  player.setPos(32, 32);
+  //if a playerStart object was created, use it to initialize the player
+  bool foundPStart=false;
+  for(int j=0;j<levelSlot.getObjNum();j++) {
+    auto& x = levelSlot.getObjRef(j);
+    if(x.Name() == "player_start") {
+      //intitializePlayer
+      player.setPos(x.getPos());
+      player.setSize(x.BaseSize());
+      player.setScaleFactor(x.getScaleFactor());
+      player.setSpeed(x.getArg(0));
+      player.setHealth(x.getArg(1));
+      player.setMaxActCooldown(x.getArg(2));
+      player.setMaxCooldown(x.getArg(3));
+      player.setText(x.getText());
+
+      foundPStart = true;
+      break;
+    }
+  }
+  if(!foundPStart) {
+    player.setPos(32, 32);
+    player.setSize(sf::Vector2f(16.f, 16.f));
+    player.setScaleFactor(sf::Vector2f(16.f, 16.f));
+    player.setSpeed(4);
+    player.setHealth(5);
+    player.setMaxActCooldown(15);
+    player.setMaxCooldown(15);
+    player.setText("star");
+    
+  }
   //reset all switches
   for(int i=0;i<255;i++) {
     switchHandler.write(i,false);
   }
-  //set player position and data
+  return true;
 }

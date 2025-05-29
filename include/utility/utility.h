@@ -9,6 +9,8 @@ class Utility {
 public:
   int getRandInt(int m, int n); //!< Returns an int in the range [m,n)
   float getRandFloat(float, float); //!< Returns a float in the range [m,n)
+  unsigned getFrame();
+  void nextFrame();
   SaveController save;
   VarPool varpool;
   Utility();
@@ -20,6 +22,7 @@ private:
    */
   std::random_device rd;
   std::mt19937 engine;
+  unsigned counter;
 };
 
 #endif

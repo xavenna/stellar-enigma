@@ -3,6 +3,9 @@
 #include "mutable/object.h"
 
 //! Switch Area. Activates SW::A if player is currently intersecting with it
+/*!
+ *  Arg0: bool. If true, obj is destroyed after one interaction
+ */
 class SwArea : public Object {
 public:
   Interface interact(Object*, Field*, SwitchHandler*);
@@ -10,6 +13,7 @@ public:
   virtual std::string Name() const {return "switch_area";}
   virtual sf::Vector2f BaseSize() const {return sf::Vector2f(64,64);}
   virtual Interface behave(SwitchHandler*, Utility*);
+  virtual bool verify() const;
   SwArea(int uid);
 protected:
   bool occupied; //!< Set false at end of behave, is set true if intersection happens

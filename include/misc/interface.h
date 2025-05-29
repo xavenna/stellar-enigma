@@ -22,6 +22,7 @@ struct msg {
  */
 class Interface {
 public:
+  //eventually, these will be protected
   std::vector<std::string> message;   //!< Messages to display
   std::vector<std::string> cutscene;  //!< Cutscenes to play
   std::vector<std::string> sounds; //!< Sounds to play
@@ -29,6 +30,8 @@ public:
   std::vector<msg> notifications; //!< Notifications to send.
   std::string menu; //!< Menu to open
   std::string camera; //!< Camera config to switch to
+  std::string level; //!< Level to load (or mode4 config to use)
+  bool useMode4; //!< True means using mode 4 to switch levels
 
   //! Registers message to be displayed. Overwrites previous message, if any.
   void addMessage(const std::string&);
@@ -45,6 +48,7 @@ public:
   //! Opens specified menu
   void openMenu(const std::string&);
   void selectConfig(const std::string&);
+  void loadLevel(const std::string&, bool usem4);
 
   //! Constructs an empty Interface. Use the API functions to request actions. Eventually, the vars may be private
   Interface();

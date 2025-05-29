@@ -258,9 +258,10 @@ void Camera::gameplayDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
     //create cna using a virtual function
 
     CacheNodeAttributes cna = obj.draw();
-    if(cna.srcImg == "\t") {
-      std::cerr << '\n';
-    }
+
+
+    //TODO: to allow textures to be repeated instead of scaled up, add an option here.
+    // how should an object request a scaled vs tiled texture? A CNA setting?
 
     try {
       obj.setTexture(cache.getTexture(cna));

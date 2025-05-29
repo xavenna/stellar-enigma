@@ -193,6 +193,45 @@
     "invisible":false,
     "texture_id":true,
     "description":"A solid block that can be pushed. Moves forward a set distance when used by player."
+  },
+  {
+    "parent":"Object",
+    "type":"intangible",
+    "xsize":32,
+    "ysize":32,
+    "text_arg":"Name of level/mode4 config to switch to",
+    "arg_0":"Int, selects activation condition. 1:switch-activated. 0:contact-activated",
+    "arg_1":"Int, selects action. 1:mode4, 0:direct level load",
+    "arg_2":"Bool, if true, obj unloads after one activation",
+    "arg_3":"Int, cooldown between activations",
+    "SW_A":"If arg0==0, obj activates when SW_A is set",
+    "priority":32,
+    "verbose_name":"Loading Zone",
+    "internal_name":"loading_zone",
+    "handles_use":false,
+    "handles_interact":true,
+    "invisible":true,
+    "texture_id":false,
+    "description":"An object that can trigger a level load"
+  },
+  {
+    "parent":"Object",
+    "type":"intangible",
+    "xsize":16,
+    "ysize":16,
+    "text_arg":"player default sprite name",
+    "arg_0":"Int- player speed",
+    "arg_1":"Int- player health",
+    "arg_2":"Int- player action cooldown",
+    "arg_3":"Int- player damage cooldown",
+    "priority":32,
+    "verbose_name":"Player Start",
+    "internal_name":"player_start",
+    "handles_use":false,
+    "handles_interact":false,
+    "invisible":true,
+    "texture_id":false,
+    "description":"An object marking the player's spawn position"
   }
   ]
 }

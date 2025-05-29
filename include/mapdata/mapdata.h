@@ -73,7 +73,7 @@ public:
   //! Gets the current frame number
   unsigned long getFrameCount() const;
   //! load a level from file
-  void loadLevel(const std::string&);
+  bool loadLevel(const std::string&);
   //! The contructor takes several parameters for the members
   MapData(unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSize);
 private:

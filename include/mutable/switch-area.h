@@ -13,7 +13,7 @@ public:
   virtual std::string Name() const {return "switch_area";}
   virtual sf::Vector2f BaseSize() const {return sf::Vector2f(64,64);}
   virtual Interface behave(SwitchHandler*, Utility*);
-  virtual bool verify() const;
+  virtual bool verify();
   SwArea(int uid);
 protected:
   bool occupied; //!< Set false at end of behave, is set true if intersection happens

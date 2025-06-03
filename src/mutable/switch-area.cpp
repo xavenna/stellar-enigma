@@ -21,7 +21,7 @@ Interface SwArea::behave(SwitchHandler* sh, Utility*) {
   return Interface();
 }
 
-bool SwArea::verify() const {
+bool SwArea::verify() {
   if(switches[SW::A] < 0 || switches[SW::A] > 255) {
     return false;
   }

@@ -28,7 +28,7 @@ void Player::assignTexture(TextureCache& cache) {
   }
 
   cna.srcImg = name;
-  //apply transformations
+  //apply any transformations
 
   try {
     setTexture(cache.getTexture(cna));

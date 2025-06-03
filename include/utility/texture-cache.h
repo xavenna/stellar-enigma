@@ -58,6 +58,12 @@ struct Transform {
      *  To print a %, use %%. 
      */
     Add_Text,
+    //!  Grow final texture to specified size; tile texture to fit new size
+    /*!
+     *  args: {xsize, ysize}
+     *
+     */
+    Tile_Grow,
     Tint_Mask, //!< Not implemented
     And_Mask, //!< Not implemented
     Displacement_Mask, //!< Not implemented

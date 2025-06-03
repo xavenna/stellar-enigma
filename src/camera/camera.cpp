@@ -262,6 +262,7 @@ void Camera::gameplayDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
 
     //TODO: to allow textures to be repeated instead of scaled up, add an option here.
     // how should an object request a scaled vs tiled texture? A CNA setting?
+    // think about this
 
     try {
       obj.setTexture(cache.getTexture(cna));

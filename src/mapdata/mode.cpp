@@ -7,8 +7,13 @@ int ModeSwitcher::getMode() {
   return mode;
 }
 void ModeSwitcher::setMode(int n) {
-  mode = n;
+  nextMode = n;
 }
+
+void ModeSwitcher::updateMode() {
+  mode = nextMode;
+}
+
 void ModeSwitcher::addKey(sf::Keyboard::Key key) {
   keyList.push_back(key);
 }
@@ -37,6 +42,7 @@ void ModeSwitcher::cooldown(unsigned i) {
 
 ModeSwitcher::ModeSwitcher() {
   mode = 0;
+  nextMode = 0;
 }
 
 

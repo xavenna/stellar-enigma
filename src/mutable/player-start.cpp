@@ -3,7 +3,7 @@ PlayerStart::PlayerStart(int uid) : Object{uid} {
 }
 
 
-bool PlayerStart::verify() const {
+bool PlayerStart::verify() {
   if(scaleFactor.x == 0 || scaleFactor.y == 0) {
     return false;
   }

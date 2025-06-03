@@ -107,6 +107,8 @@ void MapData::finishFrame(sf::RenderWindow& window) {
   levelSlot.advanceFrameCount();
   frameCount++;
   utility.nextFrame();
+
+  modeSwitcher.updateMode();
 }
 
 int MapData::handleEvents() {
@@ -208,7 +210,6 @@ int MapData::event0Handle() {
   case 4:
     //enter mode 1, but load specified map
     loadLevel(mainMenu.getTextArg(keynum));
-    //TODO: set player data based on the playerStart obj, if present. Else default
     modeSwitcher.setMode(1);
     modeSwitcher.cooldown(5);
     break;
@@ -257,6 +258,9 @@ void MapData::event1Handle() {
     }
     else if(lk == sf::Keyboard::K) {
       interact = true;
+    }
+    else if(lk == sf::Keyboard::Quote) {
+      std::cerr << player.getPos().x << ',' << player.getPos().y << '\n';
     }
 
   }
@@ -620,6 +624,11 @@ bool MapData::loadLevel(const std::string& name) {
   if(!levelSlot.loadLevel(name)) {
     return false;
   }
+
+  //NOTE: Add a way to override playerStart (to have multiple ways in, for example.
+  // Like, say, you can call loadLevel with a different position. Size, texture, etc. are
+  // still taken from the playerStart, but the requested position is used instead
+
   //if a playerStart object was created, use it to initialize the player
   bool foundPStart=false;
   for(int j=0;j<levelSlot.getObjNum();j++) {
@@ -642,7 +651,7 @@ bool MapData::loadLevel(const std::string& name) {
   if(!foundPStart) {
     player.setPos(32, 32);
     player.setSize(sf::Vector2f(16.f, 16.f));
-    player.setScaleFactor(sf::Vector2f(16.f, 16.f));
+    player.setScaleFactor(sf::Vector2f(0.95f, 0.95f));
     player.setSpeed(4);
     player.setHealth(5);
     player.setMaxActCooldown(15);

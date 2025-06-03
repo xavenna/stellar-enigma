@@ -91,6 +91,9 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
     sf::Image finalImage(images[sr]);
     sf::IntRect window(0, 0, static_cast<int>(finalImage.getSize().x), static_cast<int>(finalImage.getSize().y));
     int rotationAmount=0;
+    bool tile=false;
+    bool rotate = false;
+    sf::Vector2i tileToSize;
     // iterate through attr.tList, apply each transformation
     for(auto x : attr.tList) {
       switch(x.type) { //apply each transformation
@@ -123,24 +126,14 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
           }
         }
         break;
-      case Transform::Rotate: {
+      case Transform::Rotate:
+        rotate = true;
         rotationAmount = 90*(x.args[0] % 4);
-        /*
-        sf::RenderTexture tex;
-        tex.create(finalImage.getSize().x, finalImage.getSize().y);
-        sf::Texture p;
-        p.loadFromImage(finalImage);
-        sf::Sprite s(p);
-        s.setOrigin(finalImage.getSize().x/2.f, finalImage.getSize().y/2.f);
-        s.setPosition(finalImage.getSize().x/2.f, finalImage.getSize().y/2.f);
-        s.setRotation(rotationAmount);
-        tex.draw(s);
-        tex.display();
-        finalImage = tex.getTexture().copyToImage();
-        */
-
-      }
       break;
+      case Transform::Tile_Grow:
+        tile = true;
+        tileToSize = sf::Vector2i(x.args[0], x.args[1]);
+        break;
       case Transform::Tint_Mask:
       case Transform::And_Mask:
       case Transform::Displacement_Mask:
@@ -190,23 +183,40 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
       }
     }
     //std::cout << "Writing texture\n";
+
     CacheNode c(attr);
-    c.tex.loadFromImage(finalImage, window);
 
-    //apply rotation
-        sf::RenderTexture tex;
-        tex.create(finalImage.getSize().x, finalImage.getSize().y);
-        sf::Texture p;
-        p.loadFromImage(finalImage);
-        sf::Sprite s(p);
-        s.setOrigin(finalImage.getSize().x/2.f, finalImage.getSize().y/2.f);
-        s.setPosition(finalImage.getSize().x/2.f, finalImage.getSize().y/2.f);
-        s.setRotation(rotationAmount);
-        tex.draw(s);
-        tex.display();
-        finalImage = tex.getTexture().copyToImage();
+    //apply rotation, then tiling
+    if(rotate || tile) {
+      if(!tile) {
+        tileToSize = sf::Vector2i(window.width, window.height);
+      }
+      sf::RenderTexture tex;
+      tex.create(tileToSize.x, tileToSize.y);
+      sf::Texture p;
+      p.loadFromImage(finalImage, window);
+      if(tile) {
+        p.setRepeated(true);
+      }
+      sf::Sprite s(p);
 
-    //rotate texture now.
+      s.setTextureRect(sf::IntRect(0, 0, tileToSize.x, tileToSize.y));
+      s.setOrigin(window.width/2.f, window.height/2.f);
+      s.setRotation(rotationAmount);
+      s.setPosition(window.width * 0.5f, window.height * 0.5f);
+
+      tex.draw(s);
+      tex.display();
+      finalImage = tex.getTexture().copyToImage();
+      c.tex.loadFromImage(finalImage);
+    } else {
+      c.tex.loadFromImage(finalImage, window);
+    }
+
+
+
+
+
     //std::cout << "Placing texture into slot " << cache[attr.srcImg].size() << '\n';
     cache[sr].push_back(c);
     //std::cout << "Creation successful\n";

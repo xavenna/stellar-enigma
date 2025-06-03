@@ -232,6 +232,15 @@
     "invisible":true,
     "texture_id":false,
     "description":"An object marking the player's spawn position"
+  },
+  {
+    "parent":"Object",
+    "type":"intangible",
+    "xsize":16,
+    "ysize":16,
+    "internal_name":"water",
+    "verbose_name":"Water",
+    "description":"An animated water object"
   }
   ]
 }

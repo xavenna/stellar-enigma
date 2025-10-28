@@ -1,7 +1,7 @@
 #include "mutable/cutplay.h"
 
 
-CutPlay::CutPlay(int uid) : Object(uid) {
+CutPlay::CutPlay(sf::Texture& t, int uid) : Object(t,uid) {
   vars[0] = 0;
 }
 

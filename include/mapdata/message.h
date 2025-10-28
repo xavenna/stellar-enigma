@@ -46,7 +46,7 @@ public:
   int getSize();
   
   //! constructor: sets width to arg1, maximum cooldown to arg2, and maxElem to arg3
-  Message(unsigned, unsigned, unsigned, unsigned);
+  Message(unsigned, unsigned, unsigned, unsigned, const std::string&);
 };
 
 #endif

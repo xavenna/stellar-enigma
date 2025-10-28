@@ -1,7 +1,7 @@
 #include "mutable/player.h"
 #include "level/level.h"
 
-Player::Player() {
+Player::Player(sf::Texture& t) : Object(t) {
   setPos(0,0);
   facingDir = Up;
 }

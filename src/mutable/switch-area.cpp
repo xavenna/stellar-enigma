@@ -28,4 +28,4 @@ bool SwArea::verify() {
   return true;
 }
 
-SwArea::SwArea(int uid) : Object{uid} {};
+SwArea::SwArea(sf::Texture& t, int uid) : Object{t, uid} {};

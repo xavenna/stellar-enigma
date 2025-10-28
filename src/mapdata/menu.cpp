@@ -223,7 +223,10 @@ void Menu::assignTexture(TextureCache& cache) {
   CacheNodeAttributes cna;
   cna.srcImg = menus.find(currentTemplate)->second.baseImage;
   cna.tList = menus.find(currentTemplate)->second.tlist;
-  setTexture(cache.getTexture(cna));
+  setTexture(cache.getTexture(cna), true);
+
+  sf::Image i(getTexture().copyToImage());
+  i.saveToFile("test.png");
 }
 
 
@@ -284,4 +287,7 @@ void fixEscape(std::string& s) {
 
 }
 
+Menu::Menu(sf::Texture& t) : sf::Sprite(t) {
+
+}
 

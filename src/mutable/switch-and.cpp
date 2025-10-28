@@ -13,4 +13,4 @@ bool SwAnd::verify() {
   }
   return true;
 }
-SwAnd::SwAnd(int uid) : Object{uid} {}
+SwAnd::SwAnd(sf::Texture& t, int uid) : Object{t, uid} {}

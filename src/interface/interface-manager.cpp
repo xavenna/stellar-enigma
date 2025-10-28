@@ -50,11 +50,11 @@ sf::Vector2i InterfaceManager::initializeInterface(sf::Vector2i windowSize, int&
   pc.fixPanelOffsets(panOff);
   
   panelRect.setSize(sf::Vector2f(panelSize.x, panelSize.y));
-  panelRect.setPosition(windowSize.x + 32, 16);
+  panelRect.setPosition({windowSize.x + 32, 16});
   panelRect.setFillColor(sf::Color::Black);
 
   msgRect.setSize(sf::Vector2f(messageSize.x, messageSize.y));
-  msgRect.setPosition(16, windowSize.y + 32);
+  msgRect.setPosition({16, windowSize.y + 32});
   msgRect.setFillColor(sf::Color::Black);
 
   sf::Vector2i interfaceSize{48+windowSize.x+panelSize.x, 32+panelSize.y};

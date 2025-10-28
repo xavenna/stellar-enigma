@@ -1,7 +1,7 @@
 #include "mutable/pushable.h"
 
 
-Pushable::Pushable(int uid) : Object(uid) {}
+Pushable::Pushable(sf::Texture& t, int uid) : Object(t, uid) {}
 
 Interface Pushable::interact(Object*, Field*, SwitchHandler*) {
   return Interface();

@@ -111,6 +111,7 @@ int main(int argc, char** argv) {
   std::string output;
 
   std::string prefix = R""""(  bool ObjContainer::storeObj(Object ob, std::string t, std::string& status) {
+  sf::Texture null("assets/texture/null.png");
 )"""";
   const std::string suffix = R""""(else {
     status = "Error: Invalid object type";
@@ -171,7 +172,7 @@ int main(int argc, char** argv) {
     }
     //this was broken up onto multiple lines for clarity
     output += "if(t == \"" + en.code + "\") {";
-    output += " list.push_back(new " + en.name + "(counter));\n  }";
+    output += " list.push_back(new " + en.name + "(null, counter));\n  }";
 
     //write a list of class types to obj-names.txt
     secondary << en.code << '\n';

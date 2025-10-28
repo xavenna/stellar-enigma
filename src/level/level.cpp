@@ -90,9 +90,10 @@ bool Level::loadMutables(const std::string& levelname) {
   std::ifstream get(complevel);
   std::string line;
   std::string accum;
-  Object o;  //these are defined now so they don't have to be every loop
   std::string type;  //Type of requested object
   std::string status; //Status of storeObj
+
+  sf::Texture null{"assets/texture/null.png"};
   if(!get.is_open()) {
     return -1;
   }
@@ -110,9 +111,10 @@ bool Level::loadMutables(const std::string& levelname) {
       std::clog << "Error: Failed level load\n";
       return false;
     }
+    Object o{null};
     generateObjFromObjAttrList(fields, o, type);
 
-    o.setPosition(static_cast<unsigned>(o.getPos().x)+2*tilesizeX, static_cast<unsigned>(o.getPos().y)+2*tilesizeY);
+    o.setPosition({static_cast<unsigned>(o.getPos().x)+2*tilesizeX, static_cast<unsigned>(o.getPos().y)+2*tilesizeY});
     if(!objects.storeObj(o, type, status)) {
       std::clog << "Error: Failed level load\nMessage: " << status << '\n';
       return false;

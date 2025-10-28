@@ -1,6 +1,6 @@
 #include "mutable/loading-zone.h"
 
-LoadingZone::LoadingZone(int uid) : Object{uid} {
+LoadingZone::LoadingZone(sf::Texture& t, int uid) : Object{t, uid} {
   cooldown = 0;
 }
 

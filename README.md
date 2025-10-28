@@ -66,11 +66,14 @@ Additionally, an copy of the documentation can be found [here](http://xavenna.ne
 ## Build
 ### Dependencies
 
-stellar relies on SFML & json11. 
+NOTE: Debian stable (and other stable-release distros) don't ship SFML3 by default.
+
+TODO: Add sfml3 instructions
+
+stellar relies on SFML & jsoncpp. 
 The object editor relies on gtk4.
 
-On linux, these can be installed from your package manager. On debian, run
-    sudo apt install libsfml-dev libjson11-1-dev libgtk-4-dev
+On linux, these can be installed from your package manager.
 
 On other systems, the process is more complicated; it is not covered in this document. 
 
@@ -109,8 +112,8 @@ stellar-enigma was created by xavenna
 The SFML Framework was used for Graphics and Audio\
 These libraries can be found at https://sfml-dev.org/
 
-The Json11 library was used for json parsing.\
-This can be found at https://github.com/dropbox/json11/
+The Jsoncpp library was used for json parsing.\
+This can be found at https://github.com/open-source-parsers/jsoncpp
 
 OGMO editor is used for level creation.\
 This tool can be found at https://ogmo-editor-3.github.io/

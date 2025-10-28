@@ -8,7 +8,7 @@
 #include <fstream>
 #include <array>
 
-#include <json11.hpp>
+#include <json/json.h>
 
 #include "misc/util.h"
 

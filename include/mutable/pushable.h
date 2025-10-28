@@ -15,7 +15,7 @@ public:
   virtual Object::MotionType Type() const {return Object::Static;} 
   virtual bool grabbable() const {return true;}
   virtual int priority() const {return 2;}
-  Pushable(int);
+  Pushable(sf::Texture& t,int);
 protected:
   unsigned pushCounter=0;
   sf::Vector2f pushDir;

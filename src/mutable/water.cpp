@@ -17,10 +17,6 @@ CacheNodeAttributes Water::draw() {
     t2.args[0] = 2*(int(animTimer/10)%8);
     cna.tList.push_back(t2);
 
-    t.type = Transform::Rotate;
-    t.args[0] = 0;
-    cna.tList.push_back(t);
-
     t.type = Transform::Tile_Grow;
     t.args[0] = texSize.x;
     t.args[1] = texSize.y;
@@ -42,7 +38,6 @@ bool Water::verify() {
   return true;
 }
 
-Water::Water(int uid) : Object{uid} {
-  //okay, so here the obj needs to set it's scale to 1:1, 
+Water::Water(sf::Texture& t, int uid) : Object{t, uid} {
 
 }

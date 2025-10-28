@@ -27,7 +27,7 @@ Event::Event(Event::Type ty, unsigned dur, const std::array<int, 8>& arg, const 
 Event::Event() {
   
 }
-bool parse_json_event(const json11::Json& ob, Event& ev) {
+bool parse_json_event(const Json::Value& ob, Event& ev) {
   std::map<std::string, Event::Type> types = {
     {"update_node", Event::UpdateNode},
     {"write_switch", Event::WriteSwitch},
@@ -43,19 +43,19 @@ bool parse_json_event(const json11::Json& ob, Event& ev) {
     {"map_load", Event::MapLoad},
     {"change_camera", Event::ChangeCamera},
   };
-  if(!(ob["type"].is_string() && ob["duration"].is_number())) {
+  if(!(ob["type"].isString() && ob["duration"].isNumeric())) {
     std::cerr << "Wrong fields\n";
     return false;
   }
-  std::string type = ob["type"].string_value();
-  unsigned duration = ob["duration"].number_value();
-  std::string text = ob["text"].string_value();
+  std::string type = ob["type"].asString();
+  unsigned duration = ob["duration"].asFloat();
+  std::string text = ob["text"].asString();
 
   std::array<int, 8> args;
   //get other args
   for(unsigned i=0;i<8;i++) {
-    if(ob["arg_"+std::to_string(i)].is_number()) {
-      args[i] = ob["arg_"+std::to_string(i)].number_value();
+    if(ob["arg_"+std::to_string(i)].isNumeric()) {
+      args[i] = ob["arg_"+std::to_string(i)].asFloat();
     } else {
       args[i] = 0;
     }

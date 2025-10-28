@@ -1,6 +1,6 @@
 #include "mutable/door.h"
 
-Door::Door(int uid) : Solid(uid) {
+Door::Door(sf::Texture& t, int uid) : Solid(t, uid) {
   locked = true;
   cooldown = false;
 }

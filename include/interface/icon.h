@@ -25,7 +25,7 @@ public:
   //! The update function. Determines which function to use based on the callback attribute
   virtual void update();
   //! Constructs the icon, using the passed string as the callback.
-  Icon(std::string);
+  Icon(sf::Texture&, const std::string&);
   //! The texture used for the icon
   sf::Texture tex;
 protected:
@@ -36,7 +36,7 @@ protected:
 };
 
 
-//! An altternate version of icon that contains a player pointer
+//! An alternate version of icon that contains a player pointer
 class PIcon : public Icon {
 public:
   //! A player pointer used for updates
@@ -45,7 +45,7 @@ public:
   void update(const Player*, TextureCache*);
   using Icon::update;
   //! Constructs the icon, using passed string as 'callback'
-  PIcon(std::string);
+  PIcon(sf::Texture&, const std::string&);
 };
 
 

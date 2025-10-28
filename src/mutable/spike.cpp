@@ -1,6 +1,6 @@
 #include "mutable/spike.h"
 
-Spike::Spike(int uid) : Solid(uid) {}
+Spike::Spike(sf::Texture& t, int uid) : Solid(t, uid) {}
 
 
 Interface Spike::interact(Object* o, Field* f, SwitchHandler* s) {

@@ -61,7 +61,6 @@ struct Transform {
     //!  Grow final texture to specified size; tile texture to fit new size
     /*!
      *  args: {xsize, ysize}
-     *
      */
     Tile_Grow,
     Tint_Mask, //!< Not implemented
@@ -78,8 +77,9 @@ struct Transform {
 
 //! A simple class that specifies a cache node. When an object requests a texture, it uses a CNA to do so.
 /*!
- *  To request a texture, a CNA needs to be created. srcImg is initialized using TextureCache::reverseHash().
- *  This gets the proper id for a specified string. tList is a list of transforms to be applied.
+ *  To request a texture, a CNA needs to be created.
+ *  Initialize srcImg with the base image's name (specified in texturemap). 
+ *  tList is a list of transforms to be applied.
  */
 class CacheNodeAttributes {
 public:

@@ -1,6 +1,6 @@
 #include "mutable/board.h"
 
-Board::Board(int uid) : Object(uid) {}
+Board::Board(sf::Texture& t, int uid) : Object(t, uid) {}
 
 
 Interface Board::interact(Object* o, Field*, SwitchHandler*) {

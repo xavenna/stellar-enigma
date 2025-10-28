@@ -70,6 +70,9 @@ public:
   void setSolid(bool);
   //! Get the solidity of the mutable
   bool getSolid() const;
+
+  //! Construct the mutable
+  Mutable(sf::Texture&);
 };
 
 #endif

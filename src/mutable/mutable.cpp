@@ -9,13 +9,6 @@ sf::Vector2f Mutable::getDelta() const {
   return pos - lastPos;
 }
 
-/*
-void Mutable::updateDelta() {
-  lastPos = savedPos;
-}
-*/
-
-
 sf::Vector2f Mutable::getPos() const {
   return pos;
 }
@@ -60,4 +53,9 @@ void Mutable::setPos(float m, float n) {
 }
 void Mutable::setSolid(bool n) {
   solid = n;
+}
+
+Mutable::Mutable(sf::Texture& t) : sf::Sprite{t} {
+
+
 }

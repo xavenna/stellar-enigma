@@ -25,6 +25,7 @@ public:
 
   //! This works different to standard objects, as player doesn't have a set base size
   virtual sf::Vector2f BaseSize() const {return size;}
+  virtual sf::Vector2f Offset() const {return -size/4.f;}
 
 
   virtual std::string Name() const {return "player";}
@@ -96,7 +97,7 @@ public:
    */
   sf::Vector2i getLevelPos(sf::Vector2i tileSize);
   //! constructs player
-  Player();
+  Player(sf::Texture&);
   bool grabbing=false; //!< is player holding an object
 protected:
   float speed; //!< How many pixels the player can move per frame

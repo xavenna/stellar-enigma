@@ -3,7 +3,7 @@
 
 #include <string>
 #include <fstream>
-#include <json11.hpp>
+#include <json/json.h>
 #include "SFML/Graphics.hpp"
 #include "level/level.h"
 #include "mutable/player.h"
@@ -130,9 +130,9 @@ private:
 
 };
 
-void assignTexture(sf::Sprite& s, TextureCache& cache, NodeBase n);
+sf::Texture& assignTexture(TextureCache& cache, NodeBase n);
 
-bool generateConfig(json11::Json ob, Config& c, std::string&);
+bool generateConfig(Json::Value ob, Config& c, std::string&);
 bool isValidConfigType(const std::string&);
 
 Config::Mode mode(const std::string& n);

@@ -44,7 +44,7 @@ public:
   virtual Object::MotionType Type() const {return Object::Intangible;}
   virtual bool grabbable() const {return false;}
   virtual int priority() const {return 32;}
-  Teleporter(int);
+  Teleporter(sf::Texture&, int);
 
 protected:
   int cooldown; //!< If positive, don't activate

@@ -1,7 +1,7 @@
 #include "mutable/camera-trigger.h"
 
 
-CameraTrig::CameraTrig(int uid) : Object(uid) {
+CameraTrig::CameraTrig(sf::Texture& t, int uid) : Object(t,uid) {
   cooldown = 0;
 }
 

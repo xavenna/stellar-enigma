@@ -89,8 +89,8 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
     // make a copy of requested image
     unsigned sr = reverseHash(attr.srcImg);
     sf::Image finalImage(images[sr]);
-    sf::IntRect window(0, 0, static_cast<int>(finalImage.getSize().x), static_cast<int>(finalImage.getSize().y));
-    int rotationAmount=0;
+    sf::IntRect window({0, 0}, static_cast<sf::Vector2i>(finalImage.getSize()));
+    sf::Angle rotationAmount=sf::degrees(0);
     bool tile=false;
     bool rotate = false;
     sf::Vector2i tileToSize;
@@ -99,19 +99,19 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
       switch(x.type) { //apply each transformation
       case Transform::Slide_X:
         //slide the window horizontally
-        window.left += x.args[0];
+        window.position.x += x.args[0];
         break;
       case Transform::Slide_Y:
         //slide the window vertically
-        window.top += x.args[0];
+        window.position.y += x.args[0];
         break;
       case Transform::Set_Width:
         //set the width of the Texture
-        window.width = x.args[0];
+        window.size.x = x.args[0];
         break;
       case Transform::Set_Height:
         //set the height of the Texture
-        window.height = x.args[0];
+        window.size.y = x.args[0];
         break;
       case Transform::Tint_Color:
         //tint image by specified color
@@ -119,16 +119,16 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
           float hue = x.args[0] / 360.f;
           for(unsigned i=0;i<finalImage.getSize().x;i++) {
             for(unsigned j=0;j<finalImage.getSize().y;j++) {
-              sf::Color c = finalImage.getPixel(i, j);
+              sf::Color c = finalImage.getPixel({i, j});
               c = tint(c, hue);
-              finalImage.setPixel(i, j, c);
+              finalImage.setPixel({i, j}, c);
             }
           }
         }
         break;
       case Transform::Rotate:
         rotate = true;
-        rotationAmount = 90*(x.args[0] % 4);
+        rotationAmount = sf::degrees(90*(x.args[0] % 4));
       break;
       case Transform::Tile_Grow:
         tile = true;
@@ -147,22 +147,22 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
         textEscape(x.text, save);
         //adds text at (arg0, arg1), with size arg2 [ and wrap width arg3, eventually]
         sf::RenderTexture tex;
-        tex.create(finalImage.getSize().x, finalImage.getSize().y);
+        tex.resize(finalImage.getSize());
 
         sf::Texture p;
         p.loadFromImage(finalImage);
         sf::Sprite s(p);
-        s.setPosition(0,0);
+        s.setPosition(sf::Vector2f(0,0));
 
         tex.draw(s);
-        sf::Text t;
+
         sf::Font courier;  //this is quite inefficient
-        courier.loadFromFile("assets/cour.ttf");
-        t.setFont(courier);
+        courier.openFromFile("assets/cour.ttf");
+        sf::Text t{courier};
         t.setString(x.text);
         t.setFillColor(sf::Color::White);
         t.setCharacterSize(static_cast<unsigned>(x.args[2]));
-        t.setPosition(x.args[0], x.args[1]);
+        t.setPosition(sf::Vector2f{x.args[0], x.args[1]});
         tex.draw(t);
         tex.display();
         finalImage = tex.getTexture().copyToImage();
@@ -171,10 +171,10 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
       }
         break;
       case Transform::SubRect:
-        window.left += x.args[0];
-        window.top += x.args[1];
-        window.width = x.args[2];
-        window.height = x.args[3];
+        window.position.x += x.args[0];
+        window.position.y += x.args[1];
+        window.size.x = x.args[2];
+        window.size.y = x.args[3];
         break;
       default:
         //invalid transformation
@@ -189,28 +189,28 @@ sf::Texture& TextureCache::getTexture(CacheNodeAttributes attr) {
     //apply rotation, then tiling
     if(rotate || tile) {
       if(!tile) {
-        tileToSize = sf::Vector2i(window.width, window.height);
+        tileToSize = sf::Vector2i(window.size);
       }
       sf::RenderTexture tex;
-      tex.create(tileToSize.x, tileToSize.y);
+      tex.resize(static_cast<sf::Vector2u>(tileToSize));
       sf::Texture p;
-      p.loadFromImage(finalImage, window);
+      p.loadFromImage(finalImage, false, window);
       if(tile) {
         p.setRepeated(true);
       }
       sf::Sprite s(p);
 
-      s.setTextureRect(sf::IntRect(0, 0, tileToSize.x, tileToSize.y));
-      s.setOrigin(window.width/2.f, window.height/2.f);
+      s.setTextureRect(sf::IntRect({0, 0}, tileToSize));
+      s.setOrigin(static_cast<sf::Vector2f>(window.size)/2.f);
       s.setRotation(rotationAmount);
-      s.setPosition(window.width * 0.5f, window.height * 0.5f);
+      s.setPosition(static_cast<sf::Vector2f>(window.size) / 2.f);
 
       tex.draw(s);
       tex.display();
       finalImage = tex.getTexture().copyToImage();
       c.tex.loadFromImage(finalImage);
     } else {
-      c.tex.loadFromImage(finalImage, window);
+      c.tex.loadFromImage(finalImage, false, window);
     }
 
 
@@ -269,14 +269,14 @@ TextureCache::TextureCache(const std::string& name, SaveController& s) : save{s}
       continue;
     }
     sf::Image im;
-    if(box.width == 0 && box.height == 0) {
+    if(box.size.x == 0 && box.size.y == 0) {
       im.loadFromFile(fullLine);
     }
     else {
       sf::Image i;
       i.loadFromFile(fullLine);
-      im.create(static_cast<unsigned>(box.width), static_cast<unsigned>(box.height));
-      im.copy(i, 0, 0, box, false);
+      im.resize(static_cast<sf::Vector2u>(box.size));
+      im.copy(i, {0, 0}, box, false);
     }
     registerImage(im, imgName);
 
@@ -289,13 +289,13 @@ TextureCache::TextureCache(const std::string& name, SaveController& s) : save{s}
 
 sf::IntRect getRect(std::string line) {
   if(line.find('`') == std::string::npos) {
-    return sf::IntRect(0,0,0,0);
+    return sf::IntRect({0,0},{0,0});
   }
   std::vector<std::string> seg;
 
   parse(line, seg, "`"); //
   if(seg.size() > 6) {
-    return sf::IntRect(0,0,0,0);
+    return sf::IntRect({0,0},{0,0});
   }
 
   try {
@@ -304,7 +304,7 @@ sf::IntRect getRect(std::string line) {
     return sf::IntRect(pos,size);
   }
   catch (...) {
-    return sf::IntRect(0,0,0,0);
+    return sf::IntRect({0,0},{0,0});
   }
 }
 std::string getFile(std::string line) {

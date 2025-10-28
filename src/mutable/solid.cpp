@@ -1,6 +1,6 @@
 #include "mutable/solid.h"
 
-Solid::Solid(int uid) : Object(uid) {}
+Solid::Solid(sf::Texture& t, int uid) : Object(t, uid) {}
 
 
 bool Solid::verify() {

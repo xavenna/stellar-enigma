@@ -117,20 +117,20 @@ void MusicPlayer::manageSounds() {
   for(unsigned i=0;i<8;i++) {
     switch(soundStatus[i]) {
     case Playing:
-      if(soundPlayer[i].getStatus() == sf::SoundSource::Stopped) {
+      if(soundPlayer[i].getStatus() == sf::Sound::Status::Stopped) {
         //free up slot
         soundStatus[i] = Ready;
       }
       break;
     case ReservedPlaying:
-      if(soundPlayer[i].getStatus() == sf::SoundSource::Stopped) {
+      if(soundPlayer[i].getStatus() == sf::Sound::Status::Stopped) {
         //free up slot
         soundStatus[i] = Reserved;
       }
       break;
     case Assigned:
       soundPlayer[i].play();
-      if(!(soundPlayer[i].getStatus() == sf::SoundSource::Playing)) {
+      if(!(soundPlayer[i].getStatus() == sf::Sound::Status::Playing)) {
         soundStatus[i] = Ready;
       }
       else {
@@ -148,5 +148,10 @@ void MusicPlayer::manageSounds() {
   }
 }
 MusicPlayer::MusicPlayer(const std::string& name) : soundStatus{Ready, Ready, Ready, Ready, Ready, Ready, Ready, Ready}, SR{name} {
+  // initialize soundPlayer
+  for(int i=0;i<8;i++) {
+    sf::Sound s(SR.getSound("step"));
+    soundPlayer.push_back(s);
+  }
 
 }

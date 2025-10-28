@@ -25,14 +25,3 @@ NodeBase::NodeBase() {
   id = 0;
 }
 
-MapNode::MapNode(unsigned n, DirectionalBool b) : NodeBase{n, b} {
-
-}
-
-MapNode::MapNode() : NodeBase{} {
-  setPosition(0,0);
-  
-}
-
-MapNode::MapNode(NodeBase n) : NodeBase{n} {
-}

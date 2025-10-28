@@ -21,7 +21,7 @@ public:
   virtual int priority() const {return 0;}
   virtual Object::MotionType Type() const {return Object::Static;} 
   virtual bool verify();
-  Door(int);
+  Door(sf::Texture&, int);
 protected:
   bool locked;
   bool cooldown;

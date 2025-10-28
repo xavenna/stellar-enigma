@@ -257,23 +257,22 @@ int Field::loadJsonLevel(const std::string& levelname) {
   getEntireFile(read, data);
   read.close();
   //read contents of save file
-  json11::Json save;
-  save = save.parse(data, err);
-  if(!err.empty()) {
-    std::clog << "Json parse error: '"<<err<<"'\n";
-    return -2;
-  }
+  Json::Value save;
+
+  Json::Reader reader;
+  reader.parse(data, save);
 
   sf::Vector2i mapSize; // (units of nodes)
   sf::Vector2u tileSize; // in pixels
 
   //parse 'save', extract level data
 
-  json11::Json::object k = save.object_items();
+  //TODO: fix this for new json library
+  //Json::value k = save.object_items();
 
 
-  json11::Json::array layers = k["layers"].array_items();
-  if(k.size() < 5) {
+  Json::Value layers = save["layers"];
+  if(save.size() < 5) {
     std::cerr << "Error: missing layer data\n";
 
   }
@@ -282,15 +281,15 @@ int Field::loadJsonLevel(const std::string& levelname) {
     //first get title
     //next determine tilesize and map size
 
-    std::string name = x["name"].string_value();
-    sf::Vector2i map = sf::Vector2i(x["gridCellsX"].int_value(), x["gridCellsY"].int_value());
-    sf::Vector2u tile = sf::Vector2u(x["gridCellWidth"].int_value(), x["gridCellHeight"].int_value());
+    std::string name = x["name"].asString();
+    sf::Vector2i map = sf::Vector2i(x["gridCellsX"].asInt(), x["gridCellsY"].asInt());
+    sf::Vector2u tile = sf::Vector2u(x["gridCellWidth"].asInt(), x["gridCellHeight"].asInt());
 
-    std::vector<json11::Json> data = x["dataCoords2D"].array_items();
-    std::vector<json11::Json> gridData = x["grid2D"].array_items();
+    Json::Value data = x["dataCoords2D"];
+    Json::Value gridData = x["grid2D"];
 
     if(name == "Base Layer") {
-      std::string tileset = x["tileset"].string_value();
+      std::string tileset = x["tileset"].asString();
       //set size of mapbase appropriately
       mapBase.resize(map.x);
       for(auto& k : mapBase) {k.resize(map.y);}
@@ -300,10 +299,10 @@ int Field::loadJsonLevel(const std::string& levelname) {
       //populate nodes with data:
       //ensure array size equals gridCells size
       for(int i=0;i<data.size();i++) {
-        std::vector<json11::Json> row = data[i].array_items();
+        Json::Value row = data[i];
         for(int j=0;j<row.size();j++) {
-          json11::Json elem = row[j].array_items();
-          mapBase[j][i].setTile(sf::Vector2i(elem[0].int_value(), elem[1].int_value()));
+          Json::Value elem = row[j];
+          mapBase[j][i].setTile(sf::Vector2i(elem[0].asInt(), elem[1].asInt()));
           mapBase[j][i].setTileset(0); //this should be set from tileset somehow
                                        // i signifies the row, j signifies the column. As the level data is stored
                                        // as (x,y), this needs to be flipped
@@ -333,13 +332,13 @@ int Field::loadJsonLevel(const std::string& levelname) {
         return 1;
       }
       for(int i=0;i<map.y;i++) {
-        std::vector<json11::Json> row = gridData[i].array_items();
+        Json::Value row = gridData[i];
         if(row.size() < map.x) {
           std::cerr << "Error: Solidity layer data size mismatch\n";
           return 1;
         }
         for(int j=0;j<map.x;j++) {
-          std::string p = row[j].string_value();
+          std::string p = row[j].asString();
           if(!isBool(p)) {
             std::cerr << "Error: invalid data in solidity field\n";
           }
@@ -358,6 +357,7 @@ int Field::loadJsonLevel(const std::string& levelname) {
 }
 
 bool Field::initializeWalls() {
+  walls.clear();
   //creates the walls vector from tile solidity data
 
 
@@ -395,6 +395,12 @@ bool Field::initializeWalls() {
       prevRightWall = rightWall;
 
     }
+    if(prevRightWall) {
+      walls.push_back(Wall(sf::Vector2f(i+1, mapBase[i].size()), sf::Vector2f(i+1, rightWallStartPos)));
+    }
+    if(prevLeftWall) {
+      walls.push_back(Wall(sf::Vector2f(i, leftWallStartPos), sf::Vector2f(i, mapBase[i].size())));
+    }
   }
 
   //search rows for horizontal walls
@@ -430,6 +436,12 @@ bool Field::initializeWalls() {
         prevTopWall = topWall;
         prevBottomWall = bottomWall;
       }
+      if(prevTopWall) {
+        walls.push_back(Wall(sf::Vector2f(mapBase.size(), j), sf::Vector2f(topWallStartPos, j)));
+      }
+      if(prevBottomWall) {
+        walls.push_back(Wall(sf::Vector2f(bottomWallStartPos,j+1), sf::Vector2f(mapBase.size(),j+1)));
+      }
 
     }
   }
@@ -442,6 +454,7 @@ bool Field::initializeWalls() {
     x.p2.y *= tilesize.y;
   }
 
+  return true;
 }
 
 Field::Field(size_t x, size_t y) : mapBase{x, std::vector<NodeBase>(y)} {

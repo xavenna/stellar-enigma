@@ -12,16 +12,16 @@ unsigned Cutscene::getListLen() {
   return eventList.size();
 }
 
-bool Cutscene::loadFromFile(const json11::Json& ob, std::string& fn) {
+bool Cutscene::loadFromFile(const Json::Value& ob, std::string& fn) {
   //should have a name
-  if(!ob["name"].is_string() || !ob["events"].is_array()) {
+  if(!ob["name"].isString() || !ob["events"].isArray()) {
     std::cerr << "Couldn't parse cutscene\n";
     return false;
   }
-  fn = ob["name"].string_value();
+  fn = ob["name"].asString();
   //now, iterate through ob["events"] and call parse_json_event
 
-  auto events = ob["events"].array_items();
+  auto events = ob["events"];
   for(auto x : events) {
     Event e;
     if(!parse_json_event(x, e)) {

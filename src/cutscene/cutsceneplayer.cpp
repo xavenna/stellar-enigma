@@ -29,7 +29,7 @@ bool CutscenePlayer::updateCutscene() {
       sf::Keyboard::Key k;
       while(ms.getLastKey(k)) {
         //check if key is valid
-        if(e[1] == 1 || (e[1] == 0 && e[0] == k)) {
+        if(e[1] == 1 || (e[1] == 0 && e[0] == static_cast<int>(k) )) {
           //event is over
           if(finalEvent) {
             //cutscene is over, return or whatever
@@ -124,6 +124,7 @@ bool CutscenePlayer::updateCutscene() {
   return true;
 }
 
+///! TODO: FIX THIS! LOTS OF THIS IS OUTDATED
 bool CutscenePlayer::playEvent() {
   //add bounds checking whenever an arg is used as an index, or similar use.
   //add all events here
@@ -139,7 +140,7 @@ bool CutscenePlayer::playEvent() {
     //somehow check for invalid args
     std::clog << "Note: UpdateNode event has no bounds checking yet. Use at your own risk\n";
 
-    le.updateNode(e[0], e[1], MapNode(static_cast<unsigned>(e[2]), DirectionalBool(e[3])));
+    le.updateNode(e[0], e[1], NodeBase(static_cast<unsigned>(e[2]), DirectionalBool(e[3])));
     timer = e.getDuration();
     le.displayUpdate = true;
     break;

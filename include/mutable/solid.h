@@ -13,7 +13,7 @@ public:
   virtual int priority() const {return 0;}
   virtual Object::MotionType Type() const {return Object::Static;} 
   virtual bool verify();
-  Solid(int);
+  Solid(sf::Texture&, int);
 };
 
 

@@ -19,10 +19,10 @@ unsigned Icon::getId() const {
 void Icon::setId(unsigned n) {
   id = n;
 }
-Icon::Icon(std::string call) : id{0} {
+Icon::Icon(sf::Texture& t, const std::string& call) : Sprite{t}, id{0} {
   callback = call;
 }
-PIcon::PIcon(std::string call) : Icon{call} {
+PIcon::PIcon(sf::Texture& t, const std::string& call) : Icon{t, call} {
 }
 void Icon::update() {
   //find correct callback

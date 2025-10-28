@@ -65,6 +65,7 @@ public:
   int getCode(unsigned) const;
   //! Gets specified text argument
   std::string getTextArg(unsigned) const;
+  Menu(sf::Texture&);
 };
 
 //! Parses a string, fixes escape sequences: "\\n" becomes "\n"

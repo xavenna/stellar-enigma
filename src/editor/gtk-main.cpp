@@ -848,6 +848,9 @@ static void app_startup(GtkApplication* app, gpointer user_data) {
   GObject* sw_entry = gtk_builder_get_object(builder, "SwitchInfoEntry");
 
   //setup preview pane
+  //TODO: Rewrite this. Use a sf::RenderTexture, draw to it, then render the finished
+  //texture to a GL_Area. This lets me draw tiles using SFML.
+  //(Keep a wireframe mode as an option)
   GObject* preview = gtk_builder_get_object(builder, "Preview");
   gtk_drawing_area_set_content_width(GTK_DRAWING_AREA(preview), 100);
   gtk_drawing_area_set_content_height(GTK_DRAWING_AREA(preview), 100);

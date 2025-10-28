@@ -1,7 +1,7 @@
 #include "mutable/key.h"
 
 
-Key::Key(int uid) : Object(uid) {}
+Key::Key(sf::Texture& t,int uid) : Object(t,uid) {}
 
 
 bool Key::verify() {

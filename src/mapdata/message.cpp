@@ -77,14 +77,12 @@ void Message::wrapMessage() {
   }
   setString(out);
 }
-Message::Message(unsigned wid, unsigned cool, unsigned elem, unsigned charSize) : width{wid}, maxCool{cool}, maxElem{elem} {
+Message::Message(unsigned wid, unsigned cool, unsigned elem, unsigned charSize, const std::string& font) : courier{font}, sf::Text{courier}, width{wid}, maxCool{cool}, maxElem{elem}  {
   printed = false;
   pointer = 0;
   setString("");
   setFillColor(sf::Color::White);
   setCharacterSize(charSize);
-  courier.loadFromFile("assets/cour.ttf");
-  setFont(courier);
 }
 
 //this is just for debugging, and is not needed in the final thing

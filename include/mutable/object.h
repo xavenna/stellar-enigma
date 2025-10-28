@@ -164,9 +164,9 @@ public:
   //! set value of specified arg
   void setArg(std::size_t slot, int v);
   //! empty constructor
-  Object();
+  Object(sf::Texture&);
   //! uid constructor
-  Object(int);
+  Object(sf::Texture&, int);
 
   void setPushback(Direction d);
   void resetPushback();

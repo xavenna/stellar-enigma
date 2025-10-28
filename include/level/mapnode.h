@@ -36,18 +36,5 @@ public:
   NodeBase(unsigned n, DirectionalBool b);
 
 };
-//! A drawable MapNode
-/*!
- *  Extends sf::Sprite
- */
-class MapNode : public NodeBase, public sf::Sprite {
-private:
-  
-public:
-  //! Constructs the MapNode with passed attributes
-  MapNode(unsigned n, DirectionalBool b);
-  MapNode();
-  MapNode(NodeBase);
-};
 
 #endif

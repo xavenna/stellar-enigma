@@ -10,7 +10,7 @@ public:
   virtual std::string Name() const {return "switch_and";}
   virtual Interface behave(SwitchHandler*, Utility*);
   virtual bool verify();
-  SwAnd(int uid);
+  SwAnd(sf::Texture&, int uid);
 };
 
 #endif

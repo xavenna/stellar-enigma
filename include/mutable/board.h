@@ -12,7 +12,7 @@ public:
   virtual std::string Name() const {return "board";}
   virtual sf::Vector2f BaseSize() const {return sf::Vector2f(32,32);}
   virtual Object::MotionType Type() const {return Object::Intangible;} 
-  Board(int);
+  Board(sf::Texture&, int);
 };
 
 #endif

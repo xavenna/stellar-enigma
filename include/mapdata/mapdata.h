@@ -75,7 +75,7 @@ public:
   //! load a level from file
   bool loadLevel(const std::string&);
   //! The contructor takes several parameters for the members
-  MapData(unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSize);
+  MapData(unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSize, sf::Texture& t);
 private:
   unsigned long frameCount=0;
 };

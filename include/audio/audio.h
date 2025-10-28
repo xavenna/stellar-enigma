@@ -61,8 +61,8 @@ public:
  */
 class MusicPlayer {
 private:
-  std::array<sf::Sound, 8> soundPlayer; //!< An array of Sound Players
-  std::array<Status, 8> soundStatus; //!< The status of each sound player
+  std::vector<sf::Sound> soundPlayer; //!< An array of Sound Players
+  std::vector<Status> soundStatus; //!< The status of each sound player
   std::deque<std::string> soundQueue; //!< The queue of sounds to be played
   SoundRegistry SR; //!< An internal registry of soundBuffers and names
 

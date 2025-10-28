@@ -15,28 +15,36 @@ Before the engine can be used, the assets need to be set up. Create the folder s
 described in the readme.
 
 Here's a description of how to initialize each folder.
+* Assets:
+  * editor ui files
+  * obj.json
+  * font files
 
 * Audio
   * audiomap.txt
   * Any audio files for the program to use.
+
 * Cutscene
-  * cutlist.txt
+  * cutscenes.json
   * all cutscene files (.sec extension)
 
 * Interface
+  * icons.txt
+  * UI image files
 
 * Level
-  * All level files
-  * All Object list files
+  * All level files (ogmo json)
+  * All Object list files (.sml extension)
 
 * Menu
   * menus.txt
+  * levelsel.json
 
 * Texture
   * All image files for the program to use
 
 * Texturemap
-  * default.tm
+  * texturemap files (.tm extension)
 
 
 
@@ -59,6 +67,7 @@ A backtick is not required after the final element.\
 Lines prefixed with '#' are ignored.
 
 
+
 ### JSON
 Some files are stored in JSON, in order to be more compatible with other software
 
@@ -74,8 +83,8 @@ Example entry:\
 This loads coin.wav and assigns it the internal name of 'coin'.
 
 
-### cutlist.txt
-Cutlist.txt contains a list of all cutscenes to load. Each cutscene is on its own line.
+### cutscenes.json
+Cutscenes.json contains all cutscene data.
 
 ### icons.txt
 Uses the explor format
@@ -104,12 +113,16 @@ contains the attributes of one object:
  * c - Class. String - Which object class to use.
  * te - Text. String - Text argument for object.
 
+ These files can me edited uwing the editor (use ```make editor``` to build it)
+
 ### menus.txt
 menus.txt describes the menus used within the game. It uses the stellar object format.\
 Each entry describes a single menu.
 
-### default.tm
-default.tm is the texturemap. This specifies each texture used, and assigns it an
+### texturemap files.
+Explor format. default.tm is used by default.
+
+This specifies each texture used, and assigns it an
 internal name. Uses the explor format.\
 Each entry contains the internal name, image to source from, and the size and offset of 
 the subrectangle to use

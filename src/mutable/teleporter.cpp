@@ -1,6 +1,6 @@
 #include "mutable/teleporter.h"
 
-Teleporter::Teleporter(int uid) : Object(uid) {
+Teleporter::Teleporter(sf::Texture& t, int uid) : Object(t, uid) {
   cooldown = 0;
   chargeup = 0;
 }
@@ -24,6 +24,9 @@ bool Teleporter::verify() {
 
   //fix this: SW_A only needs to be set if arg[2] & 2 == 1
   if(!((args[2] & 0x2) >> 1) && (switches[SW::A] < 0 || switches[SW::A] > 255)) {
+    return false;
+  }
+  if(switches[SW::B] < 0 || switches[SW::B] > 255) {
     return false;
   }
 

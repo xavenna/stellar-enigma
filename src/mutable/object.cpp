@@ -88,7 +88,7 @@ void Object::setSwitch(unsigned index, int value) {
 void Object::setText(const std::string& n) {
   text = n;
 }
-Object::Object() {
+Object::Object(sf::Texture& t) : Mutable(t) {
   pos.x = 0;
   pos.y = 0;
   scaleFactor.x = 1;
@@ -98,8 +98,15 @@ Object::Object() {
   selfPush = zero2<float>();
 }
 
-Object::Object(int uid) : unique_id{uid} {
-  Object();
+Object::Object(sf::Texture& t, int uid) : Mutable(t), unique_id{uid} {
+  pos.x = 0;
+  pos.y = 0;
+  scaleFactor.x = 1;
+  scaleFactor.y = 1;
+  solid = false;
+  status = Object::Normal;
+  selfPush = zero2<float>();
+
 }
 
 void Object::setPushback(Direction d) {

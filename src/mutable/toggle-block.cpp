@@ -2,7 +2,7 @@
 #include <iostream>
 
 
-ToggleBlock::ToggleBlock(int uid) : Solid(uid) {
+ToggleBlock::ToggleBlock(sf::Texture& t, int uid) : Solid(t, uid) {
   vars[0] = args[0];
   vars[1] = 0;
 }

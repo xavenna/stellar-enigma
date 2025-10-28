@@ -2,7 +2,7 @@
 #define FIELD_H
 #include <fstream>
 #include <iostream>
-#include <json11.hpp>
+#include <json/json.h>
 #include "level/mapnode.h"
 #include "misc/util.h"
 #include "misc/vect.h"
@@ -64,10 +64,12 @@ public:
   float findClosestPointInRange(const sf::Vector2f w0, const sf::Vector2f w1, const sf::Vector2f w2, const sf::Vector2f r0, const sf::Vector2f r, const sf::Vector2f p) const;
 };
 
+/*
 //! parses a string containing a node, uses nodify
 bool nodify(std::string&, MapNode&);
 //! creates a node from a string representation of a node
 bool strToNode(const std::string&, MapNode&);
+*/
 
 
 struct Edge {

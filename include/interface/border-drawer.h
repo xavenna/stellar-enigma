@@ -23,6 +23,7 @@ private:
   sf::Texture edge;
   sf::Texture joint;
   sf::Texture cross;
+  sf::Texture null;
   sf::Vector2u tileSize;
   
 };

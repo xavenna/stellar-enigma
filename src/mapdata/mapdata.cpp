@@ -2,11 +2,11 @@
 
 // This file has functions for the overarching classes
 
-MapData::MapData(unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSize) : musicPlayer{"audiomap.txt"},  message{mWid, mCool, mElem, mCharSize}, camera{player, levelSlot, "assets/camera/config.json"}, cutscenePlayer{player, message, levelSlot, modeSwitcher, musicPlayer, switchHandler, camera}, cache{"assets/texturemap/default.tm", utility.save} {
+MapData::MapData(unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSize, sf::Texture& null) : player{null}, musicPlayer{"audiomap.txt"},  message{mWid, mCool, mElem, mCharSize, "assets/cour.ttf"}, camera{player, levelSlot, "assets/camera/config.json"}, mainMenu{null}, cutscenePlayer{player, message, levelSlot, modeSwitcher, musicPlayer, switchHandler, camera}, cache{"assets/texturemap/default.tm", utility.save} {
   //initialize members here
 
   //load level
-  if(!loadLevel("default")) {
+  if(!loadLevel("test")) {
     std::cerr << "Level load failed. Exiting\n";
     throw std::invalid_argument("MapData::MapData() : Level Load unsuccessful");
   }
@@ -18,7 +18,7 @@ MapData::MapData(unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSi
 
 
 
-  message.setPosition(4+levelSlot.getTilesize().x, msgOfY);
+  message.setPosition({4+levelSlot.getTilesize().x, msgOfY});
   
 
   cutscenePlayer.man.loadCutscenes("assets/cutscene/cutscenes.json");
@@ -38,19 +38,19 @@ unsigned long MapData::getFrameCount() const {
 }
 
 void MapData::pollEvents(sf::RenderWindow& window) {
-    sf::Event event;
-    while(window.pollEvent(event)) {
-      switch(event.type) {
-      case sf::Event::Closed:
+    while(const std::optional event = window.pollEvent()) {
+      if(event->is<sf::Event::Closed>()) {
 	      window.close();
 	      break; 
+      }
 #ifndef SE_RAW_IN
-      case sf::Event::KeyPressed:
-        modeSwitcher.addKey(event.key.code);
-        break;
+      else if(const auto* key = event->getIf<sf::Event::KeyPressed>()) {
+        modeSwitcher.addKey(key);
+      }
 #endif
-      default:
-	      break;
+      else if(const auto* size = event->getIf<sf::Event::Resized>()) {
+        sf::FloatRect visibleArea(sf::Vector2f{0,0}, static_cast<sf::Vector2f>(size->size));
+        window.setView(sf::View(visibleArea));
       }
     }
 
@@ -58,6 +58,7 @@ void MapData::pollEvents(sf::RenderWindow& window) {
     modeSwitcher.updateKeysPressed();
 #endif
 }
+
 void MapData::finishFrame(sf::RenderWindow& window) {
   //tasks that are common to all modes
   musicPlayer.assignSounds();
@@ -77,7 +78,6 @@ void MapData::finishFrame(sf::RenderWindow& window) {
   case 1:
   case 2:  //cutscene mode works the same as gameplay mode
   case 3:  //debug mode can use the same drawing logic as normal mode
-    //assign sprites
 
     camera.drawFrame(window, modeSwitcher.getMode(), cache);
 
@@ -146,37 +146,37 @@ int MapData::event0Handle() {
   int code=0;
   unsigned keynum=0;
   while(modeSwitcher.getLastKey(lk)) {
-    if(lk == sf::Keyboard::Enter) {
+    if(lk == sf::Keyboard::Key::Enter) {
       code = mainMenu.getCode(0);
       keynum = 0;
       break;
     }
-    else if(lk == sf::Keyboard::Num1) {
+    else if(lk == sf::Keyboard::Key::Num1) {
       code = mainMenu.getCode(1);
       keynum = 1;
       break;
     }
-    else if(lk == sf::Keyboard::Num2) {
+    else if(lk == sf::Keyboard::Key::Num2) {
       code = mainMenu.getCode(2);
       keynum = 2;
       break;
     }
-    else if(lk == sf::Keyboard::Num3) {
+    else if(lk == sf::Keyboard::Key::Num3) {
       code = mainMenu.getCode(3);
       keynum = 3;
       break;
     }
-    else if(lk == sf::Keyboard::Num4) {
+    else if(lk == sf::Keyboard::Key::Num4) {
       code = mainMenu.getCode(4);
       keynum = 4;
       break;
     }
-    else if(lk == sf::Keyboard::Escape) {
+    else if(lk == sf::Keyboard::Key::Escape) {
       code = mainMenu.getCode(5);
       keynum = 5;
       break;
     }
-    else if(lk == sf::Keyboard::Space) {
+    else if(lk == sf::Keyboard::Key::Space) {
       code = mainMenu.getCode(6);
       keynum = 6;
       break;
@@ -229,37 +229,37 @@ void MapData::event1Handle() {
   bool pause = false;
   bool interact = false;
   while(modeSwitcher.getLastKey(lk)) {
-    if(lk == sf::Keyboard::W) {
+    if(lk == sf::Keyboard::Key::W) {
       if(moveDir.y == 0)
         moveDir.y = -1;
       else
         moveDir.y = 0;
     }
-    else if(lk == sf::Keyboard::A) {
+    else if(lk == sf::Keyboard::Key::A) {
       if(moveDir.x == 0)
         moveDir.x = -1;
       else
         moveDir.x = 0;
     }
-    else if(lk == sf::Keyboard::S) {
+    else if(lk == sf::Keyboard::Key::S) {
       if(moveDir.y == 0)
         moveDir.y = 1;
       else
         moveDir.y = 0;
     }
-    else if(lk == sf::Keyboard::D) {
+    else if(lk == sf::Keyboard::Key::D) {
       if(moveDir.x == 0)
         moveDir.x = 1;
       else
         moveDir.x = 0;
     }
-    else if(lk == sf::Keyboard::Escape) {
+    else if(lk == sf::Keyboard::Key::Escape) {
       pause = true;
     }
-    else if(lk == sf::Keyboard::K) {
+    else if(lk == sf::Keyboard::Key::K) {
       interact = true;
     }
-    else if(lk == sf::Keyboard::Quote) {
+    else if(lk == sf::Keyboard::Key::Apostrophe) {
       std::cerr << player.getPos().x << ',' << player.getPos().y << '\n';
     }
 
@@ -328,28 +328,28 @@ void MapData::event1Handle() {
     //get a list of every obj that intersects with this range
     sf::FloatRect searchBox;
 
-    searchBox.left = player.getCenter().x;
-    searchBox.top = player.getCenter().y;
+    searchBox.position.x = player.getCenter().x;
+    searchBox.position.y = player.getCenter().y;
     if(player.getFacing() == Up) {
-      searchBox.top -= (6 + player.getESize().y / 2.f);
+      searchBox.position.y -= (6 + player.getESize().y / 2.f);
     }
     else if(player.getFacing() == Down) {
-      searchBox.top += (6 + player.getESize().y / 2.f);
+      searchBox.position.y += (6 + player.getESize().y / 2.f);
     }
     else if(player.getFacing() == Left) {
-      searchBox.left -= (6 + player.getESize().y / 2.f);
+      searchBox.position.x -= (6 + player.getESize().y / 2.f);
     }
     else if(player.getFacing() == Right) {
-      searchBox.left += (6 + player.getESize().y / 2.f);
+      searchBox.position.x += (6 + player.getESize().y / 2.f);
     }
 
-    searchBox.width = 6.f;
-    searchBox.height = 6.f;
+    searchBox.size.x = 6.f;
+    searchBox.size.y = 6.f;
     std::vector<Object*> inter_list;
 
     //find all objects that can be grabbed
     for(unsigned i=0;i<levelSlot.getObjNum();i++) {
-      if(levelSlot.getObjPtr(i)->getBounds().intersects(searchBox)) {
+      if(levelSlot.getObjPtr(i)->getBounds().findIntersection(searchBox) != std::nullopt) {
         inter_list.push_back(levelSlot.getObjPtr(i));
       }
     }
@@ -636,7 +636,7 @@ bool MapData::loadLevel(const std::string& name) {
     if(x.Name() == "player_start") {
       //intitializePlayer
       player.setPos(x.getPos());
-      player.setSize(x.BaseSize());
+      player.setSize(sf::Vector2f(16.f, 16.f));
       player.setScaleFactor(x.getScaleFactor());
       player.setSpeed(x.getArg(0));
       player.setHealth(x.getArg(1));
@@ -650,7 +650,7 @@ bool MapData::loadLevel(const std::string& name) {
   }
   if(!foundPStart) {
     player.setPos(32, 32);
-    player.setSize(sf::Vector2f(16.f, 16.f));
+    player.setSize(sf::Vector2f(8.f, 8.f));
     player.setScaleFactor(sf::Vector2f(0.95f, 0.95f));
     player.setSpeed(4);
     player.setHealth(5);

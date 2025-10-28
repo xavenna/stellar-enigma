@@ -1,5 +1,5 @@
 #include "mutable/player-start.h"
-PlayerStart::PlayerStart(int uid) : Object{uid} {
+PlayerStart::PlayerStart(sf::Texture& t, int uid) : Object{t, uid} {
 }
 
 

@@ -11,7 +11,7 @@ public:
   virtual Interface behave(SwitchHandler*, Utility*);
   virtual std::string Name() const {return "camera_trigger";}
   virtual sf::Vector2f BaseSize() const {return sf::Vector2f(32,32);}
-  CameraTrig(int);
+  CameraTrig(sf::Texture&, int);
 
 private:
   int cooldown;

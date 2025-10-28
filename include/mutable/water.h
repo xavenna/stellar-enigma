@@ -3,6 +3,10 @@
 #include "mutable/object.h"
 
 //! An animated water object. 
+/*!
+ *
+ *
+ */
 class Water : public Object {
 public:
   virtual CacheNodeAttributes draw();
@@ -11,7 +15,7 @@ public:
   virtual sf::Vector2f BaseSize() const {return sf::Vector2f(16,16);}
   virtual Object::MotionType Type() const {return Object::Intangible;} 
   virtual bool verify();
-  Water(int);
+  Water(sf::Texture&, int);
 protected:
   unsigned animTimer=0;
   sf::Vector2i texSize;

@@ -6,10 +6,12 @@ int main() {
   //params found in constructor: level to load, texturemap
 
   //make the constructor less arcane
-  MapData mapData(unsigned(0.082126 * 16 * WINDOW_WIDTH), 55, 20, 20);
+  //make nil texture
+  sf::Texture null{"assets/texture/null.png"};
+  MapData mapData(unsigned(0.082126 * 16 * WINDOW_WIDTH), 55, 20, 20, null);
 
 
-  sf::RenderWindow window(sf::VideoMode(static_cast<unsigned>(mapData.windowSize.x), static_cast<unsigned>(mapData.windowSize.y)), "Stellar Enigma Engine Test");
+  sf::RenderWindow window(sf::VideoMode(static_cast<sf::Vector2u>(mapData.windowSize)), "Stellar Enigma Engine Test");
   window.setVerticalSyncEnabled(true);
   window.setFramerateLimit(FRAMERATE);
 

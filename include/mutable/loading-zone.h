@@ -23,7 +23,7 @@ public:
   virtual std::string Name() const {return "loading_zone";}
   virtual sf::Vector2f BaseSize() const {return sf::Vector2f(32,32);}
   virtual bool verify();
-  LoadingZone(int);
+  LoadingZone(sf::Texture&, int);
 protected:
   int cooldown;
   bool waiting=false;

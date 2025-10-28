@@ -6,7 +6,7 @@
 #include <vector>
 #include <stdexcept>
 #include <iostream>
-#include <json11.hpp>
+#include <json/json.h>
 
 #include "misc/util.h"
 
@@ -75,6 +75,6 @@ private:
  *  Deprecated
  */
 bool line2event(const std::string&, Event&);
-bool parse_json_event(const json11::Json&, Event&);
+bool parse_json_event(const Json::Value&, Event&);
 
 #endif

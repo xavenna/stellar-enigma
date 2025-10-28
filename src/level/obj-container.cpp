@@ -134,7 +134,8 @@ bool ObjContainer::notify(msg m) {
 
 
 bool ObjContainer::storeObj(std::string t) {
-  Object o;
+  sf::Texture null{"assets/texture/null.png"};
+  Object o{null};
   std::string status;
   bool p = storeObj(o, t, status);
   if(!p) {

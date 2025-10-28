@@ -12,7 +12,7 @@ public:
   virtual std::string Name() const {return "key";}
   virtual sf::Vector2f BaseSize() const {return sf::Vector2f(32,32);}
   virtual bool verify();
-  Key(int uid);
+  Key(sf::Texture&, int uid);
 };
 
 #endif

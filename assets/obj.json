@@ -126,6 +126,7 @@
     "arg_6":"Destination xpos",
     "arg_7":"Destination ypos",
     "SW_A":"Activation switch. Usage depends on arg_2",
+    "SW_B":"Activated on successful teleport",
     "priority":32,
     "verbose_name":"Teleporter",
     "internal_name":"teleporter",
@@ -240,6 +241,10 @@
     "ysize":16,
     "internal_name":"water",
     "verbose_name":"Water",
+    "handles_use":false,
+    "handles_interact":false,
+    "invisible":true,
+    "texture_id":false,
     "description":"An animated water object"
   }
   ]

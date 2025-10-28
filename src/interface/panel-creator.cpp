@@ -7,10 +7,10 @@ sf::Vector2u PanelCreator::findPanelDimensions() {
 
 void PanelCreator::fixPanelOffsets(int panOff) {
   for(auto& x : icons) {
-    x.setPosition(x.getPosition().x+panOff, x.getPosition().y+16);
+    x.setPosition({x.getPosition().x+panOff, x.getPosition().y+16});
   }
   for(auto& x : picons) {
-    x.setPosition(x.getPosition().x+panOff, x.getPosition().y+16);
+    x.setPosition({x.getPosition().x+panOff, x.getPosition().y+16});
   }
 }
 
@@ -22,14 +22,14 @@ void PanelCreator::createPanel() {
   unsigned maxWid=0;
   for(auto& x : icons) {
     //place this icon on the panel, setPos
-    x.setPosition(currentPos.x, currentPos.y);
+    x.setPosition({currentPos.x, currentPos.y});
     x.setPos(sf::Vector2i(static_cast<int>(currentPos.x), static_cast<int>(currentPos.y)));
     currentPos.y += x.getSize().y;
     maxWid = x.getSize().x > maxWid ? x.getSize().x : maxWid;
   }
   for(auto& x : picons) {
     //place this icon on the panel, setPos
-    x.setPosition(currentPos.x, currentPos.y);
+    x.setPosition({currentPos.x, currentPos.y});
     x.setPos(sf::Vector2i(static_cast<int>(currentPos.x), static_cast<int>(currentPos.y)));
     currentPos.y += x.getSize().y;
     maxWid = x.getSize().x > maxWid ? x.getSize().x : maxWid;
@@ -42,12 +42,12 @@ void PanelCreator::createPanel() {
 void PanelCreator::updateIcons(const Player* p, TextureCache* cache) {
   for(auto& x : icons) {
     x.update();
-    x.setSize(x.getTexture()->getSize());
+    x.setSize(x.tex.getSize());
     x.setTexture(x.tex);
   }
   for(auto& x : picons) {
     x.update(p, cache);
-    x.setSize(x.getTexture()->getSize());
+    x.setSize(x.tex.getSize());
     x.setTexture(x.tex, cache);
   }
 }
@@ -110,14 +110,18 @@ bool PanelCreator::loadIcons(const std::string& file) {
     //check if type is valid
     if(type == "n") {
       //normal icon
-      icons.push_back(Icon(callback));
+      sf::Texture t{tex.string()};
+      //icons.back().tex.loadFromFile(tex.string());
+      icons.push_back(Icon(t, callback));
       icons.back().tex.loadFromFile(tex.string());
       icons.back().setTexture(icons.back().tex);
       icons.back().setSize(icons.back().tex.getSize());
     }
     else if(type == "p") {
       //player-linked icon
-      picons.push_back(PIcon(callback));
+      sf::Texture t{tex.string()};
+      //picons.back().tex.loadFromFile(tex.string());
+      picons.push_back(PIcon(t, callback));
       picons.back().tex.loadFromFile(tex.string());
       picons.back().setTexture(picons.back().tex);
       picons.back().setSize(picons.back().tex.getSize());

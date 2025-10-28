@@ -214,32 +214,33 @@ void Camera::gameplayDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
   sf::Vector2f origin;
   size.x = (WINDOW_WIDTH * l.getTilesize().x);
   size.y = (WINDOW_HEIGHT * l.getTilesize().y);
-  view.left = (focusPoint - (size / 2.f)).x;
-  view.top = (focusPoint - (size / 2.f)).y;
-  view.width = size.x;
-  view.height = size.y;
-  origin = sf::Vector2f(view.left, view.top);
+  view.position = (focusPoint - (size / 2.f));
+  view.size = size;
+  origin = sf::Vector2f(view.position);
 
 
   sf::Vector2f offset = static_cast<sf::Vector2f>(l.getTilesize());
 
   //render tiles:
-  sf::Sprite s;
   for(unsigned i=0;i<l.getWidth();i++) {
     for(unsigned j=0;j<l.getHeight();j++) {
       NodeBase n = l.field.getNode(i,j);
       //apply any transforms to n;
       sf::Vector2f pos = sf::Vector2f(l.getTilesize().x * i, l.getTilesize().y * j); 
 
-      s.setPosition(zo * (pos - focusPoint) + focusPoint);
-      s.setScale(zo, zo);
 
+      
       //set texture
-      assignTexture(s, cache, n);
+      sf::Texture& t = assignTexture(cache, n);
+      sf::Sprite s(t);
+
+      s.setPosition(zo * (pos - focusPoint) + focusPoint);
+      s.setScale({zo, zo});
+
       sf::FloatRect spriteBox = s.getGlobalBounds();
 
       //render m to frame
-      if(view.intersects(spriteBox)) {
+      if(view.findIntersection(spriteBox).has_value()) {
         s.setPosition(s.getPosition() - origin + offset);
         window.draw(s);
       }
@@ -265,7 +266,7 @@ void Camera::gameplayDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
     // think about this
 
     try {
-      obj.setTexture(cache.getTexture(cna));
+      obj.setTexture(cache.getTexture(cna), true);
     }
     catch (...) {
       std::clog << "Error: target image not found\n";
@@ -275,10 +276,10 @@ void Camera::gameplayDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
     //factor in object's sprite offset
 
     obj.setPosition(zo * (obj.getPos() + obj.Offset() - focusPoint) + focusPoint);
-    obj.setScale(zo*obj.getScaleFactor().x, zo*obj.getScaleFactor().y);
+    obj.setScale(zo*obj.getScaleFactor());
 
     //render m to frame
-    if(view.intersects(obj.getSpriteBounds())) {
+    if(view.findIntersection(obj.getSpriteBounds()).has_value()) {
       obj.setPosition(obj.getPosition() - origin + offset);
       window.draw(obj);
     }
@@ -286,11 +287,11 @@ void Camera::gameplayDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
 
 
   //render player
-  p.setPosition(zo * (p.getPos() - focusPoint) + focusPoint);
-  p.setScale(zo, zo);
+  p.setPosition(zo * (p.getPos() - focusPoint) + focusPoint + p.Offset());
+  p.setScale({zo, zo});
 
   //render m to frame
-  if(view.intersects(p.getGlobalBounds())) {
+  if(view.findIntersection(p.getGlobalBounds()).has_value()) {
     p.setPosition(p.getPosition() - origin + offset);
     window.draw(p);
   }
@@ -327,17 +328,18 @@ void Camera::cutsceneDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
   sf::Vector2f origin;
   size.x = (WINDOW_WIDTH * l.getTilesize().x);
   size.y = (WINDOW_HEIGHT * l.getTilesize().y);
-  view.left = (focusPoint - (size / 2.f)).x;
-  view.top = (focusPoint - (size / 2.f)).y;
-  view.width = size.x;
-  view.height = size.y;
-  origin = sf::Vector2f(view.left, view.top);
+  view.position = (focusPoint - (size / 2.f));
+  view.size = size;
+  origin = sf::Vector2f(view.position);
 
   sf::Vector2f offset = static_cast<sf::Vector2f>(l.getTilesize());
   //find 
 
   //render tiles:
-  sf::Sprite s;
+  //i need a null texture.
+  CacheNodeAttributes nullcna;
+  nullcna.srcImg = "null";
+  sf::Sprite s{cache.getTexture(nullcna)};
   for(unsigned i=0;i<l.getWidth();i++) {
     for(unsigned j=0;j<l.getHeight();j++) {
       NodeBase n = l.field.getNode(i,j);
@@ -345,16 +347,16 @@ void Camera::cutsceneDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
       sf::Vector2f pos = sf::Vector2f(l.getTilesize().x * i, l.getTilesize().y * j); 
 
       s.setPosition(zo * (pos - focusPoint) + focusPoint);
-      s.setScale(zo, zo);
+      s.setScale({zo, zo});
 
       //set texture
-      assignTexture(s, cache, n);
+      sf::Texture& t = assignTexture(cache, n);
       sf::FloatRect spriteBox = s.getGlobalBounds();
       //decide if sprite should be rendered (if it's in the camera's view
       //verify if sprite will intersect with 'view'
 
       //render m to frame
-      if(view.intersects(spriteBox)) {
+      if(view.findIntersection(spriteBox).has_value()) {
         s.setPosition(s.getPosition() - origin + offset);
         window.draw(s);
       }
@@ -376,7 +378,7 @@ void Camera::cutsceneDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
     }
 
     try {
-      obj.setTexture(cache.getTexture(cna));
+      obj.setTexture(cache.getTexture(cna), true);
     }
     catch (...) {
       std::clog << "Error: target image not found\n";
@@ -386,10 +388,10 @@ void Camera::cutsceneDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
     //factor in object's sprite offset
 
     obj.setPosition(zo * (obj.getPos() + obj.Offset() - focusPoint) + focusPoint);
-    obj.setScale(zo*obj.getScaleFactor().x, zo*obj.getScaleFactor().y);
+    obj.setScale(zo*obj.getScaleFactor());
 
     //render m to frame
-    if(view.intersects(obj.getSpriteBounds())) {
+    if(view.findIntersection(obj.getSpriteBounds()).has_value()) {
       obj.setPosition(obj.getPosition() - origin + offset);
       window.draw(obj);
     }
@@ -398,10 +400,10 @@ void Camera::cutsceneDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
 
   //render player
   p.setPosition(zo * (p.getPos() - focusPoint) + focusPoint);
-  p.setScale(zo, zo);
+  p.setScale({zo, zo});
 
   //render m to frame
-  if(view.intersects(p.getGlobalBounds())) {
+  if(view.findIntersection(p.getGlobalBounds()).has_value()) {
     p.setPosition(p.getPosition() - origin + offset);
     window.draw(p);
   }
@@ -432,26 +434,22 @@ Camera::Camera(Player& pl, Level& le, const std::string& fn) : p{pl}, l{le} {
   //load a list of configs from the specified json file
   std::ifstream read(fn);
   std::string data;
-  std::string err;
   if(!read.is_open()) {
     throw std::invalid_argument("Camera::Camera() : Error: Could not open config file");
   }
   getEntireFile(read, data);
   read.close();
   //read contents of save file
-  json11::Json save;
-  save = save.parse(data, err);
-  if(!err.empty()) {
-    throw std::invalid_argument("Camera::Camera() : Json parse error: '"+err);
-  }
+  Json::Value k;
+
+  Json::Reader reader;
+  reader.parse(data, k);
+
+  k = k["configs"];
+
   //parse json -- extract camera configs
 
-  json11::Json::object k = save.object_items();
-
-
-  json11::Json::array confs = k["configs"].array_items();
-
-  for(auto x : confs) {
+  for(auto x : k) {
     Config c;
     std::string n;
     if(!generateConfig(x, c, n)) {
@@ -466,109 +464,109 @@ Camera::Camera(Player& pl, Level& le, const std::string& fn) : p{pl}, l{le} {
 
 }
 
-bool generateConfig(json11::Json ob, Config& c, std::string& name) {
-  //ob should be a json11::Json::object
+bool generateConfig(Json::Value ob, Config& c, std::string& name) {
+  //ob should be a Json::Value
   //ensure ob has a name and type, and that the type is valid
-  auto nameObj = ob["name"];
-  if(!nameObj.is_string()) {
+  Json::Value nameObj = ob["name"];
+  if(!nameObj.isString()) {
     std::cerr << "Error: Name is not a string\n";
     return false;
   }
-  name = nameObj.string_value();
+  name = nameObj.asString();
   auto modeObj = ob["mode"];
-  if(!modeObj.is_string()) {
+  if(!modeObj.isString()) {
     std::cerr << "Error: Mode is not a string\n";
     return false;
   }
-  if(!isValidConfigType(modeObj.string_value())) {
+  if(!isValidConfigType(modeObj.asString())) {
     std::cerr << "Error: Invalid mode\n";
     return false;
   }
-  c.mode = mode(modeObj.string_value());
+  c.mode = mode(modeObj.asString());
   //based on the mode, set all necessary vars
   if(c.mode == Config::Fixed) {
     //should have zoom, focusX, focusY
     auto z = ob["zoom"];
-    if(!z.is_number()) {
+    if(!z.isNumeric()) {
       std::cerr << "Error: non-numeric argument in numeric field\n";
       return false;
     }
-    c.zoom = z.number_value();
+    c.zoom = z.asFloat();
     
     z = ob["focusX"];
-    if(!z.is_number()) {
+    if(!z.isNumeric()) {
       std::cerr << "Error: non-numeric argument in numeric field\n";
       return false;
     }
-    c.focus.x = z.number_value();
+    c.focus.x = z.asFloat();
 
     z = ob["focusY"];
-    if(!z.is_number()) {
+    if(!z.isNumeric()) {
       std::cerr << "Error: non-numeric argument in numeric field\n";
       return false;
     }
-    c.focus.y = z.number_value();
+    c.focus.y = z.asFloat();
 
     z = ob["angle"];
-    if(!z.is_number()) {
+    if(!z.isNumeric()) {
       std::cerr << "Error: non-numeric argument in numeric field\n";
       return false;
     }
-    c.angle = z.number_value();
+    c.angle = z.asFloat();
 
   }
   else if(c.mode == Config::FollowPlayerClose) {
     //should have zoom
     auto z = ob["zoom"];
-    if(!z.is_number()) {
+    if(!z.isNumeric()) {
       std::cerr << "Error: non-numeric argument in numeric field\n";
       return false;
     }
-    c.zoom = z.number_value();
+    c.zoom = z.asFloat();
 
     z = ob["angle"];
-    if(!z.is_number()) {
+    if(!z.isNumeric()) {
       std::cerr << "Error: non-numeric argument in numeric field\n";
       return false;
     }
-    c.angle = z.number_value();
+    c.angle = z.asFloat();
   }
   else if(c.mode == Config::FollowPlayerCoarse) {
     //should have: zoom, screenSizeXY, offsetXY 
     auto z = ob["zoom"];
-    if(!z.is_number()) {
+    if(!z.isNumeric()) {
       std::cerr << "Error: non-numeric argument in numeric field\n";
       return false;
     }
-    c.zoom = z.number_value();
+    c.zoom = z.asFloat();
 
     z = ob["screenSizeX"];
-    if(!z.is_number()) {
+    if(!z.isNumeric()) {
       std::cerr << "Error: non-numeric argument in numeric field\n";
       return false;
     }
-    c.screenSize.x = z.number_value();
+    c.screenSize.x = z.asFloat();
 
     z = ob["screenSizeY"];
-    if(!z.is_number()) {
+    if(!z.isNumeric()) {
       std::cerr << "Error: non-numeric argument in numeric field\n";
       return false;
     }
-    c.screenSize.y = z.number_value();
+    c.screenSize.y = z.asFloat();
 
     z = ob["offsetX"];
-    if(!z.is_number()) {
+    if(!z.isNumeric()) {
       std::cerr << "Error: non-numeric argument in numeric field\n";
       return false;
     }
-    c.offset.x = z.number_value();
+    c.offset.x = z.asFloat();
 
     z = ob["offsetY"];
-    if(!z.is_number()) {
+    if(!z.isNumeric()) {
       std::cerr << "Error: non-numeric argument in numeric field\n";
       return false;
     }
-    c.offset.y = z.number_value();
+    c.offset.y = z.asFloat();
   }
   return true;
 }
@@ -593,7 +591,7 @@ Config::Mode mode(const std::string& n) {
   throw std::invalid_argument("mode() : Invalid mode '" + n  + "'");
 }
 
-void assignTexture(sf::Sprite& s, TextureCache& cache, NodeBase n) {
+sf::Texture& assignTexture(TextureCache& cache, NodeBase n) {
   //determine what texture to use and which transformations to apply
 
   CacheNodeAttributes cna;
@@ -610,7 +608,8 @@ void assignTexture(sf::Sprite& s, TextureCache& cache, NodeBase n) {
   cna.tList.push_back(t);
 
   try {
-    s.setTexture(cache.getTexture(cna));
+    sf::Texture& tex = cache.getTexture(cna);
+    return tex;
   }
   catch (const std::invalid_argument* e) {
     std::clog << e->what();
@@ -618,6 +617,9 @@ void assignTexture(sf::Sprite& s, TextureCache& cache, NodeBase n) {
   catch (...) {
     std::clog << "Error: target image not found\n";
   }
+  cna.srcImg = "null";
+  cna.tList.clear();
+  return cache.getTexture(cna);
 }
 
 

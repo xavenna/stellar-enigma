@@ -114,38 +114,37 @@ int SaveController::readData() {
   getEntireFile(read, data);
   read.close();
   //read contents of save file
-  json11::Json save;
-  save = save.parse(data, err);
-  if(!err.empty()) {
-    std::clog << "Json parse error: '"<<err<<"'\n";
-    return -2;
-  }
+  Json::Value k;
+
+  Json::Reader reader;
+  reader.parse(data, k);
+
   //trawl through save, find each thing
-  json11::Json::object k = save.object_items();
   int i;
   float f;
-  for(auto x : k) {
-    switch(x.second.type()) {
-      case json11::Json::Type::NUMBER:
-        i = x.second.int_value();
-        f = x.second.number_value();
-        if(i == int(f)) {
-          ivars.emplace(x.first, i);
-        }
-        else {
-          fvars.emplace(x.first, f);
-        }
-        break;
-      case json11::Json::Type::STRING:
-        svars.emplace(x.first, x.second.string_value());
-        break;
-      case json11::Json::Type::BOOL:
-        bvars.emplace(x.first, x.second.bool_value());
-        break;
-      default:
-        std::clog << "Error: Arrays and nested objects are not currently legal\n";
-        return -2;
-        break;
+  auto names = k.getMemberNames();
+  for(auto x : names) {
+    const Json::Value v = k[x];
+    if(v.isNumeric()) {
+      i = v.asInt();
+      f = v.asFloat();
+      if(i == int(f)) {
+        ivars.emplace(x, v.asInt());
+      }
+      else {
+        fvars.emplace(x, v.asFloat());
+      }
+    }
+    else if(v.isString()) {
+      svars.emplace(x, v.asString());
+    }
+    else if(v.isBool()) {
+      bvars.emplace(x, v.asBool());
+    }
+    else {
+      std::clog << "Error: Arrays and nested objects are not currently legal\n";
+      return -2;
+      break;
     }
   }
   return -1;

@@ -2,7 +2,7 @@
 
 // This file has functions for the overarching classes
 
-MapData::MapData(unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSize, sf::Texture& null) : player{null}, musicPlayer{"audiomap.txt"},  message{mWid, mCool, mElem, mCharSize, "assets/cour.ttf"}, camera{player, levelSlot, "assets/camera/config.json"}, mainMenu{null}, cutscenePlayer{player, message, levelSlot, modeSwitcher, musicPlayer, switchHandler, camera}, cache{"assets/texturemap/default.tm", utility.save} {
+MapData::MapData(unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSize, sf::Texture& null) : player{null}, musicPlayer{"audiomap.txt"},  message{mWid, mCool, mElem, mCharSize, "assets/cour.ttf"}, camera{player, levelSlot, "assets/camera/config.json"}, mainMenu{null}, cutscenePlayer{player, message, levelSlot, modeSwitcher, musicPlayer, switchHandler, camera}, cache{"assets/texturemap/default.json", utility.save} {
   //initialize members here
 
   //load level

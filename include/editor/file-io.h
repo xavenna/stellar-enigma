@@ -7,7 +7,7 @@
 #include <fstream>
 #include <iostream>
 #include <filesystem>
-#include <json11.hpp>
+#include <json/json.h>
 
 #include <SFML/Graphics.hpp>
 
@@ -55,7 +55,7 @@ namespace ed {
   bool writeListToFile(std::vector<ObjectBase>& objs, const std::string& filename, std::string& status);
   bool parse_db(const std::string& fn, Database& d);
 
-  bool generateObjInfo(const json11::Json& obj, ObjInfo& o, std::string& err);
+  bool generateObjInfo(const Json::Value& obj, ObjInfo& o, std::string& err);
 
 }
 

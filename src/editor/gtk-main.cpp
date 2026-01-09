@@ -631,7 +631,8 @@ static void verify_activated(GSimpleAction *act, GVariant *parameter, gpointer u
 
 
     //construct an object from the ObjectBase, then have the ObjContainer initialize it
-    Object ob;
+    sf::Texture null("assets/texture/null.png");
+    Object ob(null);
     ob.setLinkID(x.link_id);
     ob.setTextureID(x.texture_id);
     ob.setParentID(x.parent_id);
@@ -696,7 +697,7 @@ static void draw_function(GtkDrawingArea* area, cairo_t* cr, int width, int heig
       ymax = x.pos.y+size(x, data->db).y;
     }
   }
-  sf::FloatRect pane(xmin, ymin, xmax-xmin, ymax-ymin);
+  sf::FloatRect pane({xmin, ymin}, {xmax-xmin, ymax-ymin});
 
   //get widget size
   // 
@@ -708,23 +709,23 @@ static void draw_function(GtkDrawingArea* area, cairo_t* cr, int width, int heig
 
   float x_sc=1.f;
   float y_sc=1.f;
-  if(pane.height > height) {
+  if(pane.size.y > height) {
 
-    if(pane.width > width) {
-      y_sc = height / pane.height;
-      x_sc = width / pane.width;
+    if(pane.size.x > width) {
+      y_sc = height / pane.size.y;
+      x_sc = width / pane.size.x;
       float min = std::fmin(y_sc, x_sc);
       y_sc = min;
       x_sc = min;
     } 
     else {
-      y_sc = height / pane.height;
-      x_sc = height / pane.height;
+      y_sc = height / pane.size.y;
+      x_sc = height / pane.size.y;
     }
   } else {
-    if(pane.width > width) {
-      x_sc = width / pane.width;
-      y_sc = width / pane.width;
+    if(pane.size.x > width) {
+      x_sc = width / pane.size.x;
+      y_sc = width / pane.size.x;
     }
     //fits at 1:1
   }

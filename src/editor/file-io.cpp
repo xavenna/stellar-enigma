@@ -314,23 +314,25 @@ namespace ed {
     getEntireFile(read, data);
     read.close();
     //read contents of save file
-    json11::Json save;
-    save = save.parse(data, err);
+    Json::Value save;
+    Json::Reader reader;
+    reader.parse(data, save);
+
     if(!err.empty()) {
       std::cerr << "JSON parse error. Details: "<<err<<'\n';
       return false;
     }
     //parse json -- create a table in memory
-    json11::Json::object k = save.object_items();
-    d.version = k["version"].string_value();
+    d.version = save["version"].asString();
 
-    json11::Json::array objs = k["objs"].array_items();
+    Json::Value objs = save["objs"];
+    //json11::Json::array objs = k["objs"].array_items();
 
     //turn each element of objs to an ObjInfo struct, then use those to populate
     for(auto& x : objs) {
       ObjInfo o;
       std::string s;
-      if(!x["internal_name"].is_string()) {
+      if(!x["internal_name"].isString()) {
         std::cerr << "Couldn't read entry\n";
       }
 
@@ -345,37 +347,37 @@ namespace ed {
     }
     return true;
   }
-  bool generateObjInfo(const json11::Json& obj, ObjInfo& o, std::string& err) {
+  bool generateObjInfo(const Json::Value& obj, ObjInfo& o, std::string& err) {
     //the obj should be flat, so this is simple
 
     //add checking. If fields are blank, leave them blank...
     
-    o.parent = obj["parent"].string_value();
-    o.type = obj["type"].string_value();
-    o.size = sf::Vector2f(obj["xsize"].number_value(), obj["ysize"].number_value());
-    o.shortName = obj["internal_name"].string_value();
-    o.longName = obj["verbose_name"].string_value();
-    o.description = obj["description"].string_value();
-    o.textArg = obj["text_arg"].string_value();
+    o.parent = obj["parent"].asString();
+    o.type = obj["type"].asString();
+    o.size = sf::Vector2f(obj["xsize"].asFloat(), obj["ysize"].asFloat());
+    o.shortName = obj["internal_name"].asString();
+    o.longName = obj["verbose_name"].asString();
+    o.description = obj["description"].asString();
+    o.textArg = obj["text_arg"].asString();
 
     //add args, switches
-    o.switches[0] = obj["SW_Appear"].string_value();
-    o.switches[1] = obj["SW_Disappear"].string_value();
-    o.switches[2] = obj["SW_A"].string_value();
-    o.switches[3] = obj["SW_B"].string_value();
-    o.switches[4] = obj["SW_C"].string_value();
-    o.switches[5] = obj["SW_D"].string_value();
-    o.switches[6] = obj["SW_Stat"].string_value();
-    o.switches[7] = obj["SW_Remove"].string_value();
+    o.switches[0] = obj["SW_Appear"].asString();
+    o.switches[1] = obj["SW_Disappear"].asString();
+    o.switches[2] = obj["SW_A"].asString();
+    o.switches[3] = obj["SW_B"].asString();
+    o.switches[4] = obj["SW_C"].asString();
+    o.switches[5] = obj["SW_D"].asString();
+    o.switches[6] = obj["SW_Stat"].asString();
+    o.switches[7] = obj["SW_Remove"].asString();
 
-    o.args[0] = obj["arg_0"].string_value();
-    o.args[1] = obj["arg_1"].string_value();
-    o.args[2] = obj["arg_2"].string_value();
-    o.args[3] = obj["arg_3"].string_value();
-    o.args[4] = obj["arg_4"].string_value();
-    o.args[5] = obj["arg_5"].string_value();
-    o.args[6] = obj["arg_6"].string_value();
-    o.args[7] = obj["arg_7"].string_value();
+    o.args[0] = obj["arg_0"].asString();
+    o.args[1] = obj["arg_1"].asString();
+    o.args[2] = obj["arg_2"].asString();
+    o.args[3] = obj["arg_3"].asString();
+    o.args[4] = obj["arg_4"].asString();
+    o.args[5] = obj["arg_5"].asString();
+    o.args[6] = obj["arg_6"].asString();
+    o.args[7] = obj["arg_7"].asString();
 
     //add misc bool flags here
 

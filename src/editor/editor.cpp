@@ -452,13 +452,14 @@ namespace ed {
 
     bool success=true;
 
+    sf::Texture null("assets/texture/null.png");
     ObjContainer oc;
     std::string vstat;
     unsigned line=0;
     for(unsigned i=0;i<objs.size();i++) {
       ObjectBase& x = objs[i];
       //construct an object from the ObjectBase, then have the ObjContainer initialize it
-      Object ob;
+      Object ob(null);
       ob.setLinkID(x.link_id);
       ob.setTextureID(x.texture_id);
       ob.setParentID(x.parent_id);

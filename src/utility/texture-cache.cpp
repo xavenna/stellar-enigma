@@ -246,13 +246,57 @@ bool TextureCache::registerImage(sf::Image img, const std::string& name) {
   return true;
 }
 
+// make this use JSON instead
 TextureCache::TextureCache(const std::string& name, SaveController& s) : save{s} {
 
   std::ifstream get(name);
-  std::string line;
+  std::string data;
   if(!get.is_open()) {
     throw std::invalid_argument("TextureCache::TextureCache() : File not found\n");
   }
+
+  getEntireFile(get, data);
+  get.close();
+  //read contents of file
+  Json::Value save;
+  
+  Json::Reader reader;
+  reader.parse(data, save);
+
+  Json::Value tex = save["textures"];
+
+  for(auto x : tex) {
+
+    if(!x["xpos"].isInt() || !x["ypos"].isInt() || !x["width"].isInt() || !x["height"].isInt() || !x["file"].isString() || !x["name"].isString()) {
+      std::cerr << "Couldn't parse cutscene\n";
+      throw std::invalid_argument("TextureCache::TextureCache() : Invalid Cutscene\n");
+    }
+  
+    sf::IntRect box{{x["xpos"].asInt(), x["ypos"].asInt()}, {x["width"].asInt(), x["height"].asInt()}};
+    sf::Image im;
+    std::string srcImg = x["file"].asString();
+    std::string fullLine = "assets/texture/" + srcImg;
+    std::string imgName = x["name"].asString();
+    
+    //check for duplicates
+    if(hasImage(name)) {
+      continue;
+    }
+    if(box.size.x == 0 && box.size.y == 0) {
+      im.loadFromFile(fullLine);
+    }
+    else {
+      sf::Image i;
+      i.loadFromFile(fullLine);
+      im.resize(static_cast<sf::Vector2u>(box.size));
+      im.copy(i, {0, 0}, box, false);
+    }
+    registerImage(im, imgName);
+
+  }
+
+
+  /*
   while(get.peek() != EOF) {
     std::getline(get, line);
     if(line.size() == 0 || line[0] == '#') {
@@ -281,6 +325,7 @@ TextureCache::TextureCache(const std::string& name, SaveController& s) : save{s}
     registerImage(im, imgName);
 
   }
+  */
 }
 
 

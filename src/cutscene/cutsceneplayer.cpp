@@ -257,26 +257,54 @@ bool CutscenePlayer::playEvent() {
   case Event::ChangeCamera:
     //change camera. text-arg is new config name, e[0] is duration
     //e[1] chooses animation type: 0 - jump, 1 - linear slide, 2 - logistic slide
+    //e[2] path id: set to -1 to not use a path
+    //e[3] set 1 to slide to start&end of path, 0 to jump
     //more controls to come eventually.
 
-    if(cam.configExists(e.getText())) {
+    //PATHS?
+    if(e[2] == -1) { //linear glide
+
+      if(cam.configExists(e.getText())) {
+        AnimDesc a;
+        a.duration = static_cast<unsigned>(e[0]);
+        a.configName = e.getText();
+        if(e[1] <= 0) { //jump: no animation
+
+        } else {
+          if(e[1] == 1) {
+            a.type = Animation::LinSlide;
+          } else if(e[1] == 2) {
+            a.type = Animation::LogSlide;
+          }
+
+          cam.startAnimation(a);
+        }
+      } else {
+        std::clog << "Error: specified camera config not found in cutscene event\n";
+        std::clog << "(config:"<< e.getText() << ")\n";
+        return false;
+      }
+    }
+    else {
+      //check if path is in bounds
+      if(ut.pathList.size() <= e[2]) {
+        std::clog << "Error: invalid path id in cutscene event. (id="<<e[2]<<"\n";
+        return false;
+      }
       AnimDesc a;
       a.duration = static_cast<unsigned>(e[0]);
       a.configName = e.getText();
-      if(e[1] == 0) { //jump: no animation
-
-      } else {
-        if(e[1] == 1) {
-          a.type = Animation::LinSlide;
-        } else if(e[1] == 2) {
-          a.type = Animation::LogSlide;
-        }
-
-        cam.startAnimation(a);
+      a.usePath = true;
+      a.pathID = static_cast<unsigned>(e[2]);
+      if(e[1] == 1) {
+        a.type = Animation::LinSlide;
+      } else if(e[1] == 2) {
+        a.type = Animation::LogSlide;
       }
-    } else {
-      std::clog << "Error: specified camera config not found in cutscene event\n";
-      std::clog << "(config:"<< e.getText() << ")\n";
+
+      cam.startAnimation(a);
+      
+      
     }
 
     break;
@@ -345,7 +373,7 @@ void CutscenePlayer::loadCutscene(const Cutscene& cut) {
   pos = 0;
   
 }
-CutscenePlayer::CutscenePlayer(Player& p, Message& m, Level& l, ModeSwitcher& mo, MusicPlayer& mu, SwitchHandler& s, Camera& c) : pl{p}, me{m}, le{l}, ms{mo}, mp{mu}, sh{s}, cam{c} {
+CutscenePlayer::CutscenePlayer(Player& p, Message& m, Level& l, ModeSwitcher& mo, MusicPlayer& mu, SwitchHandler& s, Camera& c, Utility& u) : pl{p}, me{m}, le{l}, ms{mo}, mp{mu}, sh{s}, cam{c}, ut{u} {
 
 }
 

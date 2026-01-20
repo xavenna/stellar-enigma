@@ -14,6 +14,7 @@
 #include "interface/interface-manager.h"
 #include "utility/texture-cache.h"
 #include "utility/save.h"
+#include "utility/path.h"
 #include "physics/physics.h"
 #include "camera/camera.h"
 
@@ -34,6 +35,8 @@ public:
   Message message; //!< Displays textual information to the player
   Camera camera; //!< Controls rendering of play field
   CutscenePlayer cutscenePlayer; //!< Plays cutscenes to the player
+
+  bool loadPaths(const std::string&);
 
   //move to utility
   SwitchHandler switchHandler;  //!< Handles Switches

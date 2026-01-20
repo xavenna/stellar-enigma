@@ -40,6 +40,7 @@ private:
   MusicPlayer& mp;
   SwitchHandler& sh;
   Camera& cam;
+  Utility& ut;
 public:
   //! Doesn't do anything. I'm not sure what I intended it to do
   bool playCutscene(const std::string&);
@@ -58,7 +59,7 @@ public:
    */
   bool playEvent();
   //! Basic constructor
-  CutscenePlayer(Player& p, Message& m, Level& l, ModeSwitcher& mo, MusicPlayer& mu, SwitchHandler& s, Camera& c);
+  CutscenePlayer(Player& p, Message& m, Level& l, ModeSwitcher& mo, MusicPlayer& mu, SwitchHandler& s, Camera& c, Utility& u);
 
   CutsceneManager man;
 };

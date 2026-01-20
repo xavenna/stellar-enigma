@@ -8,6 +8,7 @@
 #include "level/level.h"
 #include "mutable/player.h"
 #include "physics/physics.h"
+#include "utility/path.h"
 
 
 //! Describes the current camera configuration
@@ -53,7 +54,16 @@ public:
   enum Type {
     LinSlide, //!< Slide using Linear interpolation
     LogSlide, //!< Logistic slide
+    ExpSlide, //!< Exponential slide
+    RevExpSlide //!< Slowing exponential slide
   };
+
+
+  //! If true, use path. Else, travel linearly from start to end
+  bool usePath=false;
+  Path path;
+
+  //ignored if this is a path animation
   sf::Vector2f startPos;
   float startScale;
   float startAngle;
@@ -74,6 +84,8 @@ public:
 
   std::string nextConfig;
 
+  //! Resets all variables for next animation. Solves problems with uncleared values
+  void reset();
   //these functions all give the current status. This allows different animation
   //styles to work
   //The float argument is the end point of the animation. This is used to fix camera
@@ -89,6 +101,8 @@ struct AnimDesc {
   unsigned duration; //!< The length of the animation
   std::string configName; //!< The config on which to end the animation
   Animation::Type type; //!< Animation type
+  bool usePath=false; //!< Should a path be used?
+  unsigned pathID=0; //!< Which path should be used?
 
 };
 
@@ -104,16 +118,17 @@ public:
   //! Checks if specified camera config is registered.
   bool configExists(const std::string& c);
   //! Switches to specified camera config. Return value indicates success.
-  bool selectConfig(const std::string& c);
+  bool selectConfig(const std::string& c, bool jump=false);
   sf::RenderTexture& drawFrame(sf::RenderWindow&, unsigned mode, TextureCache& cache);
   void gameplayDraw(sf::RenderWindow&, unsigned mode, TextureCache& cache);
   void cutsceneDraw(sf::RenderWindow&, unsigned mode, TextureCache& cache);
   //void startAnimation();
-  Camera(Player&, Level&, const std::string&);
+  Camera(Player&, Level&, Utility&, const std::string&);
 private:
 
   Player& p;
   Level& l;
+  Utility& u; //This is referenced here for paths
 
   sf::RenderTexture frame;
   Config config;
@@ -142,5 +157,11 @@ sf::Vector2f lin_inter(sf::Vector2f origin, sf::Vector2f vec, float dist);
 
 float log_inter(float origin, float fin, float dist);
 sf::Vector2f log_inter(sf::Vector2f origin, sf::Vector2f d, float dist);
+
+float exp_inter(float origin, float vec, float dist);
+sf::Vector2f exp_inter(sf::Vector2f origin, sf::Vector2f vec, float dist);
+
+float revexp_inter(float origin, float vec, float dist);
+sf::Vector2f revexp_inter(sf::Vector2f origin, sf::Vector2f vec, float dist);
 
 #endif

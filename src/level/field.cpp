@@ -267,9 +267,6 @@ int Field::loadJsonLevel(const std::string& levelname) {
 
   //parse 'save', extract level data
 
-  //TODO: fix this for new json library
-  //Json::value k = save.object_items();
-
 
   Json::Value layers = save["layers"];
   if(save.size() < 5) {

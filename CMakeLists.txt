@@ -51,6 +51,7 @@ file(GLOB EDITOR_INC "include/editor/*.h")
 set(INC ${AUDIO_INC} ${CUTSCENE_INC} ${INTERFACE_INC} ${LEVEL_INC} ${MAPDATA_INC} ${MISC_INC} ${MUTABLE_INC} ${UTILITY_INC} ${PHYSICS_INC} ${CAMERA_INC} include/stellar-enigma.hpp)
 
 pkg_check_modules( GTK REQUIRED gtk4 ) # or use gtk+-2.0, etc...
+pkg_check_modules( JSONCPP REQUIRED jsoncpp )
 
 
 add_library(stellar ${SRC} ${INC} ${CMAKE_CURRENT_BINARY_DIR}/store-obj.cpp)
@@ -71,10 +72,11 @@ set_property(TARGET editor PROPERTY CXX_STANDARD 17) # change to 20 eventually
 
 
 
-target_include_directories(stellar PRIVATE "./include/")
-target_include_directories(stellar-test PRIVATE "./include/")
-target_include_directories(prebuild PRIVATE "./include/")
-target_include_directories(editor PRIVATE "./include/" ${GTK_INCLUDE_DIRS})
+target_include_directories(stellar PRIVATE "./include/" ${JSONCPP_INCLUDE_DIRS})
+target_include_directories(stellar-test PRIVATE "./include/" ${JSONCPP_INCLUDE_DIRS})
+target_include_directories(prebuild PRIVATE "./include/" ${JSONCPP_INCLUDE_DIRS})
+target_include_directories(editor PRIVATE "./include/" ${GTK_INCLUDE_DIRS} ${JSONCPP_INCLUDE_DIRS})
+
 target_compile_definitions(stellar PRIVATE WINDOW_WIDTH=16 WINDOW_HEIGHT=12)
 target_compile_definitions(stellar-test PRIVATE WINDOW_WIDTH=16 WINDOW_HEIGHT=12 FRAMERATE=30)
 target_compile_definitions(editor PRIVATE WINDOW_WIDTH=16 WINDOW_HEIGHT=12)

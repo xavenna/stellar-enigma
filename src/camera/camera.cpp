@@ -13,6 +13,25 @@ Config::Config() {
 
 }
 
+void Animation::reset() {
+  usePath = false;
+  startPos = {0.f, 0.f};
+  startScale = 0.f;
+  startAngle = 0.f;
+
+  posStep = {0.f, 0.f};
+  scaleStep = 0.f;
+  angleStep = 0.f;
+
+  type = Animation::LinSlide;
+
+  endFrame = 0;
+  currentFrame = 0;
+
+  nextConfig.clear();
+
+}
+
 float Animation::currentScale(float c) const {
   switch(type) {
   case Animation::LinSlide:
@@ -20,6 +39,12 @@ float Animation::currentScale(float c) const {
     break;
   case Animation::LogSlide:
     return log_inter(startScale, c, (static_cast<float>(currentFrame)/endFrame));
+    break;
+  case Animation::ExpSlide:
+    return exp_inter(startScale, c, (static_cast<float>(currentFrame)/endFrame));
+    break;
+  case Animation::RevExpSlide:
+    return revexp_inter(startScale, c, (static_cast<float>(currentFrame)/endFrame));
     break;
   default:
     return startScale;
@@ -33,20 +58,58 @@ float Animation::currentAngle(float c) const {
   case Animation::LogSlide:
     return log_inter(startAngle, c, (static_cast<float>(currentFrame)/endFrame));
     break;
+  case Animation::ExpSlide:
+    return exp_inter(startAngle, c, (static_cast<float>(currentFrame)/endFrame));
+    break;
+  case Animation::RevExpSlide:
+    return revexp_inter(startAngle, c, (static_cast<float>(currentFrame)/endFrame));
+    break;
   default:
     return startAngle;
   }
 }
+
 sf::Vector2f Animation::currentPos(sf::Vector2f c) const {
-  switch(type) {
-  case Animation::LinSlide:
-    return lin_inter(startPos, c, (static_cast<float>(currentFrame)/endFrame));
-    break;
-  case Animation::LogSlide:
-    return log_inter(startPos, c, (static_cast<float>(currentFrame)/endFrame));
-    break;
-  default:
-    return startPos;
+  if(usePath) {
+    float t=0;
+    switch(type) {
+      case Animation::LinSlide:
+        t = static_cast<float>(currentFrame)/endFrame;
+        break;
+      case Animation::LogSlide:
+        t = log_inter(0, 1, static_cast<float>(currentFrame)/endFrame);
+        break;
+      case Animation::ExpSlide:
+        t = exp_inter(0, 1, (static_cast<float>(currentFrame)/endFrame));
+        break;
+      case Animation::RevExpSlide:
+        t = revexp_inter(0, 1, (static_cast<float>(currentFrame)/endFrame));
+        break;
+      default:
+        std::cerr << "Error: Invalid Motion type in animation\n";
+        return startPos;
+
+    }
+    return path.inter(t);
+
+  } else {
+    switch(type) {
+      case Animation::LinSlide:
+        return lin_inter(startPos, c, (static_cast<float>(currentFrame)/endFrame));
+        break;
+      case Animation::LogSlide:
+        return log_inter(startPos, c, (static_cast<float>(currentFrame)/endFrame));
+        break;
+      case Animation::ExpSlide:
+        return exp_inter(startPos, c, (static_cast<float>(currentFrame)/endFrame));
+        break;
+      case Animation::RevExpSlide:
+        return revexp_inter(startPos, c, (static_cast<float>(currentFrame)/endFrame));
+        break;
+      default:
+        std::cerr << "Error: Invalid Motion type in animation\n";
+        return startPos;
+    }
   }
 }
 
@@ -57,20 +120,54 @@ bool Camera::configExists(const std::string& c) {
 //needs: animType, duration, target config name
 void Camera::startAnimation(AnimDesc an) {
   //setup animStatus
+  animStatus.reset();
   
+  if(an.usePath) {
+    if(u.pathList.size() <= an.pathID) {
+      std::cerr << "Error: Invalid Path ID "<<an.pathID << "\n";
+      return;
+    }
+
+    //TODO: Add switching config after a path follow.
+    //if(an.configName.empty()) {
+      //at the end of the animation, snap back to initial config. Don't modify zoom or
+      //angle
+      //Config conf = configurations[an.configName];
+      float z = getScale(config);
+
+      animStatus.startScale = getScale(config);
+      animStatus.scaleStep = 0;
+      animStatus.currentFrame = 0;
+      animStatus.endFrame = an.duration;
+      animStatus.usePath = true;
+      animStatus.path = u.pathList[an.pathID];
+
+      animStatus.type = an.type;
+      //since this is a path animation, the position handling is done differently
+
+
+    //} else {
+      //at the end of the animation, snap to a new config.
+      //Interpolate zoom and angle
+    //}
+    //calculate duration.
+    //For position, just interpolate along the path using an appropriate cubic
+    inAnim = true;
+    return;
+  }
   //check if configName is a registered config
   if(configurations.find(an.configName) == configurations.end()) {
     //invalid configuration
     std::cerr << "Error: Invalid config. Exiting\n";
     return;
   }
-  else {
+  else { //check if PATHS are used. If so, work differently.
     if(an.configName == currentConfig) {
       //don't animate if camera doesn't change
       return;
     }
     Config conf = configurations[an.configName];
-    
+
     float z = getScale(conf);
     sf::Vector2f fp = getFocus(conf);
 
@@ -83,6 +180,8 @@ void Camera::startAnimation(AnimDesc an) {
     animStatus.endFrame = an.duration;
 
     animStatus.type = an.type;
+
+    animStatus.usePath = false;
 
     if(an.type == Animation::LinSlide) {
       animStatus.posStep = (fp - fpo) / static_cast<float>(an.duration);
@@ -180,6 +279,7 @@ sf::RenderTexture& Camera::drawFrame(sf::RenderWindow& window, unsigned mode, Te
 }
 
 
+//TODO: Add debug draw mode (renders paths & invisible objects
 void Camera::gameplayDraw(sf::RenderWindow& window, unsigned mode, TextureCache& cache) {
   //render a frame of regular gameplay
   //First, determine Camera's focus point and zoom scale
@@ -318,7 +418,7 @@ void Camera::cutsceneDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
   }
   else {
     focusPoint = getFocus(config);
-    zo = config.zoom;
+    zo = getScale(config);
   }
 
 
@@ -337,20 +437,23 @@ void Camera::cutsceneDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
 
   //render tiles:
   //i need a null texture.
-  CacheNodeAttributes nullcna;
-  nullcna.srcImg = "null";
-  sf::Sprite s{cache.getTexture(nullcna)};
+  //CacheNodeAttributes nullcna;
+  //nullcna.srcImg = "null";
+  //sf::Sprite s{cache.getTexture(nullcna)};
   for(unsigned i=0;i<l.getWidth();i++) {
     for(unsigned j=0;j<l.getHeight();j++) {
       NodeBase n = l.field.getNode(i,j);
       //apply any transforms to n;
       sf::Vector2f pos = sf::Vector2f(l.getTilesize().x * i, l.getTilesize().y * j); 
 
-      s.setPosition(zo * (pos - focusPoint) + focusPoint);
-      s.setScale({zo, zo});
 
       //set texture
       sf::Texture& t = assignTexture(cache, n);
+      sf::Sprite s(t);
+
+      s.setPosition(zo * (pos - focusPoint) + focusPoint);
+      s.setScale({zo, zo});
+
       sf::FloatRect spriteBox = s.getGlobalBounds();
       //decide if sprite should be rendered (if it's in the camera's view
       //verify if sprite will intersect with 'view'
@@ -409,18 +512,19 @@ void Camera::cutsceneDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
   }
 
 }
-bool Camera::selectConfig(const std::string& c) {
+bool Camera::selectConfig(const std::string& c, bool jump) {
   if(configurations.find(c) == configurations.end()) {
     return false;
   }
 
-  if(c != currentConfig) {
+  if(c != currentConfig && !jump) {
     // if new config is different than last config, then add an animation here
     // Problem: If player moves out of the way during the animation, it breaks.
     AnimDesc a;
     a.duration = 12;
     a.configName = c;
     a.type = Animation::LogSlide;
+    a.usePath = false;
     startAnimation(a);
   }
 
@@ -430,7 +534,7 @@ bool Camera::selectConfig(const std::string& c) {
   return true;
 }
 
-Camera::Camera(Player& pl, Level& le, const std::string& fn) : p{pl}, l{le} {
+Camera::Camera(Player& pl, Level& le, Utility& ut, const std::string& fn) : p{pl}, l{le}, u{ut} {
   //load a list of configs from the specified json file
   std::ifstream read(fn);
   std::string data;
@@ -638,10 +742,26 @@ float log_inter(float origin, float fin, float dist) {
 
 }
 
+float exp_inter(float origin, float fin, float dist) {
+  return origin + (fin - origin) * dist * dist;
+}
+
+float revexp_inter(float origin, float fin, float dist) {
+  return origin - (fin - origin) * (dist * dist - 2*dist);
+}
+
 sf::Vector2f lin_inter(sf::Vector2f origin, sf::Vector2f d, float dist) {
   return origin + (d-origin) * dist;
 }
 
 sf::Vector2f log_inter(sf::Vector2f origin, sf::Vector2f d, float dist) {
   return sf::Vector2f(log_inter(origin.x, d.x, dist), log_inter(origin.y, d.y, dist));
+}
+
+sf::Vector2f exp_inter(sf::Vector2f origin, sf::Vector2f d, float dist) {
+  return sf::Vector2f(exp_inter(origin.x, d.x, dist), exp_inter(origin.y, d.y, dist));
+}
+
+sf::Vector2f revexp_inter(sf::Vector2f origin, sf::Vector2f d, float dist) {
+  return sf::Vector2f(revexp_inter(origin.x, d.x, dist), revexp_inter(origin.y, d.y, dist));
 }

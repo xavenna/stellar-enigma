@@ -3,6 +3,7 @@
 #include <random>
 #include <chrono>
 #include "utility/save.h"
+#include "utility/path.h"
 
 //! A class that provides miscellaneous utilities, such as centralized rng
 class Utility {
@@ -13,6 +14,9 @@ public:
   void nextFrame();
   SaveController save;
   VarPool varpool;
+  std::vector<Path> pathList;
+  bool loadPaths(const std::string&);
+
   Utility();
 private:
   //! random_device is broken on Windows MinGW - gcc 9. I think the bug is limited to that version, though

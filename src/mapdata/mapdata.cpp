@@ -2,12 +2,16 @@
 
 // This file has functions for the overarching classes
 
-MapData::MapData(unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSize, sf::Texture& null) : player{null}, musicPlayer{"audiomap.txt"},  message{mWid, mCool, mElem, mCharSize, "assets/cour.ttf"}, camera{player, levelSlot, "assets/camera/config.json"}, mainMenu{null}, cutscenePlayer{player, message, levelSlot, modeSwitcher, musicPlayer, switchHandler, camera}, cache{"assets/texturemap/default.json", utility.save} {
+MapData::MapData(unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSize, sf::Texture& null) : player{null}, musicPlayer{"audiomap.txt"},  message{mWid, mCool, mElem, mCharSize, "assets/cour.ttf"}, camera{player, levelSlot, utility, "assets/camera/config.json"}, mainMenu{null}, cutscenePlayer{player, message, levelSlot, modeSwitcher, musicPlayer, switchHandler, camera, utility}, cache{"assets/texturemap/default.json", utility.save} {
   //initialize members here
 
   //load level
-  if(!loadLevel("test")) {
+  if(!loadLevel("default")) {
     std::cerr << "Level load failed. Exiting\n";
+    throw std::invalid_argument("MapData::MapData() : Level Load unsuccessful");
+  }
+  if(!loadPaths("test")) {
+    std::cerr << "Path load failed. Exiting\n";
     throw std::invalid_argument("MapData::MapData() : Level Load unsuccessful");
   }
 
@@ -664,4 +668,8 @@ bool MapData::loadLevel(const std::string& name) {
     switchHandler.write(i,false);
   }
   return true;
+}
+
+bool MapData::loadPaths(const std::string& lname) {
+  return utility.loadPaths(lname);
 }

@@ -534,12 +534,12 @@ bool Camera::selectConfig(const std::string& c, bool jump) {
   return true;
 }
 
-Camera::Camera(Player& pl, Level& le, Utility& ut, const std::string& fn) : p{pl}, l{le}, u{ut} {
+bool Camera::loadConfigs(const std::string& fn) {
   //load a list of configs from the specified json file
   std::ifstream read(fn);
   std::string data;
   if(!read.is_open()) {
-    throw std::invalid_argument("Camera::Camera() : Error: Could not open config file");
+    throw std::invalid_argument("Camera::loadConfigs() : Error: Could not open config file");
   }
   getEntireFile(read, data);
   read.close();
@@ -557,7 +557,7 @@ Camera::Camera(Player& pl, Level& le, Utility& ut, const std::string& fn) : p{pl
     Config c;
     std::string n;
     if(!generateConfig(x, c, n)) {
-      throw std::invalid_argument("Camera::Camera() : Invalid json config ");
+      throw std::invalid_argument("Camera::loadConfigs() : Invalid json config ");
     }
     configurations.emplace(n, c);
 
@@ -565,6 +565,10 @@ Camera::Camera(Player& pl, Level& le, Utility& ut, const std::string& fn) : p{pl
   }
 
   config = configurations["follow"];
+  return true;
+}
+
+Camera::Camera(Player& pl, Level& le, Utility& ut) : p{pl}, l{le}, u{ut} {
 
 }
 

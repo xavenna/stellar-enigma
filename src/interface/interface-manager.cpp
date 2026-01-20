@@ -16,7 +16,7 @@ InterfaceManager::InterfaceManager() : bd(sf::Vector2u(16,16)) {
  */
 sf::Vector2i InterfaceManager::initializeInterface(sf::Vector2i windowSize, int& msgOff, int& panOff, const Player* pl, TextureCache* cache) {
   //initialize panel
-  if(!pc.loadIcons("assets/interface/icons.txt")) {
+  if(!pc.loadIcons("assets/icons.txt")) {
     //error
     std::cout << "Error Loading panel icons\n";
   }

@@ -36,8 +36,6 @@ public:
   Camera camera; //!< Controls rendering of play field
   CutscenePlayer cutscenePlayer; //!< Plays cutscenes to the player
 
-  bool loadPaths(const std::string&);
-
   //move to utility
   SwitchHandler switchHandler;  //!< Handles Switches
 
@@ -46,6 +44,7 @@ public:
   InterfaceManager interface; //!< Controls the UI (Border & Panel
   Utility utility; //!< A utility provider, contains miscellaneous useful functions
   
+  std::string levelName; //!< Name of currently loaded level
 
   //! Required size of the RenderWindow
   sf::Vector2i windowSize;

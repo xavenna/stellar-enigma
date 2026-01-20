@@ -86,7 +86,7 @@ int Level::loadLevel(const std::string& levelname) {
 }
 bool Level::loadMutables(const std::string& levelname) {
   objects.clearObjects();
-  std::string complevel = "assets/level/" + levelname + ".sml";  //stellar mutable list
+  std::string complevel = "assets/levels/" + levelname + "/level.sml";  //stellar mutable list
   std::ifstream get(complevel);
   std::string line;
   std::string accum;

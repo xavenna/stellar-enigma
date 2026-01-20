@@ -74,7 +74,7 @@ void PanelCreator::drawIcons(sf::RenderWindow& w) {
  *  syntax: type`name`callback`texture
  */
 bool PanelCreator::loadIcons(const std::string& file) {
-  //load icons from: /assets/interface/icons.txt
+  //load icons from: /assets/icons.txt
   std::ifstream load(file);
   std::string line;
   std::string name, callback, texture, type;
@@ -100,7 +100,7 @@ bool PanelCreator::loadIcons(const std::string& file) {
     }
 
     //check if specified image file exists
-    fs::path tex = "assets/interface";
+    fs::path tex = "assets/texture";
     tex /= texture;
     if(!fs::exists(tex)) {
       std::cout << "Error: invalid initial texture name\n";

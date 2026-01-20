@@ -246,12 +246,12 @@ float Field::findClosestPointInRange(const sf::Vector2f w0, const sf::Vector2f w
 }
 
 int Field::loadJsonLevel(const std::string& levelname) {
-  std::string complevel = "assets/level/" + levelname + ".json";
+  std::string complevel = "assets/levels/" + levelname + "/level.json";
   std::ifstream read(complevel);
   std::string data;
   std::string err;
   if(!read.is_open()) {
-    std::clog << "Error: Could not open save file\n";
+    std::clog << "Error: Could not open level.json\n";
     return -1;
   }
   getEntireFile(read, data);

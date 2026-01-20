@@ -197,7 +197,7 @@ MenuTemplate::MenuTemplate(const std::string& str) {
 
 bool Menu::initialize() {
   // load menu templates from the file
-  std::string complevel = "assets/menu/menus.txt";  //menu templates list
+  std::string complevel = "assets/menus.txt";  //menu templates list
   std::ifstream get(complevel);
   std::string line;
   std::string accum;

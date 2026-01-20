@@ -2,16 +2,21 @@
 
 // This file has functions for the overarching classes
 
-MapData::MapData(unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSize, sf::Texture& null) : player{null}, musicPlayer{"audiomap.txt"},  message{mWid, mCool, mElem, mCharSize, "assets/cour.ttf"}, camera{player, levelSlot, utility, "assets/camera/config.json"}, mainMenu{null}, cutscenePlayer{player, message, levelSlot, modeSwitcher, musicPlayer, switchHandler, camera, utility}, cache{"assets/texturemap/default.json", utility.save} {
+MapData::MapData(unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSize, sf::Texture& null) :
+  player{null},
+  musicPlayer{"audiomap.txt"},
+  message{mWid, mCool, mElem, mCharSize, "assets/cour.ttf"},
+  camera{player, levelSlot, utility},
+  mainMenu{null},
+  cutscenePlayer{player, message, levelSlot, modeSwitcher, musicPlayer, switchHandler, camera, utility},
+  cache{"assets/texture/default.json", utility.save}
+{
   //initialize members here
 
   //load level
-  if(!loadLevel("default")) {
+  levelName = "default";
+  if(!loadLevel(levelName)) {
     std::cerr << "Level load failed. Exiting\n";
-    throw std::invalid_argument("MapData::MapData() : Level Load unsuccessful");
-  }
-  if(!loadPaths("test")) {
-    std::cerr << "Path load failed. Exiting\n";
     throw std::invalid_argument("MapData::MapData() : Level Load unsuccessful");
   }
 
@@ -25,7 +30,6 @@ MapData::MapData(unsigned mWid, unsigned mCool, unsigned mElem, unsigned mCharSi
   message.setPosition({4+levelSlot.getTilesize().x, msgOfY});
   
 
-  cutscenePlayer.man.loadCutscenes("assets/cutscene/cutscenes.json");
 
   //load savedata.
   utility.save.setSlot("0");
@@ -667,9 +671,26 @@ bool MapData::loadLevel(const std::string& name) {
   for(int i=0;i<255;i++) {
     switchHandler.write(i,false);
   }
-  return true;
-}
 
-bool MapData::loadPaths(const std::string& lname) {
-  return utility.loadPaths(lname);
+
+  //load paths
+  if(!utility.loadPaths(name)) {
+    std::cerr << "Path load failed. Exiting\n";
+    return false;
+  }
+
+  //load camera
+
+  if(!camera.loadConfigs("assets/levels/"+name+"/camera.json")) {
+    std::cerr << "Camera load failed. Exiting\n";
+    return false;
+  }
+
+  //load cutscenes
+  if(!cutscenePlayer.man.loadCutscenes("assets/levels/"+levelName+"/cutscenes.json")) {
+    std::cerr << "Cutscene load failed. Exiting\n";
+    return false;
+  }
+
+  return true;
 }

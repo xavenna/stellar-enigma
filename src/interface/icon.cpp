@@ -55,22 +55,22 @@ void showHealthAsNumber(const Player* p, sf::Texture& t, TextureCache*) {
   //update the passed texture with a file according to a number. If specified file doesn't exist, replace it with a default
   switch(p->getHealth()) {
   case 1:
-    t.loadFromFile("assets/interface/hp-1.png");
+    t.loadFromFile("assets/texture/hp-1.png");
     break;
   case 2:
-    t.loadFromFile("assets/interface/hp-2.png");
+    t.loadFromFile("assets/texture/hp-2.png");
     break;
   case 3:
-    t.loadFromFile("assets/interface/hp-3.png");
+    t.loadFromFile("assets/texture/hp-3.png");
     break;
   case 4:
-    t.loadFromFile("assets/interface/hp-4.png");
+    t.loadFromFile("assets/texture/hp-4.png");
     break;
   case 5:
-    t.loadFromFile("assets/interface/hp-5.png");
+    t.loadFromFile("assets/texture/hp-5.png");
     break;
   default:
-    t.loadFromFile("assets/interface/hp-blank.png");
+    t.loadFromFile("assets/texture/hp-blank.png");
     break;
   }
 }

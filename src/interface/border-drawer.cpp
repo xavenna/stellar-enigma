@@ -124,7 +124,7 @@ void BorderDrawer::drawBorder(sf::Vector2i windowSize, sf::Vector2i panelSize, s
 }
 
 
-BorderDrawer::BorderDrawer(sf::Vector2u ts) : corner{"assets/interface/corner.png"}, edge{"assets/interface/edge.png"}, joint{"assets/interface/joint.png"}, cross{"assets/interface/cross.png"}, null{"assets/texture/null.png"} {
+BorderDrawer::BorderDrawer(sf::Vector2u ts) : corner{"assets/texture/corner.png"}, edge{"assets/texture/edge.png"}, joint{"assets/texture/joint.png"}, cross{"assets/texture/cross.png"}, null{"assets/texture/null.png"} {
 
   tileSize = ts;
 }

@@ -24,10 +24,10 @@ Utility::Utility() : engine{rd()} {
 Utility::Utility() : engine(std::chrono::system_clock::now().time_since_epoch().count()) {
 }
 #endif
-// DO NOT MOVE THIS ENDIF
+// DO NOT MOVE THIS ENDIF, things will break
 
 bool Utility::loadPaths(const std::string& lname) {
-  std::string complevel = "assets/level/" + lname + ".path";
+  std::string complevel = "assets/levels/" + lname + "/path.json";
 
   std::ifstream read(complevel);
   std::string data;

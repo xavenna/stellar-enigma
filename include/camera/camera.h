@@ -123,7 +123,8 @@ public:
   void gameplayDraw(sf::RenderWindow&, unsigned mode, TextureCache& cache);
   void cutsceneDraw(sf::RenderWindow&, unsigned mode, TextureCache& cache);
   //void startAnimation();
-  Camera(Player&, Level&, Utility&, const std::string&);
+  bool loadConfigs(const std::string& fn);
+  Camera(Player&, Level&, Utility&);
 private:
 
   Player& p;

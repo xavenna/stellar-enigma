@@ -275,6 +275,10 @@ bool CutscenePlayer::playEvent() {
             a.type = Animation::LinSlide;
           } else if(e[1] == 2) {
             a.type = Animation::LogSlide;
+          } else if(e[1] == 3) {
+            a.type = Animation::ExpSlide;
+          } else if(e[1] == 4) {
+            a.type = Animation::RevExpSlide;
           }
 
           cam.startAnimation(a);
@@ -300,6 +304,10 @@ bool CutscenePlayer::playEvent() {
         a.type = Animation::LinSlide;
       } else if(e[1] == 2) {
         a.type = Animation::LogSlide;
+      } else if(e[1] == 3) {
+        a.type = Animation::ExpSlide;
+      } else if(e[1] == 4) {
+        a.type = Animation::RevExpSlide;
       }
 
       cam.startAnimation(a);

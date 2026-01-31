@@ -70,7 +70,7 @@ public:
   //! sends notification to object
   bool notifyObj(msg);
   //! overwrites the mapnode at position x,y with node
-  void updateNode(int x, int y, const NodeBase& node);
+  void updateNode(sf::Vector2u pos, sf::Vector2i tile, unsigned tileset);
   //! Loads mapBase from file, specified by argument.
   /*! 
    *  Searches for file in assets/level/
@@ -85,6 +85,8 @@ public:
   unsigned getHeight() const;
   //! Gets map width
   unsigned getWidth() const;
+  //! Gets map size as a vector2
+  sf::Vector2u getSize() const;
   //! gets tile width
   unsigned getTilesizeX() const;
   //! gets tile height

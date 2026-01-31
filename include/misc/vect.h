@@ -127,12 +127,38 @@ template <typename T> sf::Vector2<T> vsign(sf::Vector2<T> v) {
   return sf::Vector2<T>{static_cast<float>(sign<T>(v.x)), static_cast<float>(sign<T>(v.y))};
 }
 
+template <typename T> sf::Vector2<T> rotateAbout(sf::Vector2<T> p, sf::Vector2<T> origin, sf::Angle ang) {
+
+  sf::Vector2f a = p - origin;
+  sf::Vector2f rotPos = {a.x * std::cos(ang.asRadians()) - a.y * std::sin(ang.asRadians()),
+        a.x * std::sin(ang.asRadians()) + a.y * std::cos(ang.asRadians())};
+  return rotPos + origin;
+}
+
+template <typename T> sf::Vector2<T> scaleAbout(sf::Vector2<T> p, sf::Vector2<T> origin,
+    float scale) {
+  return (scale * (p - origin)) + origin;
+}
+
+template <typename T> sf::Vector2<T> transformAbout(sf::Vector2<T> p, sf::Vector2<T>
+    origin, sf::Angle ang, float scale) {
+
+  sf::Vector2<T> adjPos = p - origin;
+  sf::Vector2f rotPos = {adjPos.x * std::cos(ang.asRadians()) - adjPos.y * std::sin(ang.asRadians()),
+    adjPos.x * std::sin(ang.asRadians()) + adjPos.y * std::cos(ang.asRadians())};
+
+
+  return (scale * rotPos) + origin;
+
+}
+
 // linear algebra stuff
 
 //! Finds the determinant of a 2D matrix, given as columns
 template <typename T> T det2(sf::Vector2<T> c1, sf::Vector2<T> c2) {
   return c1.x * c2.y - c1.y * c2.x;
 }
+
 
 //! Solves a 2D matrix given as columns. Excepts if no unique solution exists
 sf::Vector2f systemsolve2(sf::Vector2f c1, sf::Vector2f c2, sf::Vector2f c);

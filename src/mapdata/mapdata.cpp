@@ -652,6 +652,8 @@ bool MapData::loadLevel(const std::string& name) {
       player.setMaxCooldown(x.getArg(3));
       player.setText(x.getText());
 
+      // make a camera animation to zoom in on the area
+
       foundPStart = true;
       break;
     }

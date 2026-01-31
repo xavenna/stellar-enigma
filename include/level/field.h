@@ -30,8 +30,8 @@ private:
 public:
   //! returns a copy of specified node
   NodeBase getNode(unsigned, unsigned) const;
-  //! overwrites the mapnode at position x,y with node
-  void updateNode(unsigned x, unsigned y, const NodeBase& node);
+  //! Sets node at pos to tile(xy), tileset
+  void updateNode(sf::Vector2u, sf::Vector2i, unsigned);
   //! Gets map height
   unsigned getHeight() const;
   //! Gets map width

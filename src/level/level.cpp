@@ -57,8 +57,9 @@ bool Level::notifyObj(msg m) {
   return objects.notify(m);
 }
 
-void Level::updateNode(int x, int y, const NodeBase& node) {
-  field.updateNode(static_cast<unsigned>(x), static_cast<unsigned>(y), node);
+void Level::updateNode(sf::Vector2u pos, sf::Vector2i tile, unsigned tileset) {
+  field.updateNode(pos, tile, tileset);
+
 }
 Level::Level(const size_t& x, const size_t& y) : field{x, y} {
   tilesizeX = 16;  //for now, this is constant, but it may change in the future
@@ -130,6 +131,9 @@ unsigned Level::getWidth() const {
 }
 unsigned Level::getHeight() const {
   return field.getHeight();
+}
+sf::Vector2u Level::getSize() const {
+  return {field.getWidth(), field.getHeight()};
 }
 unsigned Level::getTilesizeX() const {
   return field.getTilesizeX();

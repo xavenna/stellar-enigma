@@ -3,6 +3,7 @@
 
 #include <string>
 #include <fstream>
+#include <cmath>
 #include <json/json.h>
 #include "SFML/Graphics.hpp"
 #include "level/level.h"
@@ -66,12 +67,16 @@ public:
   //ignored if this is a path animation
   sf::Vector2f startPos;
   float startScale;
-  float startAngle;
+  sf::Angle startAngle;
 
   //used for linear slides
   sf::Vector2f posStep;
   float scaleStep;
-  float angleStep;
+  sf::Angle angleStep;
+
+  sf::Vector2f targetPos;
+  float targetScale;
+  sf::Angle targetAngle;
 
   //for logistic slides, step varies by frame.
   //these variables are used for calculating the motion
@@ -91,7 +96,7 @@ public:
   //The float argument is the end point of the animation. This is used to fix camera
   //jumping when panning to a followClose config in mode 1. 
   float currentScale(float) const;
-  float currentAngle(float) const;
+  sf::Angle currentAngle(sf::Angle) const;
   sf::Vector2f currentPos(sf::Vector2f) const;
 
 };
@@ -104,6 +109,10 @@ struct AnimDesc {
   bool usePath=false; //!< Should a path be used?
   unsigned pathID=0; //!< Which path should be used?
 
+  //optional arguments
+  float endScale;
+  sf::Angle endAngle;
+
 };
 
 class Camera {
@@ -111,7 +120,7 @@ public:
 
   float getScale(const Config& c);
   sf::Vector2f getFocus(const Config& c);
-  float getAngle(const Config& c);
+  sf::Angle getAngle(const Config& c);
 
   void startAnimation(AnimDesc an);
 
@@ -125,6 +134,8 @@ public:
   //void startAnimation();
   bool loadConfigs(const std::string& fn);
   Camera(Player&, Level&, Utility&);
+
+  bool isInView(sf::FloatRect obj) const;
 private:
 
   Player& p;
@@ -151,18 +162,23 @@ sf::Texture& assignTexture(TextureCache& cache, NodeBase n);
 bool generateConfig(Json::Value ob, Config& c, std::string&);
 bool isValidConfigType(const std::string&);
 
+
 Config::Mode mode(const std::string& n);
 
 float lin_inter(float origin, float vec, float dist);
 sf::Vector2f lin_inter(sf::Vector2f origin, sf::Vector2f vec, float dist);
+sf::Angle lin_inter(sf::Angle origin, sf::Angle vec, float dist);
 
 float log_inter(float origin, float fin, float dist);
 sf::Vector2f log_inter(sf::Vector2f origin, sf::Vector2f d, float dist);
+sf::Angle log_inter(sf::Angle origin, sf::Angle d, float dist);
 
 float exp_inter(float origin, float vec, float dist);
 sf::Vector2f exp_inter(sf::Vector2f origin, sf::Vector2f vec, float dist);
+sf::Angle exp_inter(sf::Angle origin, sf::Angle vec, float dist);
 
 float revexp_inter(float origin, float vec, float dist);
 sf::Vector2f revexp_inter(sf::Vector2f origin, sf::Vector2f vec, float dist);
+sf::Angle revexp_inter(sf::Angle origin, sf::Angle vec, float dist);
 
 #endif

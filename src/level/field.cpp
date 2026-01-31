@@ -18,8 +18,9 @@ NodeBase Field::getNode(unsigned x, unsigned y) const {
   return mapBase[x][y];
 }
 
-void Field::updateNode(unsigned x, unsigned y, const NodeBase& node) {
-  mapBase[x][y] = node;
+void Field::updateNode(sf::Vector2u pos, sf::Vector2i tile, unsigned ts) {
+  mapBase[pos.x][pos.y].setTileset(ts);
+  mapBase[pos.x][pos.y].setTile(tile);
 }
 
 unsigned Field::getWidth() const {

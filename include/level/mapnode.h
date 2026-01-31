@@ -8,7 +8,6 @@
 //! The base class for map nodes
 class NodeBase {
 private:
-  unsigned id;  //!< The identifier of which tile exists here
   //! Specifies which tile to use
   /*!
    *  Using the tileset's grid, get the tile at position (x,y).
@@ -16,7 +15,8 @@ private:
   sf::Vector2i tile;
   //! Specifies which tileset to use
   int tileset;
-  DirectionalBool solid; //!< whether the node is solid from each direction
+  //! whether the node is solid from each direction. Only used during the initialization process.
+  DirectionalBool solid;
 public:
   //! Gets the id of the node
   unsigned getTileset() const;
@@ -32,8 +32,6 @@ public:
   void setSolid(Direction, bool);
   //! The basic constructor. Sets id to 0 and area position to (0,0)
   NodeBase();
-  //! Constructs the MapNode with passed attributes
-  NodeBase(unsigned n, DirectionalBool b);
 
 };
 

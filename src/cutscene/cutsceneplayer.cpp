@@ -125,24 +125,35 @@ bool CutscenePlayer::updateCutscene() {
 }
 
 ///! TODO: FIX THIS! LOTS OF THIS IS OUTDATED
+///! TODO: Add dialogue trees (label and goto events
 bool CutscenePlayer::playEvent() {
   //add bounds checking whenever an arg is used as an index, or similar use.
   //add all events here
   Event e = cutscene.getEvent(pos);
   switch(e.getType()) {
-  case Event::UpdateNode:
+  case Event::UpdateNode: //remove or restructure
     //update a node on the map
     //e[0] - xpos
     //e[1] - ypos
-    //e[2] - id
-    //e[3] - solidity: represented as a directional Bool
+    //e[2] - tile xpos
+    //e[3] - tile ypos
+    //e[4] - tileset num
+    //
+    //NOTE: SOLIDITY CANNOT BE MODIFIED. This is only a graphical change.
+    //If you need to change the solidity of a tile during gameplay, use an object, such
+    //as a door.
     
     //somehow check for invalid args
     std::clog << "Note: UpdateNode event has no bounds checking yet. Use at your own risk\n";
+    if(e[0] >= le.getSize().x || e[1] >= le.getSize().y) {
+      std::cerr << "Out of bounds UpdateNode event. Skipping\n";
+    } else {
+      le.updateNode({e[0],e[1]}, {e[2],e[3]}, e[4]);
+      le.displayUpdate = true;
+    }
+    //tile coordinates: (e0, e1). Tile index on spritesheet: (e2,e3). Tileset#: e4
 
-    le.updateNode(e[0], e[1], NodeBase(static_cast<unsigned>(e[2]), DirectionalBool(e[3])));
     timer = e.getDuration();
-    le.displayUpdate = true;
     break;
   case Event::WriteSwitch:
     //write value of e[1] to switch e[0]
@@ -255,10 +266,14 @@ bool CutscenePlayer::playEvent() {
     }
     break;
   case Event::ChangeCamera:
-    //change camera. text-arg is new config name, e[0] is duration
+    //change camera. text-arg is new config name
+    //e[0] is duration
     //e[1] chooses animation type: 0 - jump, 1 - linear slide, 2 - logistic slide
     //e[2] path id: set to -1 to not use a path
-    //e[3] set 1 to slide to start&end of path, 0 to jump
+    //e[3] : set 1 to slide to start&end of path, 0 to jump
+    //e[4] : if path & no config: end angle (degrees)
+    //e[5] : if path & no config: end scale
+
     //more controls to come eventually.
 
     //PATHS?
@@ -300,6 +315,11 @@ bool CutscenePlayer::playEvent() {
       a.configName = e.getText();
       a.usePath = true;
       a.pathID = static_cast<unsigned>(e[2]);
+
+      if(a.configName.empty()) {
+        a.endAngle = sf::degrees(e[4]);
+        a.endScale = e[5];
+      }
       if(e[1] == 1) {
         a.type = Animation::LinSlide;
       } else if(e[1] == 2) {
@@ -355,16 +375,10 @@ bool CutscenePlayer::playEvent() {
     //wait for input
     //nothing needs to happen here
     break;
-  case Event::NodeUpdate:
-    //update a node on the map
-    le.updateNode(e[0], e[1], MapNode(static_cast<unsigned>(e[2]), DirectionalBool(e[3])));
-    le.displayUpdate = true;
-    break;
   case Event::MapLoad:
     //load a new map
-    le.loadLevel(e.getText());
-    man.loadCutscenes(e.getText());
-    pl.setPos(e[0],e[1]);
+    loadLevel(e.getText());
+    //pl.setPos(e[0],e[1]);
     break;
   */
   case Event::Invalid:

@@ -17,11 +17,15 @@ void Animation::reset() {
   usePath = false;
   startPos = {0.f, 0.f};
   startScale = 0.f;
-  startAngle = 0.f;
+  startAngle = sf::degrees(0.f);
 
   posStep = {0.f, 0.f};
   scaleStep = 0.f;
-  angleStep = 0.f;
+  angleStep = sf::degrees(0.f);
+
+  targetPos = {0.f, 0.f};
+  targetScale = 0.f;
+  targetAngle = sf::degrees(0.f);
 
   type = Animation::LinSlide;
 
@@ -33,39 +37,84 @@ void Animation::reset() {
 }
 
 float Animation::currentScale(float c) const {
-  switch(type) {
-  case Animation::LinSlide:
-    return lin_inter(startScale, c, (static_cast<float>(currentFrame)/endFrame));
-    break;
-  case Animation::LogSlide:
-    return log_inter(startScale, c, (static_cast<float>(currentFrame)/endFrame));
-    break;
-  case Animation::ExpSlide:
-    return exp_inter(startScale, c, (static_cast<float>(currentFrame)/endFrame));
-    break;
-  case Animation::RevExpSlide:
-    return revexp_inter(startScale, c, (static_cast<float>(currentFrame)/endFrame));
-    break;
-  default:
-    return startScale;
+  if(usePath) {
+    float t=0;
+    switch(type) {
+      case Animation::LinSlide:
+        return lin_inter(startScale, targetScale, (static_cast<float>(currentFrame)/endFrame));
+        break;
+      case Animation::LogSlide:
+        return log_inter(startScale, targetScale, (static_cast<float>(currentFrame)/endFrame));
+        break;
+      case Animation::ExpSlide:
+        return exp_inter(startScale, targetScale, (static_cast<float>(currentFrame)/endFrame));
+        break;
+      case Animation::RevExpSlide:
+        return revexp_inter(startScale, targetScale, (static_cast<float>(currentFrame)/endFrame));
+        break;
+      default:
+        std::cerr << "Error: Invalid Motion type in animation\n";
+        return startScale;
+    }
+
+  } else {
+    switch(type) {
+      case Animation::LinSlide:
+        return lin_inter(startScale, c, (static_cast<float>(currentFrame)/endFrame));
+        break;
+      case Animation::LogSlide:
+        return log_inter(startScale, c, (static_cast<float>(currentFrame)/endFrame));
+        break;
+      case Animation::ExpSlide:
+        return exp_inter(startScale, c, (static_cast<float>(currentFrame)/endFrame));
+        break;
+      case Animation::RevExpSlide:
+        return revexp_inter(startScale, c, (static_cast<float>(currentFrame)/endFrame));
+        break;
+      default:
+        return startScale;
+    }
   }
 }
-float Animation::currentAngle(float c) const {
-  switch(type) {
-  case Animation::LinSlide:
-    return lin_inter(startAngle, c, (static_cast<float>(currentFrame)/endFrame));
-    break;
-  case Animation::LogSlide:
-    return log_inter(startAngle, c, (static_cast<float>(currentFrame)/endFrame));
-    break;
-  case Animation::ExpSlide:
-    return exp_inter(startAngle, c, (static_cast<float>(currentFrame)/endFrame));
-    break;
-  case Animation::RevExpSlide:
-    return revexp_inter(startAngle, c, (static_cast<float>(currentFrame)/endFrame));
-    break;
-  default:
-    return startAngle;
+
+sf::Angle Animation::currentAngle(sf::Angle c) const {
+  if(usePath) {
+    float t=0;
+    switch(type) {
+      case Animation::LinSlide:
+        return lin_inter(startAngle, targetAngle, (static_cast<float>(currentFrame)/endFrame));
+        break;
+      case Animation::LogSlide:
+        return log_inter(startAngle, targetAngle, (static_cast<float>(currentFrame)/endFrame));
+        break;
+      case Animation::ExpSlide:
+        return exp_inter(startAngle, targetAngle, (static_cast<float>(currentFrame)/endFrame));
+        break;
+      case Animation::RevExpSlide:
+        return revexp_inter(startAngle, targetAngle, (static_cast<float>(currentFrame)/endFrame));
+        break;
+      default:
+        std::cerr << "Error: Invalid Motion type in animation\n";
+        return startAngle;
+    }
+
+  } else {
+    switch(type) {
+      case Animation::LinSlide:
+        return lin_inter(startAngle, c, (static_cast<float>(currentFrame)/endFrame));
+        break;
+      case Animation::LogSlide:
+        return log_inter(startAngle, c, (static_cast<float>(currentFrame)/endFrame));
+        break;
+      case Animation::ExpSlide:
+        return exp_inter(startAngle, c, (static_cast<float>(currentFrame)/endFrame));
+        break;
+      case Animation::RevExpSlide:
+        return revexp_inter(startAngle, c, (static_cast<float>(currentFrame)/endFrame));
+        break;
+      default:
+        return startAngle;
+    }
   }
 }
 
@@ -128,15 +177,28 @@ void Camera::startAnimation(AnimDesc an) {
       return;
     }
 
+    //TODO: PATH ANGLES
     //TODO: Add switching config after a path follow.
-    //if(an.configName.empty()) {
+    if(an.configName.empty()) {
       //at the end of the animation, snap back to initial config. Don't modify zoom or
       //angle
       //Config conf = configurations[an.configName];
       float z = getScale(config);
 
       animStatus.startScale = getScale(config);
-      animStatus.scaleStep = 0;
+      if(an.endScale == -1) {
+        animStatus.targetScale = getScale(config);
+      } else {
+        animStatus.targetScale = an.endScale;
+      }
+
+      animStatus.startAngle = getAngle(config);
+      if(an.endAngle.asDegrees() == -1) {
+        animStatus.targetAngle = getAngle(config);
+      } else {
+        animStatus.targetAngle = an.endAngle;
+      }
+
       animStatus.currentFrame = 0;
       animStatus.endFrame = an.duration;
       animStatus.usePath = true;
@@ -146,10 +208,30 @@ void Camera::startAnimation(AnimDesc an) {
       //since this is a path animation, the position handling is done differently
 
 
-    //} else {
+    } else { //jump to the end config
+
+      Config conf = configurations[an.configName];
+
+      animStatus.startScale = getScale(config);
+      animStatus.startAngle = getAngle(config);
+
+      animStatus.targetScale = getScale(conf);
+      animStatus.targetAngle = getAngle(conf);
+
+      animStatus.nextConfig = an.configName;
+
+      animStatus.currentFrame = 0;
+      animStatus.endFrame = an.duration;
+      animStatus.usePath = true;
+      animStatus.path = u.pathList[an.pathID];
+
+
+      config = conf;
+      currentConfig = an.configName;
+
       //at the end of the animation, snap to a new config.
       //Interpolate zoom and angle
-    //}
+    }
     //calculate duration.
     //For position, just interpolate along the path using an appropriate cubic
     inAnim = true;
@@ -170,12 +252,17 @@ void Camera::startAnimation(AnimDesc an) {
 
     float z = getScale(conf);
     sf::Vector2f fp = getFocus(conf);
+    sf::Angle ang = getAngle(conf);
 
     sf::Vector2f fpo = getFocus(config);
     float zo = getScale(config);
+    sf::Angle ango = getAngle(config);
+
+
 
     animStatus.startPos = fpo;
     animStatus.startScale = zo;
+    animStatus.startAngle = ango;
     animStatus.currentFrame = 0;
     animStatus.endFrame = an.duration;
 
@@ -186,6 +273,7 @@ void Camera::startAnimation(AnimDesc an) {
     if(an.type == Animation::LinSlide) {
       animStatus.posStep = (fp - fpo) / static_cast<float>(an.duration);
       animStatus.scaleStep = (z - zo) / static_cast<float>(an.duration);
+      animStatus.angleStep = (ang - ango)/static_cast<float>(an.duration);
     }
     else if(an.type == Animation::LogSlide) {
 
@@ -242,19 +330,19 @@ float Camera::getScale(const Config& c) {
   }
 }
 
-float Camera::getAngle(const Config& c) {
+sf::Angle Camera::getAngle(const Config& c) {
   switch(c.mode) {
   case Config::FollowPlayerClose:
-    return c.angle;
+    return sf::degrees(c.angle);
     break;
   case Config::FollowPlayerCoarse:
-    return c.angle;
+    return sf::degrees(c.angle);
     break;
   case Config::Fixed:
-    return c.angle;
+    return sf::degrees(c.angle);
     break;
   default:
-    return 0.f;
+    return sf::degrees(0.f);
   }
 
 }
@@ -279,14 +367,14 @@ sf::RenderTexture& Camera::drawFrame(sf::RenderWindow& window, unsigned mode, Te
 }
 
 
-//TODO: Add debug draw mode (renders paths & invisible objects
+//TODO: Add debug draw mode (renders paths & invisible objects (mode3)
 void Camera::gameplayDraw(sf::RenderWindow& window, unsigned mode, TextureCache& cache) {
   //render a frame of regular gameplay
   //First, determine Camera's focus point and zoom scale
   //
   sf::Vector2f focusPoint;
   float zo;
-  float ang; //currently unused
+  sf::Angle ang;
 
   if(inAnim) {
     //an animation is occurring, ignore config settings; use animStatus
@@ -307,17 +395,19 @@ void Camera::gameplayDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
 
   //once focus point & zoom have been determined, begin rendering
 
-  //adding angle into this will complicate things.
-
   sf::FloatRect view;
-  sf::Vector2f size;
-  sf::Vector2f origin;
+  sf::Vector2f size; //size of viewing frame
+  sf::Vector2f origin; //origin
   size.x = (WINDOW_WIDTH * l.getTilesize().x);
   size.y = (WINDOW_HEIGHT * l.getTilesize().y);
-  view.position = (focusPoint - (size / 2.f));
-  view.size = size;
-  origin = sf::Vector2f(view.position);
 
+  //ANGLE BREAKS THIS. I think i'll have to do these calculations manually
+  //top left of view window
+  view.position = (focusPoint - (size / 2.f));
+
+  view.size = size;
+
+  origin = sf::Vector2f(view.position);
 
   sf::Vector2f offset = static_cast<sf::Vector2f>(l.getTilesize());
 
@@ -328,20 +418,18 @@ void Camera::gameplayDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
       //apply any transforms to n;
       sf::Vector2f pos = sf::Vector2f(l.getTilesize().x * i, l.getTilesize().y * j); 
 
-
-      
       //set texture
       sf::Texture& t = assignTexture(cache, n);
       sf::Sprite s(t);
 
-      s.setPosition(zo * (pos - focusPoint) + focusPoint);
+      s.setPosition(transformAbout(pos, focusPoint, ang, zo) - origin + offset);
       s.setScale({zo, zo});
+      s.setRotation(ang);
 
-      sf::FloatRect spriteBox = s.getGlobalBounds();
+      sf::FloatRect bnd = s.getGlobalBounds();
 
       //render m to frame
-      if(view.findIntersection(spriteBox).has_value()) {
-        s.setPosition(s.getPosition() - origin + offset);
+      if(isInView(bnd)) {
         window.draw(s);
       }
     }
@@ -373,26 +461,30 @@ void Camera::gameplayDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
       continue;
     }
 
-    //factor in object's sprite offset
 
-    obj.setPosition(zo * (obj.getPos() + obj.Offset() - focusPoint) + focusPoint);
+    obj.setPosition(transformAbout(obj.getPos(), focusPoint, ang, zo) - origin+offset);
     obj.setScale(zo*obj.getScaleFactor());
+    obj.setRotation(ang);
+
+    sf::FloatRect bnd = obj.getGlobalBounds();
 
     //render m to frame
-    if(view.findIntersection(obj.getSpriteBounds()).has_value()) {
-      obj.setPosition(obj.getPosition() - origin + offset);
+    if(isInView(bnd)) {
       window.draw(obj);
     }
   }
 
 
   //render player
-  p.setPosition(zo * (p.getPos() - focusPoint) + focusPoint + p.Offset());
+
+  p.setPosition(transformAbout(p.getPos(), focusPoint, ang, zo)-origin+offset);
   p.setScale({zo, zo});
+  p.setRotation(ang);
+
+  sf::FloatRect bnd = p.getGlobalBounds();
 
   //render m to frame
-  if(view.findIntersection(p.getGlobalBounds()).has_value()) {
-    p.setPosition(p.getPosition() - origin + offset);
+  if(isInView(bnd)) {
     window.draw(p);
   }
 }
@@ -403,9 +495,10 @@ void Camera::cutsceneDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
 
   sf::Vector2f focusPoint;
   float zo;
-  float ang;
+  sf::Angle ang;
   if(inAnim) {
     //an animation is occurring, ignore config settings; use animStatus
+    //here, 
     zo = animStatus.currentScale(getScale(config));
     focusPoint = animStatus.currentPos(getFocus(config));
     ang = animStatus.currentAngle(getAngle(config));
@@ -419,6 +512,7 @@ void Camera::cutsceneDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
   else {
     focusPoint = getFocus(config);
     zo = getScale(config);
+    ang = getAngle(config);
   }
 
 
@@ -451,16 +545,16 @@ void Camera::cutsceneDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
       sf::Texture& t = assignTexture(cache, n);
       sf::Sprite s(t);
 
-      s.setPosition(zo * (pos - focusPoint) + focusPoint);
+      s.setPosition(transformAbout(pos, focusPoint, ang, zo)-origin+offset);
       s.setScale({zo, zo});
+      s.setRotation(ang);
+      sf::FloatRect bnd = s.getGlobalBounds();
 
-      sf::FloatRect spriteBox = s.getGlobalBounds();
       //decide if sprite should be rendered (if it's in the camera's view
       //verify if sprite will intersect with 'view'
 
       //render m to frame
-      if(view.findIntersection(spriteBox).has_value()) {
-        s.setPosition(s.getPosition() - origin + offset);
+      if(isInView(bnd)) {
         window.draw(s);
       }
 
@@ -490,24 +584,27 @@ void Camera::cutsceneDraw(sf::RenderWindow& window, unsigned mode, TextureCache&
 
     //factor in object's sprite offset
 
-    obj.setPosition(zo * (obj.getPos() + obj.Offset() - focusPoint) + focusPoint);
+    obj.setPosition(transformAbout(obj.getPos(), focusPoint, ang, zo)-origin+offset);
     obj.setScale(zo*obj.getScaleFactor());
+    obj.setRotation(ang);
 
+    sf::FloatRect bnd = obj.getGlobalBounds();
     //render m to frame
-    if(view.findIntersection(obj.getSpriteBounds()).has_value()) {
-      obj.setPosition(obj.getPosition() - origin + offset);
+    if(isInView(bnd)) {
       window.draw(obj);
     }
 
   }
 
-  //render player
-  p.setPosition(zo * (p.getPos() - focusPoint) + focusPoint);
-  p.setScale({zo, zo});
 
+  //render player
+  p.setPosition(transformAbout(p.getPos(), focusPoint, ang, zo)-origin+offset);
+  p.setScale({zo, zo});
+  p.setRotation(ang);
+
+  sf::FloatRect bnd = p.getGlobalBounds();
   //render m to frame
-  if(view.findIntersection(p.getGlobalBounds()).has_value()) {
-    p.setPosition(p.getPosition() - origin + offset);
+  if(isInView(bnd)) {
     window.draw(p);
   }
 
@@ -624,7 +721,7 @@ bool generateConfig(Json::Value ob, Config& c, std::string& name) {
 
   }
   else if(c.mode == Config::FollowPlayerClose) {
-    //should have zoom
+    //should have zoom, angle
     auto z = ob["zoom"];
     if(!z.isNumeric()) {
       std::cerr << "Error: non-numeric argument in numeric field\n";
@@ -640,7 +737,7 @@ bool generateConfig(Json::Value ob, Config& c, std::string& name) {
     c.angle = z.asFloat();
   }
   else if(c.mode == Config::FollowPlayerCoarse) {
-    //should have: zoom, screenSizeXY, offsetXY 
+    //should have: zoom, screenSizeXY, offsetXY, angle
     auto z = ob["zoom"];
     if(!z.isNumeric()) {
       std::cerr << "Error: non-numeric argument in numeric field\n";
@@ -675,6 +772,13 @@ bool generateConfig(Json::Value ob, Config& c, std::string& name) {
       return false;
     }
     c.offset.y = z.asFloat();
+
+    z = ob["angle"];
+    if(!z.isNumeric()) {
+      std::cerr << "Error: non-numeric argument in numeric field\n";
+      return false;
+    }
+    c.angle = z.asFloat();
   }
   return true;
 }
@@ -731,6 +835,15 @@ sf::Texture& assignTexture(TextureCache& cache, NodeBase n) {
 }
 
 
+bool Camera::isInView(sf::FloatRect obj) const {
+  //check if object is contained with view:
+
+  sf::FloatRect view{static_cast<sf::Vector2f>(l.getTilesize()), {WINDOW_WIDTH * static_cast<float>(l.getTilesize().x), WINDOW_HEIGHT * static_cast<float>(l.getTilesize().y)}};
+
+  return (view.findIntersection(obj).has_value());
+}
+
+
 float lin_inter(float origin, float d, float dist) {
   return origin + (d-origin) * dist;
 }
@@ -754,6 +867,7 @@ float revexp_inter(float origin, float fin, float dist) {
   return origin - (fin - origin) * (dist * dist - 2*dist);
 }
 
+
 sf::Vector2f lin_inter(sf::Vector2f origin, sf::Vector2f d, float dist) {
   return origin + (d-origin) * dist;
 }
@@ -768,4 +882,21 @@ sf::Vector2f exp_inter(sf::Vector2f origin, sf::Vector2f d, float dist) {
 
 sf::Vector2f revexp_inter(sf::Vector2f origin, sf::Vector2f d, float dist) {
   return sf::Vector2f(revexp_inter(origin.x, d.x, dist), revexp_inter(origin.y, d.y, dist));
+}
+
+
+sf::Angle lin_inter(sf::Angle origin, sf::Angle d, float dist) {
+  return origin + (d-origin) * dist;
+}
+
+sf::Angle log_inter(sf::Angle origin, sf::Angle d, float dist) {
+  return sf::degrees(log_inter(origin.asDegrees(), d.asDegrees(), dist));
+}
+
+sf::Angle exp_inter(sf::Angle origin, sf::Angle d, float dist) {
+  return sf::degrees(exp_inter(origin.asDegrees(), d.asDegrees(), dist));
+}
+
+sf::Angle revexp_inter(sf::Angle origin, sf::Angle d, float dist) {
+  return sf::degrees(revexp_inter(origin.asDegrees(), d.asDegrees(), dist));
 }

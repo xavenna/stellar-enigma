@@ -1,8 +1,5 @@
 #include "level/mapnode.h"
 
-NodeBase::NodeBase(unsigned n, DirectionalBool b) : id{n}, solid{b} {
-}
-
 unsigned NodeBase::getTileset() const{
   return tileset;
 }
@@ -22,6 +19,7 @@ void NodeBase::setTile(sf::Vector2i n) {
   tile = n;
 }
 NodeBase::NodeBase() {
-  id = 0;
+  tileset = 0;
+  tile = sf::Vector2i{0,0};
 }
 
